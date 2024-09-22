@@ -1,0 +1,19 @@
+.home-page {
+    min-height: 100vh;
+    background-color: #141414;
+    color: #fff;
+  }
+  
+  .logo-img {
+    max-width: 250px;
+    width: 100%;
+  }
+  
+  h1 {
+    font-size: 3rem;
+    color: #fff;
+  }
+  
+  h4 {
+    color: #d1d1d1;
+  }

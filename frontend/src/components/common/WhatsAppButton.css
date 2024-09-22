@@ -1,0 +1,19 @@
+.whatsapp-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff; /* Azul Bootstrap */
+    border-radius: 50%;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+  }
+  
+  .whatsapp-button:hover {
+    background-color: #0056b3; /* Un azul más oscuro al hacer hover */
+  }
+  
+  .whatsapp-icon {
+    width: 40px;
+    height: 40px;
+  }
