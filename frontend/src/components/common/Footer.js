@@ -37,13 +37,13 @@ function Footer() {
             <h5>Síguenos en</h5>
             <div className="d-flex justify-content-center">
               <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="mx-2">
-                <img src={FacebookIcon} alt="Facebook" width="30" height="30" />
+                <img src={FacebookIcon} alt="Facebook" width="60" height="60" />
               </a>
               <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="mx-2">
-                <img src={InstagramIcon} alt="Instagram" width="30" height="30" />
+                <img src={InstagramIcon} alt="Instagram" width="50" height="50" />
               </a>
               <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="mx-2">
-                <img src={LinkedInIcon} alt="LinkedIn" width="30" height="30" />
+                <img src={LinkedInIcon} alt="LinkedIn" width="40" height="40" />
               </a>
               <a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer" className="mx-2">
                 <img src={TwitterIcon} alt="Twitter" width="30" height="30" />

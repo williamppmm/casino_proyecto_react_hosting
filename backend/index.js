@@ -17,43 +17,34 @@ app.use(express.json());
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 // Clave secreta para JWT (asegúrate de que esté en tu archivo .env)
-const jwtSecret = process.env.JWT_SECRET || 'miclavejwtsecret';
+const jwtSecret = process.env.JWT_SECRET || 'miclavejwtsecreta';
 
 // Endpoints
 
 // Endpoint para el registro de clientes
-app.post('/api/clientes/registro', async (req, res) => {
+app.post('/api/clientes/registro-cliente', async (req, res) => {
   console.log('Datos recibidos para registro:', req.body);
 
-  const {
-    tipo_documento, numero_documento, fecha_expedicion, primer_nombre, segundo_nombre, 
-    primer_apellido, segundo_apellido, lugar_expedicion, correo_electronico, telefono_movil, 
-    user_pass, fecha_nacimiento, genero, nacionalidad, direccion, municipio, interdicto, 
-    pep, consentimiento_datos, comunicaciones_comerciales, terminos_condiciones, captcha
-  } = req.body;
-
   try {
-    // Verificar si el correo o el número de documento ya existen
-    const { data: clienteExistente, error: errorVerificacion } = await supabase
-      .from('clientes')
-      .select('*')
-      .or(`correo_electronico.eq.${correo_electronico},numero_documento.eq.${numero_documento}`);
+    // Extraer los campos necesarios del cuerpo de la solicitud
+    const {
+      tipo_documento, numero_documento, fecha_expedicion, primer_nombre, segundo_nombre,
+      primer_apellido, segundo_apellido, lugar_expedicion, correo_electronico, telefono_movil,
+      user_pass, fecha_nacimiento, genero, nacionalidad, direccion, municipio, interdicto,
+      pep, consentimiento_datos, comunicaciones_comerciales, terminos_condiciones, captcha
+    } = req.body;
 
-    if (errorVerificacion) {
-      console.error('Error en la verificación de duplicados:', errorVerificacion);
-      return res.status(500).send('Error en el servidor durante la verificación.');
+    // Verificar si el correo electrónico o número de documento ya existen en la base de datos
+    const clienteExistente = await verificarDuplicados(correo_electronico, numero_documento);
+    if (clienteExistente) {
+      return res.status(400).json({ error: 'El correo electrónico o número de documento ya están registrados.' });
     }
 
-    if (clienteExistente.length > 0) {
-      console.log('Intento de registro con correo o documento duplicado');
-      return res.status(400).send('El correo electrónico o número de documento ya están registrados.');
-    }
-
-    // Hashear la contraseña
+    // Hashear la contraseña antes de almacenarla
     const hashedPassword = await bcrypt.hash(user_pass, 10);
 
-    // Insertar nuevo cliente
-    const { data, error: errorInsercion } = await supabase
+    // Insertar el nuevo cliente en la base de datos
+    const { data: nuevoCliente, error: errorInsercion } = await supabase
       .from('clientes')
       .insert([{
         tipo_documento,
@@ -78,23 +69,45 @@ app.post('/api/clientes/registro', async (req, res) => {
         comunicaciones_comerciales,
         terminos_condiciones,
         captcha
-      }]);
+      }])
+      .select('id_cliente') // Asegurarse de que devuelva el id_cliente
+      .single();
 
     if (errorInsercion) {
       console.error('Error al registrar cliente:', errorInsercion);
       return res.status(500).send(`Error en el registro: ${errorInsercion.message}`);
     }
 
+    if (!nuevoCliente || !nuevoCliente.id_cliente) {
+      console.error('El registro fue exitoso, pero no se devolvió el id_cliente.');
+      return res.status(500).json({ error: 'Cliente registrado, pero no se devolvió el ID.' });
+    }
+
     console.log('Cliente registrado exitosamente');
-    res.status(200).send('Cliente registrado exitosamente');
+    res.status(200).json({ message: 'Cliente registrado exitosamente', id_cliente: nuevoCliente.id_cliente });
+
   } catch (error) {
-    console.error('Error general en el proceso de registro:', error);
-    res.status(500).send('Error en el servidor durante el registro.');
+    // Capturar errores inesperados y devolver un mensaje adecuado
+    console.error('Error en el proceso de registro:', error);
+    res.status(500).json({ error: 'Error en el servidor durante el registro.' });
   }
 });
 
+// Función auxiliar para verificar si ya existe un cliente con el correo o número de documento
+async function verificarDuplicados(correo, documento) {
+  const { data, error } = await supabase
+    .from('clientes')
+    .select('*')
+    .or(`correo_electronico.eq.${correo},numero_documento.eq.${documento}`);
+
+  if (error) throw error; // Si hay un error en la consulta, lo lanzamos para que el flujo principal lo maneje
+  return data.length > 0; // Devolver true si el cliente ya existe
+}
+
+
+
 // Endpoint para el login de clientes
-app.post('/api/clientes/login', async (req, res) => {
+app.post('/api/clientes/login-cliente', async (req, res) => {
   const { correo_electronico, user_pass } = req.body;
 
   console.log('Intento de login con:', correo_electronico);
