@@ -2,13 +2,16 @@
 
 import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
 import WhatsAppButton from '../../components/common/WhatsAppButton';
-import './Home.css'; // Opcional para futuros estilos personalizados
+import './Home.css';
 
 // Importa el logo desde la carpeta assets
 import logo from '../../assets/logos/logo.png';
 
 const Home = () => {
+  const navigate = useNavigate();
+
   return (
     <Container fluid className="home-page text-center d-flex align-items-center justify-content-center">
       <Row>
@@ -21,10 +24,20 @@ const Home = () => {
 
           {/* Botones interactivos */}
           <div className="mb-4">
-            <Button href="/register" variant="primary" size="lg" className="mx-2">
+            <Button 
+              onClick={() => navigate('/registro-cliente')} 
+              variant="primary" 
+              size="lg" 
+              className="mx-2"
+            >
               Registrarse
             </Button>
-            <Button href="/login" variant="secondary" size="lg" className="mx-2">
+            <Button 
+              onClick={() => navigate('/login-cliente')} 
+              variant="secondary" 
+              size="lg" 
+              className="mx-2"
+            >
               Iniciar Sesión
             </Button>
           </div>
@@ -35,13 +48,12 @@ const Home = () => {
 
           {/* Sección de promociones */}
           <h4 className="mb-3">¡No te pierdas nuestras promociones exclusivas!</h4>
-          <Button href="/promotions" variant="outline-primary" size="lg">
+          <Link to="/promociones" className="btn btn-outline-primary btn-lg">
             Ver Promociones
-          </Button>
+          </Link>
         </Col>
       </Row>
     </Container>
-    
   );
 };
 
