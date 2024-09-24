@@ -1,6 +1,7 @@
 // src/components/forms/Direccion.js
 
 import React, { useState } from 'react';
+import { Row, Col, Form } from 'react-bootstrap';
 
 const Direccion = ({ onDireccionCompleta }) => {
   const [tipoCalle, setTipoCalle] = useState('');
@@ -9,9 +10,33 @@ const Direccion = ({ onDireccionCompleta }) => {
   const [numero3, setNumero3] = useState('');
   const [complemento, setComplemento] = useState('');
 
+  const capitalizeEachWord = (str) => {
+    return str.replace(/\w+/g, function(w){return w[0].toUpperCase() + w.slice(1).toLowerCase();});
+  };
+
+  const handleInputChange = (setter, format) => (e) => {
+    let value = e.target.value;
+    switch(format) {
+      case 'uppercase':
+        value = value.toUpperCase();
+        break;
+      case 'capitalizeWords':
+        value = capitalizeEachWord(value);
+        break;
+      case 'number':
+        value = value.replace(/\D/g, '');
+        break;
+      case 'mixed':
+        break;
+      default:
+        break;
+    }
+    setter(value);
+    handleDireccionChange();
+  };
+
   const handleDireccionChange = () => {
-    const direccionCompleta = `${tipoCalle} ${numero1} # ${numero2}-${numero3} ${complemento}`;
-    // Asegúrate de que onDireccionCompleta exista antes de llamarla
+    const direccionCompleta = `${tipoCalle} ${numero1.trim()} # ${numero2.trim()}-${numero3.trim()} ${complemento.trim()}`.replace(/\s+/g, ' ').trim();
     if (typeof onDireccionCompleta === 'function') {
       onDireccionCompleta(direccionCompleta);
     } else {
@@ -20,78 +45,78 @@ const Direccion = ({ onDireccionCompleta }) => {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-10">
-      <div className="mb-4">
-        <label htmlFor="tipoCalle" className="block mb-2">Tipo de vía:</label>
-        <select
-          id="tipoCalle"
-          value={tipoCalle}
-          onChange={(e) => { setTipoCalle(e.target.value); handleDireccionChange(); }}
-          className="w-full p-2 border rounded"
-          required
-        >
-          <option value="">Seleccionar</option>
-          <option value="Calle">Calle</option>
-          <option value="Carrera">Carrera</option>
-          <option value="Avenida">Avenida</option>
-          <option value="Diagonal">Diagonal</option>
-          <option value="Transversal">Transversal</option>
-        </select>
-      </div>
+    <div>
+      <Form.Label className="mb-1">Dirección</Form.Label>
+      <Row className="g-1 align-items-center">
+        <Col xs={3} sm={2}>
+          <Form.Select
+            value={tipoCalle}
+            onChange={handleInputChange(setTipoCalle, 'mixed')}
+            required
+          >
+            <option value="">Seleccionar</option>
+            <option value="Calle">Calle</option>
+            <option value="Carrera">Carrera</option>
+            <option value="Avenida">Avenida</option>
+            <option value="Diagonal">Diagonal</option>
+            <option value="Transversal">Transversal</option>
+          </Form.Select>
+        </Col>
 
-      <div className="mb-4">
-      <label htmlFor="numero1" className="block mb-2">&nbsp;</label>
-        <input
-          type="text"
-          id="numero1"
-          value={numero1}
-          onChange={(e) => { setNumero1(e.target.value); handleDireccionChange(); }}
-          className="w-full p-2 border rounded"
-          required
-          maxLength="6"
-          placeholder="34A"
-        />
-      </div>
+        <Col xs={2} sm={1}>
+          <Form.Control
+            type="text"
+            value={numero1}
+            onChange={handleInputChange(setNumero1, 'uppercase')}
+            required
+            maxLength="6"
+            placeholder="15E"
+          />
+        </Col>
 
-      <div className="mb-4">
-      <label htmlFor="numero1" className="block mb-2">&nbsp;#&nbsp;</label>
-        <input
-          type="text"
-          id="numero2"
-          value={numero2}
-          onChange={(e) => { setNumero2(e.target.value); handleDireccionChange(); }}
-          className="w-full p-2 border rounded"
-          required
-          maxLength="6"
-          placeholder="45C"
-        />
-      </div>
+        <Col xs="auto" className="px-0">
+          <span className="mx-1">#</span>
+        </Col>
 
-      <div className="mb-4">
-      <label htmlFor="numero1" className="block mb-2">&nbsp;-&nbsp;</label>
-        <input
-          type="number"
-          id="numero3"
-          value={numero3}
-          onChange={(e) => { setNumero3(e.target.value); handleDireccionChange(); }}
-          className="w-full p-2 border rounded"
-          required
-          max="999"
-          placeholder="187"
-        />
-      </div>
+        <Col xs={2} sm={1}>
+          <Form.Control
+            type="text"
+            value={numero2}
+            onChange={handleInputChange(setNumero2, 'uppercase')}
+            required
+            maxLength="6"
+            placeholder="12A"
+          />
+        </Col>
 
-      <div className="mb-4">
-      <label htmlFor="numero1" className="block mb-2">&nbsp;Barrio&nbsp;</label>
-        <input
-          type="text"
-          id="complemento"
-          value={complemento}
-          onChange={(e) => { setComplemento(e.target.value); handleDireccionChange(); }}
-          className="w-full p-2 border rounded"
-          placeholder="San Vicente"
-        />
-      </div>
+        <Col xs="auto" className="px-0">
+          <span className="mx-1">-</span>
+        </Col>
+
+        <Col xs={2} sm={1}>
+          <Form.Control
+            type="text"
+            value={numero3}
+            onChange={handleInputChange(setNumero3, 'number')}
+            required
+            maxLength="3"
+            placeholder="32"
+          />
+        </Col>
+
+        <Col xs="auto">
+          <span className="ms-2 me-1">Barrio</span>
+        </Col>
+
+        <Col xs={12} sm={4}>
+          <Form.Control
+            type="text"
+            value={complemento}
+            onChange={handleInputChange(setComplemento, 'capitalizeWords')}
+            placeholder="José María"
+          />
+        </Col>
+      </Row>
     </div>
   );
 };

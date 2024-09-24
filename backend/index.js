@@ -1,15 +1,46 @@
 // backend/index.js
 
+// Cargar variables de entorno
 require('dotenv').config();
-const express = require('express');
-const bcrypt = require('bcrypt');
-const cors = require('cors');
-const { createClient } = require('@supabase/supabase-js');
-const jwt = require('jsonwebtoken');
 
+// logs para verificar que se están cargando correctamente
+
+console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
+console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY);
+console.log('JWT_SECRET:', process.env.JWT_SECRET);
+console.log('RECAPTCHA_SECRET_KEY:', process.env.RECAPTCHA_SECRET_KEY);
+
+
+// función para que oculte parte de la cadena, en producción
+// function ocultarInfo(str, visibleChars = 4) {
+//   if (!str) return 'undefined';
+//   if (str.length <= visibleChars * 2) return '*'.repeat(str.length);
+//   return str.substr(0, visibleChars) + '*'.repeat(str.length - visibleChars * 2) + str.substr(-visibleChars);
+// }
+
+// console.log('SUPABASE_URL:', ocultarInfo(process.env.SUPABASE_URL, 10));
+// console.log('SUPABASE_ANON_KEY:', ocultarInfo(process.env.SUPABASE_ANON_KEY));
+// console.log('JWT_SECRET:', ocultarInfo(process.env.JWT_SECRET));
+// console.log('RECAPTCHA_SECRET_KEY:', ocultarInfo(process.env.RECAPTCHA_SECRET_KEY));
+
+// Framework para crear aplicaciones web con Node.js // npm install express
+const express = require('express');
+// Backend: Librería para el hashing de contraseñas // npm install bcrypt
+const bcrypt = require('bcrypt');
+// Backend: Middleware para habilitar CORS en Express // npm install cors
+const cors = require('cors');
+// Backend: Cliente de Supabase para Node.js // npm install @supabase/supabase-js
+const { createClient } = require('@supabase/supabase-js');
+// Backend: Para generar y verificar tokens JWT // npm install jsonwebtoken
+const jwt = require('jsonwebtoken');
+// Importar el módulo axios para realizar peticiones HTTP // npm install axios
+const axios = require('axios');
+
+// Crear una instancia de la aplicación Express
 const app = express();
 const port = 5000;
 
+// Configurar middlewares
 app.use(cors());
 app.use(express.json());
 
@@ -19,6 +50,22 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANO
 // Clave secreta para JWT (asegúrate de que esté en tu archivo .env)
 const jwtSecret = process.env.JWT_SECRET || 'miclavejwtsecreta';
 
+// Clave secreta de reCAPTCHA (asegúrate de agregarla a tu archivo .env)
+const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY;
+
+// Función para verificar el token de reCAPTCHA
+async function verificarReCaptcha(token) {
+  try {
+    const response = await axios.post(
+      `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET_KEY}&response=${token}`
+    );
+    return response.data.success;
+  } catch (error) {
+    console.error('Error al verificar reCAPTCHA:', error);
+    return false;
+  }
+}
+
 // Endpoints
 
 // Endpoint para el registro de clientes
@@ -26,6 +73,11 @@ app.post('/api/clientes/registro-cliente', async (req, res) => {
   console.log('Datos recibidos para registro:', req.body);
 
   try {
+    // Verificar el token de reCAPTCHA
+    const reCaptchaValido = await verificarReCaptcha(req.body.captcha);
+    if (!reCaptchaValido) {
+      return res.status(400).json({ error: 'Verificación de reCAPTCHA fallida' });
+    }
     // Extraer los campos necesarios del cuerpo de la solicitud
     const {
       tipo_documento, numero_documento, fecha_expedicion, primer_nombre, segundo_nombre,
@@ -67,8 +119,7 @@ app.post('/api/clientes/registro-cliente', async (req, res) => {
         pep,
         consentimiento_datos,
         comunicaciones_comerciales,
-        terminos_condiciones,
-        captcha
+        terminos_condiciones
       }])
       .select('id_cliente') // Asegurarse de que devuelva el id_cliente
       .single();
