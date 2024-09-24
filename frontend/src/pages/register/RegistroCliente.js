@@ -247,12 +247,32 @@ export default function RegistroClientes() {
                 onConfirmEmailChange={setConfirmEmail}
               />
 
-              <PasswordInput
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                confirmValue={confirmPassword}
-                onConfirmChange={(e) => setConfirmPassword(e.target.value)}
-              />
+              <Row className="mb-2">
+                <Col md={6}>
+                  <PasswordInput
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    name="user_pass"
+                    label="Contraseña"
+                  />
+                </Col>
+                <Col md={6}>
+                  <PasswordInput
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    name="confirm_user_pass"
+                    label="Confirmar Contraseña"
+                  />
+                </Col>
+              </Row>
+              
+              <Row className="mb-4">
+                <Col>
+                  <p className="text-white small">
+                    La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y un carácter especial.
+                  </p>
+                </Col>
+              </Row>
 
               <Row className="mb-4">
                 <Col md={4}>
@@ -316,6 +336,7 @@ export default function RegistroClientes() {
                   </Form.Group>
                 </Col>
               </Row>
+
               <Row className="mb-3">
                 <Col>
                   <Form.Check
@@ -328,6 +349,7 @@ export default function RegistroClientes() {
                   />
                 </Col>
               </Row>
+
               <Row className="mb-3">
                 <Col>
                   <Form.Check
@@ -340,6 +362,7 @@ export default function RegistroClientes() {
                   />
                 </Col>
               </Row>
+
               <Row className="mb-3">
                 <Col>
                   <Form.Check
@@ -353,6 +376,7 @@ export default function RegistroClientes() {
                   />
                 </Col>
               </Row>
+
               <Row className="mb-3">
                 <Col>
                   <Form.Check
@@ -365,6 +389,7 @@ export default function RegistroClientes() {
                   />
                 </Col>
               </Row>
+
               <Row className="mb-4">
                 <Col>
                   <Form.Check
@@ -378,6 +403,7 @@ export default function RegistroClientes() {
                   />
                 </Col>
               </Row>
+
               <Row className="mb-4">
                 <Col>
                   <ReCaptcha onChange={handleCaptchaChange} />

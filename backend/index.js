@@ -193,6 +193,8 @@ app.post('/api/clientes/login-cliente', async (req, res) => {
         id_cliente: cliente.id_cliente,
         correo_electronico: cliente.correo_electronico,
         primer_nombre: cliente.primer_nombre,
+        segundo_nombre: cliente.segundo_nombre,
+        primer_apellido: cliente.primer_apellido,
       },
       jwtSecret,
       { expiresIn: '1h' } // El token expira en 1 hora
@@ -208,6 +210,8 @@ app.post('/api/clientes/login-cliente', async (req, res) => {
         id_cliente: cliente.id_cliente,
         correo_electronico: cliente.correo_electronico,
         primer_nombre: cliente.primer_nombre,
+        segundo_nombre: cliente.segundo_nombre,
+        primer_apellido: cliente.primer_apellido,
       }
     });
   } catch (err) {
