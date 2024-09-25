@@ -307,6 +307,11 @@ app.post('/api/clientes/login-cliente', async (req, res) => {
 // });
 
 // Iniciar el servidor
-app.listen(port, () => {
-  console.log(`Servidor backend escuchando en http://localhost:${port}`);
+// Servidor inicial
+// app.listen(port, () => {
+//   console.log(`Servidor backend escuchando en http://localhost:${port}`);
+// });
+// Servidor en producción
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Servidor backend escuchando en el puerto ${port}`);
 });
