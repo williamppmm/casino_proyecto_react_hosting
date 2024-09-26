@@ -1,15 +1,13 @@
 // backend/index.js
 
+// backend/index.js
+
 // Cargar variables de entorno
 require('dotenv').config();
 
-// logs para verificar que se están cargando correctamente
-
-// console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
-// console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY);
-// console.log('JWT_SECRET:', process.env.JWT_SECRET);
-// console.log('RECAPTCHA_SECRET_KEY:', process.env.RECAPTCHA_SECRET_KEY);
-
+// Detectar si el entorno es producción
+const isProduction = process.env.NODE_ENV === 'production';
+const isTest = process.env.NODE_ENV === 'test'; // Detectar si estamos en entorno de pruebas
 
 // función para que oculte parte de la cadena, en producción
 function ocultarInfo(str, visibleChars = 4) {
@@ -21,78 +19,71 @@ function ocultarInfo(str, visibleChars = 4) {
 console.log('SUPABASE_URL:', ocultarInfo(process.env.SUPABASE_URL, 10));
 console.log('SUPABASE_ANON_KEY:', ocultarInfo(process.env.SUPABASE_ANON_KEY));
 console.log('JWT_SECRET:', ocultarInfo(process.env.JWT_SECRET));
-console.log('RECAPTCHA_SECRET_KEY:', ocultarInfo(process.env.RECAPTCHA_SECRET_KEY));
 
-// Framework para crear aplicaciones web con Node.js // npm install express
+// Framework para crear aplicaciones web con Node.js
 const express = require('express');
-// Backend: Librería para el hashing de contraseñas // npm install bcrypt
 const bcrypt = require('bcrypt');
-// Backend: Middleware para habilitar CORS en Express // npm install cors
 const cors = require('cors');
-// Backend: Cliente de Supabase para Node.js // npm install @supabase/supabase-js
 const { createClient } = require('@supabase/supabase-js');
-// Backend: Para generar y verificar tokens JWT // npm install jsonwebtoken
 const jwt = require('jsonwebtoken');
-// Importar el módulo axios para realizar peticiones HTTP // npm install axios
-const axios = require('axios');
 
 // Crear una instancia de la aplicación Express
 const app = express();
-// puerto utilizado en local al inicio del proyecto
-// const port = 5000;
-// MODIFICADO: Uso de variable de entorno para el puerto al desplegar en Vercel
 const port = process.env.PORT || 5000;
 
 // Configuración de CORS
-// Framework web inicial al inicio del proyecto
-// app.use(cors());
-// MODIFICADO: Configuración de CORS más específica para producción
+const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:3000'];
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // URL del frontend
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'El CORS ha bloqueado este origen: ' + origin;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-// Middleware para parsear JSON en el cuerpo de las solicitudes
+
+// Middleware para parsear JSON
 app.use(express.json());
 
 // Configuración de Supabase
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
-
-// Clave secreta inicial para JWT (Debe estar en .env)
-// const jwtSecret = process.env.JWT_SECRET || 'miclavejwtsecreta';
-// MODIFICADO: Uso exclusivo de variable de entorno para JWT_SECRET
 const jwtSecret = process.env.JWT_SECRET;
 
-// Clave secreta de reCAPTCHA (Debe estar en .env)
-const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY;
-
-// Función para verificar el token de reCAPTCHA
-async function verificarReCaptcha(token) {
+// Función auxiliar para verificar si ya existe un cliente con el correo o número de documento
+async function verificarDuplicados(correo, documento) {
   try {
-    const response = await axios.post(
-      `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET_KEY}&response=${token}`
-    );
-    return response.data.success;
+    // Verificar si el correo existe
+    const { data: clienteCorreo, error: errorCorreo } = await supabase
+      .from('clientes')
+      .select('id_cliente')
+      .filter('correo_electronico', 'eq', correo);
+
+    if (errorCorreo) throw errorCorreo;
+    
+    // Verificar si el documento existe
+    const { data: clienteDocumento, error: errorDocumento } = await supabase
+      .from('clientes')
+      .select('id_cliente')
+      .filter('numero_documento', 'eq', documento);
+
+    if (errorDocumento) throw errorDocumento;
+
+    // Si encuentra algún duplicado en cualquiera de las dos consultas, retorna verdadero
+    return clienteCorreo.length > 0 || clienteDocumento.length > 0;
   } catch (error) {
-    console.error('Error al verificar reCAPTCHA:', error);
-    return false;
+    throw error;
   }
 }
 
-// Endpoints
-
 // Endpoint para el registro de clientes
-// MODIFICADO: Uso de async/await en todos los endpoints para consistencia
 app.post('/api/clientes/registro-cliente', async (req, res) => {
   console.log('Datos recibidos para registro:', req.body);
 
   try {
-    // Verificar el token de reCAPTCHA
-    const reCaptchaValido = await verificarReCaptcha(req.body.captcha);
-    if (!reCaptchaValido) {
-      return res.status(400).json({ error: 'Verificación de reCAPTCHA fallida' });
-    }
-    // Extraer los campos necesarios del cuerpo de la solicitud
     const {
       tipo_documento, numero_documento, fecha_expedicion, primer_nombre, segundo_nombre,
       primer_apellido, segundo_apellido, lugar_expedicion, correo_electronico, telefono_movil,
@@ -100,16 +91,12 @@ app.post('/api/clientes/registro-cliente', async (req, res) => {
       pep, consentimiento_datos, comunicaciones_comerciales, terminos_condiciones
     } = req.body;
 
-    // Verificar si el correo electrónico o número de documento ya existen en la base de datos
     const clienteExistente = await verificarDuplicados(correo_electronico, numero_documento);
     if (clienteExistente) {
       return res.status(400).json({ error: 'El correo electrónico o número de documento ya están registrados.' });
     }
 
-    // Hashear la contraseña antes de almacenarla
     const hashedPassword = await bcrypt.hash(user_pass, 10);
-
-    // Insertar el nuevo cliente en la base de datos
     const { data: nuevoCliente, error: errorInsercion } = await supabase
       .from('clientes')
       .insert([{
@@ -135,12 +122,12 @@ app.post('/api/clientes/registro-cliente', async (req, res) => {
         comunicaciones_comerciales,
         terminos_condiciones
       }])
-      .select('id_cliente') // Asegurarse de que devuelva el id_cliente
+      .select('id_cliente')
       .single();
 
     if (errorInsercion) {
       console.error('Error al registrar cliente:', errorInsercion);
-      return res.status(500).send(`Error en el registro: ${errorInsercion.message}`);
+      return res.status(500).json({ error: isProduction ? 'Error en el servidor durante el registro.' : `Error en el registro: ${errorInsercion.message}` });
     }
 
     if (!nuevoCliente || !nuevoCliente.id_cliente) {
@@ -153,30 +140,16 @@ app.post('/api/clientes/registro-cliente', async (req, res) => {
 
   } catch (error) {
     console.error('Error en el proceso de registro:', error);
-    res.status(500).json({ error: 'Error en el servidor durante el registro.' });
+    res.status(500).json({ error: isProduction ? 'Error en el servidor durante el registro.' : `Error en el servidor: ${error.message}` });
   }
 });
-
-// Función auxiliar para verificar si ya existe un cliente con el correo o número de documento
-async function verificarDuplicados(correo, documento) {
-  const { data, error } = await supabase
-    .from('clientes')
-    .select('*')
-    .or(`correo_electronico.eq.${correo},numero_documento.eq.${documento}`);
-
-  if (error) throw error; // Si hay un error en la consulta, lo lanzamos para que el flujo principal lo maneje
-  return data.length > 0; // Devolver true si el cliente ya existe
-}
-
 
 // Endpoint para el login de clientes
 app.post('/api/clientes/login-cliente', async (req, res) => {
   const { correo_electronico, user_pass } = req.body;
-
   console.log('Intento de login con:', correo_electronico);
 
   try {
-    // Buscar al cliente por correo electrónico
     const { data: cliente, error } = await supabase
       .from('clientes')
       .select('*')
@@ -185,21 +158,18 @@ app.post('/api/clientes/login-cliente', async (req, res) => {
 
     if (error) {
       console.error('Error al buscar cliente:', error);
-      return res.status(500).json({ error: 'Error en el servidor al buscar cliente' });
+      return res.status(500).json({ error: isProduction ? 'Error en el servidor' : `Error: ${error.message}` });
     }
 
     if (!cliente) {
-      // Si no se encuentra el cliente
       return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
     }
 
-    // Comparar contraseñas
     const isMatch = await bcrypt.compare(user_pass, cliente.user_pass);
     if (!isMatch) {
       return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
     }
 
-    // Generar un token JWT con la información del cliente
     const token = jwt.sign(
       {
         id_cliente: cliente.id_cliente,
@@ -209,12 +179,11 @@ app.post('/api/clientes/login-cliente', async (req, res) => {
         primer_apellido: cliente.primer_apellido,
       },
       jwtSecret,
-      { expiresIn: '1h' } // El token expira en 1 hora
+      { expiresIn: '1h' }
     );
 
     console.log('Login exitoso, token generado:', token);
 
-    // Devolver el token y algunos datos del cliente
     res.status(200).json({
       message: 'Login exitoso',
       token,
@@ -226,14 +195,13 @@ app.post('/api/clientes/login-cliente', async (req, res) => {
         primer_apellido: cliente.primer_apellido,
       }
     });
-  } catch (err) {
-    console.error('Error en el login:', err);
-    res.status(500).json({ error: 'Error en el servidor al realizar el login' });
+  } catch (error) {
+    console.error('Error en el login:', error);
+    res.status(500).json({ error: isProduction ? 'Error en el servidor durante el login.' : `Error en el servidor: ${error.message}` });
   }
 });
 
-
-/// Consultas de prueba quedaran al final del script
+// Consultas de prueba quedaran al final del script
 // Obtener todos los clientes
 // app.get('/api/clientes', async (req, res) => {
 //   console.log("Obteniendo todos los clientes...");
@@ -311,7 +279,11 @@ app.post('/api/clientes/login-cliente', async (req, res) => {
 // app.listen(port, () => {
 //   console.log(`Servidor backend escuchando en http://localhost:${port}`);
 // });
-// Servidor en producción
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor backend escuchando en el puerto ${port}`);
-});
+/// Iniciar el servidor solo si no estamos en modo test
+if (!isTest) {
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`Servidor backend escuchando en el puerto ${port}`);
+  });
+}
+
+module.exports = app; // Exportamos la app para las pruebas

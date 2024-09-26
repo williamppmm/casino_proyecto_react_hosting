@@ -10,7 +10,8 @@ const PasswordInput = ({
   confirmValue, 
   onConfirmChange, 
   name = "user_pass",
-  label = "Contraseña"
+  label = "Contraseña",
+  autoComplete = "current-password"
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -36,6 +37,7 @@ const PasswordInput = ({
               required
               isValid={isPasswordValid}
               isInvalid={value && !isPasswordValid}
+              autoComplete={autoComplete}
             />
             <Button
               variant="outline-secondary"

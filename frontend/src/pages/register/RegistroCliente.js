@@ -3,9 +3,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Container, Row, Col, Alert, Card } from 'react-bootstrap';
-import axios from 'axios';
+import { registerCliente } from '../../services/api'; // Importa la función de registro
 import Direccion from '../../components/forms/Direccion';
-import ReCaptcha from '../../components/forms/ReCaptcha';
 import DatePicker from '../../components/forms/DatePicker';
 import PasswordInput from '../../components/forms/PasswordInput';
 import EmailInput from '../../components/forms/EmailInput';
@@ -32,10 +31,11 @@ export default function RegistroClientes() {
     pep: false,
     consentimiento_datos: false,
     comunicaciones_comerciales: false,
-    terminos_condiciones: false,
-    captcha: false
+    terminos_condiciones: false
+    // captcha: false // problemas de implementación lo eliminé
   });
 
+  const [phoneError, setPhoneError] = useState("");
   const [email, setEmail] = useState('');
   const [confirmEmail, setConfirmEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,16 +46,27 @@ export default function RegistroClientes() {
     const { name, value, type, checked } = e.target;
     let newValue = value;
 
-    if (['primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido', 'lugar_expedicion', 'municipio'].includes(name)) {
+    if (name === 'telefono_movil') {
+      newValue = value.replace(/\D/g, '').slice(0, 10);
+      validatePhoneNumber(newValue);
+    } else if (['primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido', 'lugar_expedicion', 'municipio'].includes(name)) {
       newValue = value.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
     } else if (type !== "checkbox") {
       newValue = value.toUpperCase();
     }
-
+    
     setFormValues({
       ...formValues,
       [name]: type === "checkbox" ? checked : newValue
     });
+  };
+
+  const validatePhoneNumber = (phoneNumber) => {
+    if (phoneNumber.length !== 10) {
+      setPhoneError("El número de teléfono debe contener exactamente 10 dígitos.");
+    } else {
+      setPhoneError("");
+    }
   };
 
   const handleDireccionChange = (direccionCompleta) => {
@@ -65,12 +76,12 @@ export default function RegistroClientes() {
     });
   };
 
-  const handleCaptchaChange = (value) => {
-    setFormValues({
-      ...formValues,
-      captcha: value
-    });
-  };
+  // const handleCaptchaChange = (value) => {
+  //   setFormValues({
+  //     ...formValues,
+  //     captcha: value
+  //   });
+  // };
 
   const validateForm = () => {
     if (email !== confirmEmail) {
@@ -85,10 +96,10 @@ export default function RegistroClientes() {
       setError("Debes aceptar el uso de datos y los términos y condiciones");
       return false;
     }
-    if (!formValues.captcha) {
-      setError("Por favor, completa el reCAPTCHA");
-      return false;
-    }
+    // if (!formValues.captcha) {
+    //   setError("Por favor, completa el reCAPTCHA");
+    //   return false;
+    // }
     setError("");
     return true;
   };
@@ -103,15 +114,26 @@ export default function RegistroClientes() {
       user_pass: password
     };
 
-    try {
-      const response = await axios.post('http://localhost:5000/api/clientes/registro-cliente', datosParaEnviar);
+    // try {
+    //   const response = await axios.post('http://localhost:5000/api/clientes/registro-cliente', datosParaEnviar);
+      
+    //   if (response.status === 200) {
+    //     alert("Registro exitoso");
+    //     navigate('/login-cliente');
+    //   }
+    // } catch (error) {
+    //   setError(error.response?.data?.error || "Error en el registro");
+    // }
 
-      if (response.status === 200) {
+    try {
+      const response = await registerCliente(datosParaEnviar);
+
+      if (response.message === "Cliente registrado exitosamente") {
         alert("Registro exitoso");
         navigate('/login-cliente');
       }
     } catch (error) {
-      setError(error.response?.data?.error || "Error en el registro");
+      setError(error || "Error en el registro");
     }
   };
 
@@ -233,9 +255,12 @@ export default function RegistroClientes() {
                       name="telefono_movil"
                       value={formValues.telefono_movil}
                       onChange={handleInputChange}
+                      isInvalid={!!phoneError}
                       required
-                      pattern="\d{10}"
                     />
+                    <Form.Control.Feedback type="invalid">
+                      {phoneError}
+                    </Form.Control.Feedback>
                   </Form.Group>
                 </Col>
               </Row>
@@ -245,6 +270,7 @@ export default function RegistroClientes() {
                 confirmEmail={confirmEmail}
                 onEmailChange={setEmail}
                 onConfirmEmailChange={setConfirmEmail}
+                autoComplete="email"
               />
 
               <Row className="mb-2">
@@ -254,6 +280,7 @@ export default function RegistroClientes() {
                     onChange={(e) => setPassword(e.target.value)}
                     name="user_pass"
                     label="Contraseña"
+                    autoComplete="new-password"
                   />
                 </Col>
                 <Col md={6}>
@@ -262,6 +289,7 @@ export default function RegistroClientes() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     name="confirm_user_pass"
                     label="Confirmar Contraseña"
+                    autoComplete="new-password"
                   />
                 </Col>
               </Row>
@@ -404,11 +432,11 @@ export default function RegistroClientes() {
                 </Col>
               </Row>
 
-              <Row className="mb-4">
+              {/* <Row className="mb-4">
                 <Col>
                   <ReCaptcha onChange={handleCaptchaChange} />
                 </Col>
-              </Row>
+              </Row> */}
 
               <Row>
                 <Col className="text-center">

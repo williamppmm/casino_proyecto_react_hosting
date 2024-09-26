@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Container, Row, Col, Alert, Card } from "react-bootstrap";
-import axios from "axios";
+import { loginCliente } from "../../services/api"; // Importar la función de login desde api.js
 import PasswordInput from "../../components/forms/PasswordInput"; // Componente para ocultar/mostrar contraseña
 
 export default function LoginCliente() {
@@ -33,17 +33,15 @@ export default function LoginCliente() {
     setLoading(true); // Mostrar el indicador de carga
 
     try {
-      const response = await axios.post("http://localhost:5000/api/clientes/login-cliente", {
-        correo_electronico: email,
-        user_pass: password,
-      });
+      // Usar la función loginCliente desde services/api.js
+      const response = await loginCliente(email, password);
 
-      if (response.status === 200) {
+      if (response) {
         // Si el login es exitoso, redirigir al dashboard del cliente
         navigate("/dashboard-cliente");
       }
     } catch (error) {
-      setError(error.response?.data?.error || "Error al iniciar sesión.");
+      setError(error || "Error al iniciar sesión.");
     } finally {
       setLoading(false); // Ocultar el indicador de carga
     }
@@ -66,13 +64,15 @@ export default function LoginCliente() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                  pattern="[a-z0-9.!#$%&'*+/=?]+@[a-z0-9.-]+\.[a-z]{2,4}"
+                  autoComplete="email" // Corregido
                 />
               </Form.Group>
 
               <PasswordInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
               />
 
               <Row className="mt-4">
