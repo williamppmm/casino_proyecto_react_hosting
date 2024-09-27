@@ -1,7 +1,7 @@
 // src/pages/login/LoginCliente.js
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Form, Button, Container, Row, Col, Alert, Card } from "react-bootstrap";
 import { loginCliente } from "../../services/api"; // Importar la función de login desde api.js
 import PasswordInput from "../../components/forms/PasswordInput"; // Componente para ocultar/mostrar contraseña
@@ -87,6 +87,9 @@ export default function LoginCliente() {
                   <Button variant="link" className="text-light" onClick={() => navigate("/registro-cliente")}>
                     ¿No tienes cuenta? Regístrate aquí
                   </Button>
+                  <p className="text-light">
+                    <Link to="/" className="text-secondary">Volver al inicio</Link>
+                  </p>
                 </Col>
               </Row>
             </Form>

@@ -1,3 +1,4 @@
 node_modules
 .env
-.env.development
+frontend/.env.development
+backend/.env.development

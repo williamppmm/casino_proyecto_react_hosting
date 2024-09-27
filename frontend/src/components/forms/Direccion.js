@@ -48,7 +48,7 @@ const Direccion = ({ onDireccionCompleta }) => {
     <div>
       <Form.Label className="mb-1">Dirección</Form.Label>
       <Row className="g-1 align-items-center">
-        <Col xs={3} sm={2}>
+        <Col xs={3} sm={3}>
           <Form.Select
             value={tipoCalle}
             onChange={handleInputChange(setTipoCalle, 'mixed')}
@@ -70,7 +70,7 @@ const Direccion = ({ onDireccionCompleta }) => {
             onChange={handleInputChange(setNumero1, 'uppercase')}
             required
             maxLength="6"
-            placeholder="15E"
+            placeholder="25A"
           />
         </Col>
 
@@ -85,7 +85,7 @@ const Direccion = ({ onDireccionCompleta }) => {
             onChange={handleInputChange(setNumero2, 'uppercase')}
             required
             maxLength="6"
-            placeholder="12A"
+            placeholder="2C"
           />
         </Col>
 
@@ -113,7 +113,7 @@ const Direccion = ({ onDireccionCompleta }) => {
             type="text"
             value={complemento}
             onChange={handleInputChange(setComplemento, 'capitalizeWords')}
-            placeholder="José María"
+            placeholder="Cristóbal Colón"
           />
         </Col>
       </Row>

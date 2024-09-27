@@ -1,7 +1,7 @@
 // src/components/common/Navbar.js
 
 // Importaciones necesarias
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
 
@@ -9,8 +9,19 @@ function NavigationBar() {
   // Obtener la ruta actual para resaltar la página activa
   const location = useLocation();
 
+  // Estado para controlar si el menú está expandido o no
+  const [expanded, setExpanded] = useState(false);
+
   return (
-    <Navbar bg="primary" variant="dark" expand="lg" fixed="top">
+    <Navbar
+      bg="primary"
+      variant="dark"
+      expand="lg"
+      fixed="top"
+      expanded={expanded}
+      onMouseEnter={() => setExpanded(true)} // Expandir al pasar el puntero
+      onMouseLeave={() => setExpanded(false)} // Contraer al salir el puntero
+    >
       <Container>
         {/* Logo y título del casino */}
         <Navbar.Brand as={Link} to="/">
@@ -25,7 +36,10 @@ function NavigationBar() {
         </Navbar.Brand>
 
         {/* Botón de toggle para móviles */}
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Toggle
+          aria-controls="basic-navbar-nav"
+          onClick={() => setExpanded(!expanded)} // Alternar estado en móviles
+        />
 
         {/* Enlaces de navegación */}
         <Navbar.Collapse id="basic-navbar-nav">

@@ -1,7 +1,7 @@
 // src/pages/register/RegistroCliente.js
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Form, Button, Container, Row, Col, Alert, Card } from 'react-bootstrap';
 import { registerCliente } from '../../services/api'; // Importa la función de registro
 import Direccion from '../../components/forms/Direccion';
@@ -418,6 +418,18 @@ export default function RegistroClientes() {
                   <Button type="submit" variant="primary" className="px-5 py-2 btn-lg">
                     Registrarse
                   </Button>
+                </Col>
+              </Row>
+
+              {/* Opciones de navegación actualizadas */}
+              <Row className="mt-4">
+                <Col className="text-center">
+                  <p className="text-light">
+                    ¿Ya tienes una cuenta? <Link to="/login-cliente" className="text-primary">Iniciar sesión</Link>
+                  </p>
+                  <p className="text-light">
+                    <Link to="/" className="text-secondary">Volver al inicio</Link>
+                  </p>
                 </Col>
               </Row>
             </Form>
