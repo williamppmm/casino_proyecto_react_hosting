@@ -7,8 +7,8 @@ import { loginCliente } from "../../services/api"; // Importar la función de lo
 import PasswordInput from "../../components/forms/PasswordInput"; // Componente para ocultar/mostrar contraseña
 
 export default function LoginCliente() {
+  
   const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -64,7 +64,6 @@ export default function LoginCliente() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  pattern="[a-z0-9.!#$%&'*+/=?]+@[a-z0-9.-]+\.[a-z]{2,4}"
                   autoComplete="email" // Corregido
                 />
               </Form.Group>

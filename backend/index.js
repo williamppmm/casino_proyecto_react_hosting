@@ -1,13 +1,15 @@
 // backend/index.js
 
-// backend/index.js
-
 // Cargar variables de entorno
 require('dotenv').config();
 
 // Detectar si el entorno es producción
 const isProduction = process.env.NODE_ENV === 'production';
 const isTest = process.env.NODE_ENV === 'test'; // Detectar si estamos en entorno de pruebas
+
+// console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
+// console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY);
+// console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
 // función para que oculte parte de la cadena, en producción
 function ocultarInfo(str, visibleChars = 4) {
@@ -21,6 +23,7 @@ console.log('SUPABASE_ANON_KEY:', ocultarInfo(process.env.SUPABASE_ANON_KEY));
 console.log('JWT_SECRET:', ocultarInfo(process.env.JWT_SECRET));
 
 // Framework para crear aplicaciones web con Node.js
+const compression = require('compression')
 const express = require('express');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
@@ -32,20 +35,27 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Configuración de CORS
-const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:3000'];
+const allowedOrigins = [
+  process.env.FRONTEND_URL, // Agregado desde la variable de entorno
+  'http://localhost:3000', // Permitir desarrollo local
+  'https://casino-la-fortuna-ioubn1da4-william-perezs-projects-827fb858.vercel.app' // Asegúrate de incluir el dominio de Vercel
+];
+
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
+    // Permitir solicitudes sin origin (por ejemplo, Postman) o verificar si el origin está en la lista permitida
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
       const msg = 'El CORS ha bloqueado este origen: ' + origin;
-      return callback(new Error(msg), false);
+      callback(new Error(msg), false);
     }
-    return callback(null, true);
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+app.use(compression());
 // Middleware para parsear JSON
 app.use(express.json());
 
@@ -91,11 +101,13 @@ app.post('/api/clientes/registro-cliente', async (req, res) => {
       pep, consentimiento_datos, comunicaciones_comerciales, terminos_condiciones
     } = req.body;
 
+    // Verificar si el cliente ya existe
     const clienteExistente = await verificarDuplicados(correo_electronico, numero_documento);
     if (clienteExistente) {
       return res.status(400).json({ error: 'El correo electrónico o número de documento ya están registrados.' });
     }
 
+    // Hash de la contraseña
     const hashedPassword = await bcrypt.hash(user_pass, 10);
     const { data: nuevoCliente, error: errorInsercion } = await supabase
       .from('clientes')
@@ -144,32 +156,38 @@ app.post('/api/clientes/registro-cliente', async (req, res) => {
   }
 });
 
+
 // Endpoint para el login de clientes
 app.post('/api/clientes/login-cliente', async (req, res) => {
   const { correo_electronico, user_pass } = req.body;
   console.log('Intento de login con:', correo_electronico);
 
   try {
+    // Buscar al cliente en la base de datos de Supabase
     const { data: cliente, error } = await supabase
       .from('clientes')
-      .select('*')
+      .select('id_cliente, correo_electronico, user_pass, primer_nombre, segundo_nombre, primer_apellido')
       .eq('correo_electronico', correo_electronico)
-      .single();
+      .maybeSingle(); // Usa maybeSingle para evitar errores innecesarios
 
+    // Si hay un error en la consulta
     if (error) {
-      console.error('Error al buscar cliente:', error);
-      return res.status(500).json({ error: isProduction ? 'Error en el servidor' : `Error: ${error.message}` });
+      console.error('Error al buscar cliente:', error.message);
+      return res.status(500).json({ error: 'Error en el servidor al buscar cliente' });
     }
 
+    // Si no se encuentra el cliente
     if (!cliente) {
       return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
     }
 
+    // Comparar las contraseñas
     const isMatch = await bcrypt.compare(user_pass, cliente.user_pass);
     if (!isMatch) {
       return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
     }
 
+    // Generar el token JWT
     const token = jwt.sign(
       {
         id_cliente: cliente.id_cliente,
@@ -184,6 +202,7 @@ app.post('/api/clientes/login-cliente', async (req, res) => {
 
     console.log('Login exitoso, token generado:', token);
 
+    // Devolver la respuesta exitosa
     res.status(200).json({
       message: 'Login exitoso',
       token,
@@ -195,9 +214,11 @@ app.post('/api/clientes/login-cliente', async (req, res) => {
         primer_apellido: cliente.primer_apellido,
       }
     });
+
   } catch (error) {
-    console.error('Error en el login:', error);
-    res.status(500).json({ error: isProduction ? 'Error en el servidor durante el login.' : `Error en el servidor: ${error.message}` });
+    // Manejo de errores en caso de excepciones
+    console.error('Error en el login:', error.message);
+    res.status(500).json({ error: 'Error en el servidor durante el login' });
   }
 });
 
@@ -279,7 +300,8 @@ app.post('/api/clientes/login-cliente', async (req, res) => {
 // app.listen(port, () => {
 //   console.log(`Servidor backend escuchando en http://localhost:${port}`);
 // });
-/// Iniciar el servidor solo si no estamos en modo test
+
+// Si no estamos en pruebas, escuchar en el puerto
 if (!isTest) {
   app.listen(port, '0.0.0.0', () => {
     console.log(`Servidor backend escuchando en el puerto ${port}`);

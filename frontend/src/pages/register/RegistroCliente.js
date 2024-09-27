@@ -35,32 +35,34 @@ export default function RegistroClientes() {
     // captcha: false // problemas de implementación lo eliminé
   });
 
-  const [phoneError, setPhoneError] = useState("");
+  const [phoneError, setPhoneError] = useState(""); // Añadimos validación para teléfono
   const [email, setEmail] = useState('');
   const [confirmEmail, setConfirmEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState("");
 
+  // Manejar cambios de entrada
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     let newValue = value;
 
     if (name === 'telefono_movil') {
-      newValue = value.replace(/\D/g, '').slice(0, 10);
+      newValue = value.replace(/\D/g, '').slice(0, 10); // Limitar a 10 dígitos
       validatePhoneNumber(newValue);
     } else if (['primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido', 'lugar_expedicion', 'municipio'].includes(name)) {
       newValue = value.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
     } else if (type !== "checkbox") {
       newValue = value.toUpperCase();
     }
-    
+
     setFormValues({
       ...formValues,
       [name]: type === "checkbox" ? checked : newValue
     });
   };
 
+  // Validar el número de teléfono
   const validatePhoneNumber = (phoneNumber) => {
     if (phoneNumber.length !== 10) {
       setPhoneError("El número de teléfono debe contener exactamente 10 dígitos.");
@@ -69,19 +71,13 @@ export default function RegistroClientes() {
     }
   };
 
+  // Manejar la dirección ingresada
   const handleDireccionChange = (direccionCompleta) => {
     setFormValues({
       ...formValues,
       direccion: direccionCompleta
     });
   };
-
-  // const handleCaptchaChange = (value) => {
-  //   setFormValues({
-  //     ...formValues,
-  //     captcha: value
-  //   });
-  // };
 
   const validateForm = () => {
     if (email !== confirmEmail) {
@@ -96,10 +92,6 @@ export default function RegistroClientes() {
       setError("Debes aceptar el uso de datos y los términos y condiciones");
       return false;
     }
-    // if (!formValues.captcha) {
-    //   setError("Por favor, completa el reCAPTCHA");
-    //   return false;
-    // }
     setError("");
     return true;
   };
@@ -113,17 +105,6 @@ export default function RegistroClientes() {
       correo_electronico: email,
       user_pass: password
     };
-
-    // try {
-    //   const response = await axios.post('http://localhost:5000/api/clientes/registro-cliente', datosParaEnviar);
-      
-    //   if (response.status === 200) {
-    //     alert("Registro exitoso");
-    //     navigate('/login-cliente');
-    //   }
-    // } catch (error) {
-    //   setError(error.response?.data?.error || "Error en el registro");
-    // }
 
     try {
       const response = await registerCliente(datosParaEnviar);
@@ -348,7 +329,7 @@ export default function RegistroClientes() {
                 </Col>
               </Row>
 
-              <Direccion onDireccionCompleta={handleDireccionChange} />
+              <Direccion onDireccionCompleta={handleDireccionChange} /> {/* Este componente ya está siendo usado */}
 
               <Row className="mb-4">
                 <Col md={6}>
@@ -431,12 +412,6 @@ export default function RegistroClientes() {
                   />
                 </Col>
               </Row>
-
-              {/* <Row className="mb-4">
-                <Col>
-                  <ReCaptcha onChange={handleCaptchaChange} />
-                </Col>
-              </Row> */}
 
               <Row>
                 <Col className="text-center">

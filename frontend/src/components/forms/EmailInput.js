@@ -1,5 +1,3 @@
-// src/components/forms/EmailInput.js
-
 import React from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
 
@@ -9,10 +7,12 @@ const EmailInput = ({ email, confirmEmail, onEmailChange, onConfirmEmailChange }
     return value.toLowerCase().replace(/[^a-z0-9@._-]/g, '');
   };
 
-  // Expresión regular simplificada
-  const isValidEmail = (email) => {
-    const emailRegex = /\S+@\S+\.\S+/;
-    return emailRegex.test(email);
+  // Expresión regular avanzada para validar el email
+  const emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  // Validación usando la expresión regular
+  const validateEmail = (email) => {
+    return emailPattern.test(email);
   };
 
   const handleEmailChange = (e) => {
@@ -26,19 +26,19 @@ const EmailInput = ({ email, confirmEmail, onEmailChange, onConfirmEmailChange }
   };
 
   const emailsMatch = email === confirmEmail;
-  const isEmailValid = isValidEmail(email);
+  const isEmailValid = validateEmail(email);
 
   return (
     <Row>
       <Col md={6}>
         <Form.Group>
-          <Form.Label htmlFor="email">Correo Electrónico</Form.Label>  {/* Usamos solo htmlFor */}
+          <Form.Label htmlFor="email">Correo Electrónico</Form.Label>
           <Form.Control
             id="email"
             type="email"
             value={email}
             onChange={handleEmailChange}
-            isValid={isEmailValid && email.length > 0}
+            isValid={isEmailValid && email.length > 0} // Validación de email
             isInvalid={!isEmailValid && email.length > 0}
             required
             autoComplete="email"
@@ -56,8 +56,8 @@ const EmailInput = ({ email, confirmEmail, onEmailChange, onConfirmEmailChange }
             type="email"
             value={confirmEmail}
             onChange={handleConfirmEmailChange}
-            isValid={emailsMatch && confirmEmail.length > 0}
-            isInvalid={!emailsMatch && confirmEmail.length > 0}
+            isValid={emailsMatch && confirmEmail.length > 0} // Mostrar si coinciden
+            isInvalid={!emailsMatch && confirmEmail.length > 0} // Mostrar si no coinciden
             required
             autoComplete="email"
           />

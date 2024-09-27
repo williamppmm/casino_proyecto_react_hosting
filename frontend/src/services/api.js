@@ -13,6 +13,9 @@ const api = axios.create({
   baseURL: backendUrl,
 });
 
+// Agregar log para verificar la URL del backend
+console.log('REACT_APP_BACKEND_URL:', backendUrl);
+
 // Función para hacer login
 export const loginCliente = async (correo_electronico, user_pass) => {
   try {
@@ -21,6 +24,7 @@ export const loginCliente = async (correo_electronico, user_pass) => {
       user_pass,
     });
     
+    // Almacenar el token en el almacenamiento local si el login es exitoso
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
       api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
@@ -28,7 +32,8 @@ export const loginCliente = async (correo_electronico, user_pass) => {
     
     return response.data;
   } catch (error) {
-    console.error('Error en loginCliente:', error);
+    // Mejor manejo de errores
+    console.error(`Error en loginCliente (POST /api/clientes/login-cliente): ${error.response?.status} - ${error.response?.data?.error || error.message}`);
     throw error.response?.data?.error || "Error al iniciar sesión";
   }
 };
@@ -39,7 +44,7 @@ export const registerCliente = async (datosParaEnviar) => {
     const response = await api.post('/api/clientes/registro-cliente', datosParaEnviar);
     return response.data;
   } catch (error) {
-    console.error('Error en registerCliente:', error);
+    console.error(`Error en registerCliente (POST /api/clientes/registro-cliente): ${error.response?.status} - ${error.response?.data?.error || error.message}`);
     throw error.response?.data?.error || "Error en el registro";
   }
 };
