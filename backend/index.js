@@ -38,7 +38,8 @@ const port = process.env.PORT || 5000;
 const allowedOrigins = [
   process.env.FRONTEND_URL, // Agregado desde la variable de entorno
   'http://localhost:3000', // Permitir desarrollo local
-  'https://casino-la-fortuna-6innevs9v-william-perezs-projects-827fb858.vercel.app/' // Asegúrate de incluir el dominio de Vercel
+  'https://casino-la-fortuna.vercel.app', // Dominio principal
+  'https://casino-la-fortuna-git-main-william-perezs-projects-827fb858.vercel.app' // Asegúrate de incluir el dominio de Vercel
   
 ];
 
