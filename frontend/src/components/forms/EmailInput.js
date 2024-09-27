@@ -1,3 +1,5 @@
+// src/components/forms/EmailInput.js
+
 import React from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
 
