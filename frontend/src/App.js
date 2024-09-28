@@ -21,8 +21,9 @@ function App() {
         <Route path="/registro-cliente" element={<RegistroCliente />} />
         <Route path="/login-cliente" element={<LoginCliente />} />
         
-                {/* Rutas protegidas */}
-                <Route 
+
+
+        <Route 
           path="/dashboard-cliente" 
           element={
             <ProtectedRoute>
@@ -30,8 +31,7 @@ function App() {
             </ProtectedRoute>
           } 
         />
-        
-        <Route 
+                <Route 
           path="/perfil-cliente" 
           element={
             <ProtectedRoute>
@@ -39,7 +39,10 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        
 
+
+ 
        </Routes>
       <Footer />
     </Router>

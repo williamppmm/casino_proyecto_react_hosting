@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import PerfilCliente from '../../components/perfil/PerfilCliente'; // Importar el componente PerfilCliente
+
 
 // Función auxiliar para formatear la fecha
 const formatearFecha = (fecha) => {
@@ -85,7 +85,7 @@ function DashboardCliente() {
     >
       <Container>
         <h1 className="text-center mb-5" style={{ color: '#fff', fontWeight: 'bold' }}>
-          {/* Bienvenido al Dashboard de Clientes no pude solucionar el espacio superior */}
+          Bienvenido al Dashboard de Clientes
         </h1>
 
         {/* Mostrar los datos del cliente si están disponibles */}
