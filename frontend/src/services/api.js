@@ -72,6 +72,75 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Cambiar contraseña
+export const cambiarContrasena = async (id, contrasenaActual, nuevaContrasena) => {
+  try {
+    const response = await api.put(`/api/clientes/cambiar-contrasena/${id}`, {
+      contrasena_actual: contrasenaActual,
+      nueva_contrasena: nuevaContrasena
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error en cambiarContrasena (PUT /api/clientes/cambiar-contrasena/${id}):`, error.response?.data || error.message);
+    throw error.response?.data?.error || "Error al cambiar la contraseña";
+  }
+};
+
+// Cambiar correo electrónico
+export const cambiarCorreo = async (id, currentEmail, newEmail, password) => {
+  try {
+    const response = await api.put(`/api/clientes/cambiar-correo/${id}`, {
+      currentEmail,
+      newEmail,
+      password
+    });
+    
+    // Actualizar el token en el almacenamiento local si se recibe un nuevo token
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+    }
+    
+    return response.data;
+  } catch (error) {
+    console.error(`Error en cambiarCorreo (PUT /api/clientes/cambiar-correo/${id}):`, error.response?.data || error.message);
+    throw error.response?.data?.error || "Error al cambiar el correo electrónico";
+  }
+};
+
+// Dar de baja la cuenta
+export const darDeBaja = async (id, email, password) => {
+  try {
+    const response = await api.delete(`/api/clientes/darse-de-baja/${id}`, {
+      data: { email, password }
+    });
+
+    // Si la cuenta se da de baja correctamente, eliminamos el token
+    if (response.data.message === 'Cuenta dada de baja correctamente') {
+      localStorage.removeItem('token');
+      delete api.defaults.headers.common['Authorization'];
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error en darDeBaja (DELETE /api/clientes/darse-de-baja/${id}):`,
+      error.response?.data || error.message
+    );
+    throw error.response?.data?.error || "Error al dar de baja la cuenta";
+  }
+};
+
+// Función para actualizar los datos personales del cliente
+export const actualizarDatosCliente = async (id, datos) => {
+  try {
+    const response = await api.put(`/api/clientes/actualizar-datos/${id}`, datos);
+    return response.data;
+  } catch (error) {
+    console.error(`Error en actualizarDatosCliente (PUT /api/clientes/actualizar-datos/${id}):`, error.response?.data || error.message);
+    throw error.response?.data?.error || "Error al actualizar los datos del cliente";
+  }
+};
 // **Interceptor de respuesta eliminado temporalmente**
 
 export default api;

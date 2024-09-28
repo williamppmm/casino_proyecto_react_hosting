@@ -4,6 +4,13 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import PerfilCliente from '../../components/perfil/PerfilCliente'; // Importar el componente PerfilCliente
+
+// Función auxiliar para formatear la fecha
+const formatearFecha = (fecha) => {
+  const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(fecha).toLocaleDateString('es-ES', opciones);
+};
 
 function DashboardCliente() {
   const [cliente, setCliente] = useState(null); // Estado para almacenar los datos del cliente
@@ -67,18 +74,26 @@ function DashboardCliente() {
   }
 
   return (
-    <section className="dashboard-clientes-section py-5" style={{ backgroundColor: '#141414', color: '#fff', minHeight: '100vh' }}>
+    <section
+      className="dashboard-clientes-section py-5"
+      style={{
+        backgroundColor: '#000',
+        color: '#fff',
+        minHeight: '100vh',
+        paddingTop: '80px', // Ajuste para evitar que el contenido quede oculto
+      }}
+    >
       <Container>
         <h1 className="text-center mb-5" style={{ color: '#fff', fontWeight: 'bold' }}>
-          Bienvenido al Dashboard de Clientes
+          {/* Bienvenido al Dashboard de Clientes no pude solucionar el espacio superior */}
         </h1>
 
         {/* Mostrar los datos del cliente si están disponibles */}
         {cliente && (
-        <div className="mb-4 text-center" style={{ color: '#fff' }}>
-          <h2>{cliente.primer_nombre} {cliente.primer_apellido}, prepárate para vivir momentos inolvidables!</h2>
-          <p>Te registraste el {new Date(cliente.fecha_registro).toLocaleDateString()}.</p>
-        </div>
+          <div className="mb-4 text-center" style={{ color: '#fff' }}>
+            <h2>{cliente.primer_nombre} {cliente.primer_apellido}, la suerte está de tu lado!</h2>
+            <p>Miembro exclusivo desde el {formatearFecha(cliente.fecha_registro)}. ¡Que sigan rodando los dados a tu favor!</p>
+          </div>
         )}
         
         <Row className="mb-4">

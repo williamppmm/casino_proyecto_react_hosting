@@ -7,6 +7,7 @@ import RegistroCliente from './pages/register/RegistroCliente'; // Importar el c
 import LoginCliente from './pages/login/LoginCliente'; // Importar el componente de login de clientes
 import ProtectedRoute from './components/common/ProtectedRoute'; // Importar componente de proteccion de ruta
 import DashboardCliente from './pages/dashboard/DashboardCliente'; // Importar el Dashboard del cliente
+import PerfilCliente from './components/perfil/PerfilCliente'; // Importar el componente de Perfil
 
 import CustomNavbar from './components/common/Navbar'; // Importar la Navbar
 import Footer from './components/common/Footer';
@@ -16,11 +17,12 @@ function App() {
     <Router>
       <CustomNavbar />
       <Routes>
-        {/* Definición de las rutas */}
         <Route path="/" element={<Home />} />
         <Route path="/registro-cliente" element={<RegistroCliente />} />
-        <Route path="/login-cliente" element={<LoginCliente />} /> 
-        <Route 
+        <Route path="/login-cliente" element={<LoginCliente />} />
+        
+                {/* Rutas protegidas */}
+                <Route 
           path="/dashboard-cliente" 
           element={
             <ProtectedRoute>
@@ -28,8 +30,17 @@ function App() {
             </ProtectedRoute>
           } 
         />
-        {/* Integrar nuevas rutas */}
-      </Routes>
+        
+        <Route 
+          path="/perfil-cliente" 
+          element={
+            <ProtectedRoute>
+              <PerfilCliente />
+            </ProtectedRoute>
+          } 
+        />
+
+       </Routes>
       <Footer />
     </Router>
   );

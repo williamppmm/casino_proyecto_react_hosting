@@ -258,93 +258,364 @@ function verifyToken(req, res, next) {
   });
 }
 
+// Endpoints relacionados al perfil del cliente
+
+// Endpoint para actualizar los datos personales del cliente
+app.put('/api/clientes/actualizar-datos/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { telefono_movil, direccion, municipio, interdicto, pep } = req.body;
+
+    // Verificar que el id del token coincida con el id solicitado
+    if (req.userId !== parseInt(id)) {
+      return res.status(403).json({ error: 'No tienes permiso para actualizar este perfil' });
+    }
+
+    const { data, error } = await supabase
+      .from('clientes')
+      .update({
+        telefono_movil,
+        direccion,
+        municipio,
+        interdicto,
+        pep
+      })
+      .eq('id_cliente', id);
+
+    if (error) throw error;
+
+    res.json({ message: 'Datos actualizados correctamente' });
+  } catch (error) {
+    console.error('Error al actualizar los datos del cliente:', error);
+    res.status(500).json({ error: 'Error al actualizar los datos del cliente' });
+  }
+});
+
+// Endpoint para cambiar la contraseña del cliente
+app.put('/api/clientes/cambiar-contrasena/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { currentPassword, newPassword } = req.body;
+
+    console.log('Cuerpo de la solicitud:', req.body);
+    console.log('ID del cliente:', id);
+    console.log('Contraseña actual recibida:', !!currentPassword);
+    console.log('Nueva contraseña recibida:', !!newPassword);
+
+    // Verificar que se proporcionaron todos los datos necesarios
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Se requieren la contraseña actual y la nueva contraseña' });
+    }
+
+    // Verificar que el id del token coincida con el id solicitado
+    if (req.userId !== parseInt(id)) {
+      return res.status(403).json({ error: 'No tienes permiso para cambiar la contraseña de este perfil' });
+    }
+
+    // Obtener el usuario actual
+    const { data: usuario, error: errorUsuario } = await supabase
+      .from('clientes')
+      .select('user_pass')
+      .eq('id_cliente', id)
+      .single();
+
+    console.log('Usuario encontrado:', !!usuario);
+    console.log('Contraseña del usuario en la base de datos:', !!usuario?.user_pass);
+
+    if (errorUsuario) {
+      console.error('Error al obtener el usuario:', errorUsuario);
+      return res.status(500).json({ error: 'Error al obtener los datos del usuario' });
+    }
+
+    if (!usuario || !usuario.user_pass) {
+      return res.status(404).json({ error: 'No se encontró el usuario o la contraseña no está establecida' });
+    }
+
+    // Verificar la contraseña actual
+    const contrasenaValida = await bcrypt.compare(currentPassword, usuario.user_pass);
+    if (!contrasenaValida) {
+      return res.status(400).json({ error: 'La contraseña actual es incorrecta' });
+    }
+
+    // Validar la nueva contraseña
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({ error: 'La nueva contraseña no cumple con los requisitos de seguridad' });
+    }
+
+    // Hashear la nueva contraseña
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Actualizar la contraseña en la base de datos
+    const { error } = await supabase
+      .from('clientes')
+      .update({ user_pass: hashedPassword })
+      .eq('id_cliente', id);
+
+    if (error) {
+      console.error('Error al actualizar la contraseña:', error);
+      return res.status(500).json({ error: 'Error al actualizar la contraseña en la base de datos' });
+    }
+
+    res.json({ message: 'Contraseña actualizada correctamente' });
+  } catch (error) {
+    console.error('Error al cambiar la contraseña:', error);
+    res.status(500).json({ error: 'Error interno del servidor al cambiar la contraseña' });
+  }
+});
+
+// endpoint para hacer cambio de correo electronico
+app.put('/api/clientes/cambiar-correo/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { currentEmail, newEmail, password } = req.body;
+
+    console.log('Cuerpo de la solicitud:', req.body);
+    console.log('ID del cliente:', id);
+    console.log('Correo actual recibido:', !!currentEmail);
+    console.log('Nuevo correo recibido:', !!newEmail);
+    console.log('Contraseña recibida:', !!password);
+
+    // Verificar que se proporcionaron todos los datos necesarios
+    if (!currentEmail || !newEmail || !password) {
+      return res.status(400).json({ error: 'Se requieren el correo actual, el nuevo correo y la contraseña' });
+    }
+
+    // Verificar que el id del token coincida con el id solicitado
+    if (req.userId !== parseInt(id)) {
+      return res.status(403).json({ error: 'No tienes permiso para cambiar el correo de este perfil' });
+    }
+
+    // Obtener el usuario actual
+    const { data: usuario, error: errorUsuario } = await supabase
+      .from('clientes')
+      .select('correo_electronico, user_pass')
+      .eq('id_cliente', id)
+      .single();
+
+    console.log('Usuario encontrado:', !!usuario);
+
+    if (errorUsuario) {
+      console.error('Error al obtener el usuario:', errorUsuario);
+      return res.status(500).json({ error: 'Error al obtener los datos del usuario' });
+    }
+
+    if (!usuario || !usuario.user_pass) {
+      return res.status(404).json({ error: 'No se encontró el usuario o la contraseña no está establecida' });
+    }
+
+    // Verificar que el correo actual coincida
+    if (usuario.correo_electronico !== currentEmail) {
+      return res.status(400).json({ error: 'El correo actual proporcionado no coincide con el registrado' });
+    }
+
+    // Verificar la contraseña
+    const contrasenaValida = await bcrypt.compare(password, usuario.user_pass);
+    if (!contrasenaValida) {
+      return res.status(400).json({ error: 'La contraseña es incorrecta' });
+    }
+
+    // Validar el nuevo correo electrónico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      return res.status(400).json({ error: 'El nuevo correo electrónico no es válido' });
+    }
+
+    // Verificar si el nuevo correo ya está en uso
+    const { data: existingUser, error: errorExistingUser } = await supabase
+      .from('clientes')
+      .select('id_cliente')
+      .eq('correo_electronico', newEmail)
+      .single();
+
+    if (existingUser) {
+      return res.status(400).json({ error: 'El nuevo correo electrónico ya está en uso' });
+    }
+
+    // Actualizar el correo electrónico en la base de datos
+    const { error } = await supabase
+      .from('clientes')
+      .update({ correo_electronico: newEmail })
+      .eq('id_cliente', id);
+
+    if (error) {
+      console.error('Error al actualizar el correo electrónico:', error);
+      return res.status(500).json({ error: 'Error al actualizar el correo electrónico en la base de datos' });
+    }
+
+    // Generar un nuevo token JWT con el correo actualizado
+    const token = jwt.sign(
+      { 
+        userId: id, 
+        email: newEmail
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({ 
+      message: 'Correo electrónico actualizado correctamente',
+      token: token  // Enviamos el nuevo token al cliente
+    });
+  } catch (error) {
+    console.error('Error al cambiar el correo electrónico:', error);
+    res.status(500).json({ error: 'Error interno del servidor al cambiar el correo electrónico' });
+  }
+});
+
+// Endpoint para dar de baja la cuenta de un cliente
+app.delete('/api/clientes/darse-de-baja/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { email, password } = req.body;
+
+    console.log('ID del cliente:', id);
+    console.log('Correo recibido:', !!email);
+    console.log('Contraseña recibida:', !!password);
+
+    // Verificar que se proporcionaron todos los datos necesarios
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Se requieren el correo electrónico y la contraseña' });
+    }
+
+    // Verificar que el id del token coincida con el id solicitado
+    if (req.userId !== parseInt(id)) {
+      return res.status(403).json({ error: 'No tienes permiso para dar de baja esta cuenta' });
+    }
+
+    // Obtener el usuario actual
+    const { data: usuario, error: errorUsuario } = await supabase
+      .from('clientes')
+      .select('correo_electronico, user_pass')
+      .eq('id_cliente', id)
+      .single();
+
+    if (errorUsuario) {
+      console.error('Error al obtener el usuario:', errorUsuario);
+      return res.status(500).json({ error: 'Error al obtener los datos del usuario' });
+    }
+
+    if (!usuario) {
+      return res.status(404).json({ error: 'No se encontró el usuario' });
+    }
+
+    // Verificar que el correo proporcionado coincida con el registrado
+    if (usuario.correo_electronico !== email) {
+      return res.status(400).json({ error: 'El correo electrónico proporcionado no coincide con el registrado' });
+    }
+
+    // Verificar la contraseña
+    const contrasenaValida = await bcrypt.compare(password, usuario.user_pass);
+    if (!contrasenaValida) {
+      return res.status(400).json({ error: 'La contraseña es incorrecta' });
+    }
+
+    // Dar de baja la cuenta (aquí podrías optar por eliminar o marcar como inactiva)
+    const { error: errorBaja } = await supabase
+      .from('clientes')
+      .delete()
+      .eq('id_cliente', id);
+
+    if (errorBaja) {
+      console.error('Error al dar de baja la cuenta:', errorBaja);
+      return res.status(500).json({ error: 'Error al dar de baja la cuenta en la base de datos' });
+    }
+
+    // Si todo fue exitoso, enviar respuesta
+    res.json({ message: 'Cuenta dada de baja correctamente' });
+  } catch (error) {
+    console.error('Error al dar de baja la cuenta:', error);
+    res.status(500).json({ error: 'Error interno del servidor al dar de baja la cuenta' });
+  }
+});
 
 
 // ---------------------------------------------------------------------------------------------------
 // Consultas de prueba quedaran al final del script
 // Obtener todos los clientes
-app.get('/api/clientes', async (req, res) => {
-  console.log("Obteniendo todos los clientes...");
+// app.get('/api/clientes', async (req, res) => {
+//   console.log("Obteniendo todos los clientes...");
 
-  try {
-    const { data: clientes, error } = await supabase
-      .from('clientes')
-      .select('*');
+//   try {
+//     const { data: clientes, error } = await supabase
+//       .from('clientes')
+//       .select('*');
 
-    if (error) throw error;
+//     if (error) throw error;
 
-    res.status(200).json(clientes);
-  } catch (error) {
-    console.error('Error al obtener los clientes:', error);
-    res.status(500).json({ error: 'Error al obtener los clientes', details: error.message });
-  }
-});
+//     res.status(200).json(clientes);
+//   } catch (error) {
+//     console.error('Error al obtener los clientes:', error);
+//     res.status(500).json({ error: 'Error al obtener los clientes', details: error.message });
+//   }
+// });
 
-// Obtener todos los operadores
-app.get('/api/operadores', async (req, res) => {
-  console.log("Obteniendo todos los operadores...");
+// // Obtener todos los operadores
+// app.get('/api/operadores', async (req, res) => {
+//   console.log("Obteniendo todos los operadores...");
 
-  try {
-    const { data: operadores, error } = await supabase
-      .from('operadores')
-      .select('*');
+//   try {
+//     const { data: operadores, error } = await supabase
+//       .from('operadores')
+//       .select('*');
 
-    if (error) throw error;
+//     if (error) throw error;
 
-    res.status(200).json(operadores);
-  } catch (error) {
-    console.error('Error al obtener los operadores:', error);
-    res.status(500).json({ error: 'Error al obtener los operadores', details: error.message });
-  }
-});
+//     res.status(200).json(operadores);
+//   } catch (error) {
+//     console.error('Error al obtener los operadores:', error);
+//     res.status(500).json({ error: 'Error al obtener los operadores', details: error.message });
+//   }
+// });
 
-// Obtener todas las secciones
-app.get('/api/secciones', async (req, res) => {
-  console.log("Obteniendo todas las secciones...");
+// // Obtener todas las secciones
+// app.get('/api/secciones', async (req, res) => {
+//   console.log("Obteniendo todas las secciones...");
 
-  try {
-    const { data: secciones, error } = await supabase
-      .from('secciones')
-      .select('*');
+//   try {
+//     const { data: secciones, error } = await supabase
+//       .from('secciones')
+//       .select('*');
 
-    if (error) throw error;
+//     if (error) throw error;
 
-    res.status(200).json(secciones);
-  } catch (error) {
-    console.error('Error al obtener las secciones:', error);
-    res.status(500).json({ error: 'Error al obtener las secciones', details: error.message });
-  }
-});
+//     res.status(200).json(secciones);
+//   } catch (error) {
+//     console.error('Error al obtener las secciones:', error);
+//     res.status(500).json({ error: 'Error al obtener las secciones', details: error.message });
+//   }
+// });
 
-// Obtener todas las autorizaciones de registro
-app.get('/api/autorizaciones', async (req, res) => {
-  console.log("Obteniendo todas las autorizaciones de registro...");
+// // Obtener todas las autorizaciones de registro
+// app.get('/api/autorizaciones', async (req, res) => {
+//   console.log("Obteniendo todas las autorizaciones de registro...");
 
-  try {
-    const { data: autorizaciones, error } = await supabase
-      .from('autorizaciones_registro')
-      .select('*');
+//   try {
+//     const { data: autorizaciones, error } = await supabase
+//       .from('autorizaciones_registro')
+//       .select('*');
 
-    if (error) throw error;
+//     if (error) throw error;
 
-    res.status(200).json(autorizaciones);
-  } catch (error) {
-    console.error('Error al obtener las autorizaciones:', error);
-    res.status(500).json({ error: 'Error al obtener las autorizaciones', details: error.message });
-  }
-});
+//     res.status(200).json(autorizaciones);
+//   } catch (error) {
+//     console.error('Error al obtener las autorizaciones:', error);
+//     res.status(500).json({ error: 'Error al obtener las autorizaciones', details: error.message });
+//   }
+// });
 
 // Iniciar el servidor
 // Servidor inicial
-app.listen(port, () => {
-  console.log(`Servidor backend escuchando en http://localhost:${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Servidor backend escuchando en http://localhost:${port}`);
+// });
 
 // Si no estamos en pruebas, escuchar en el puerto
-// if (!isTest) {
-//   app.listen(port, '0.0.0.0', () => {
-//     console.log(`Servidor backend escuchando en el puerto ${port}`);
-//   });
-// }
+if (!isTest) {
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`Servidor backend escuchando en el puerto ${port}`);
+  });
+}
 
 // module.exports = app; // Exportamos la app para las pruebas
