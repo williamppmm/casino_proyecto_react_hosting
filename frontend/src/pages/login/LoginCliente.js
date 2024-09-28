@@ -36,14 +36,27 @@ export default function LoginCliente() {
       // Usar la función loginCliente desde services/api.js
       const response = await loginCliente(email, password);
 
-      if (response) {
-        // Si el login es exitoso, redirigir al dashboard del cliente
+      if (response && response.token) {
+        // Guardar el token en localStorage
+        localStorage.setItem('token', response.token);
+        
+        // Guardar la información del cliente si está disponible
+        if (response.cliente) {
+          localStorage.setItem('clienteInfo', JSON.stringify(response.cliente));
+        }
+
+        console.log("Login exitoso, token guardado");
+        
+        // Redirigir al dashboard del cliente
         navigate("/dashboard-cliente");
+      } else {
+        throw new Error("No se recibió un token válido");
       }
     } catch (error) {
-      setError(error || "Error al iniciar sesión.");
+      console.error("Error en el login:", error);
+      setError(error.message || "Error al iniciar sesión. Por favor, intenta de nuevo.");
     } finally {
-      setLoading(false); // Ocultar el indicador de carga
+      setLoading(false);
     }
   };
 

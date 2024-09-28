@@ -224,90 +224,127 @@ app.post('/api/clientes/login-cliente', async (req, res) => {
   }
 });
 
-// Consultas de prueba quedaran al final del script
-// Obtener todos los clientes
-// app.get('/api/clientes', async (req, res) => {
-//   console.log("Obteniendo todos los clientes...");
+app.get('/api/clientes/dashboard/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data: cliente, error } = await supabase
+      .from('clientes')
+      .select('id_cliente, primer_nombre, primer_apellido, fecha_registro') // Selecciona solo los campos necesarios
+      .eq('id_cliente', id)
+      .single();
 
-//   try {
-//     const { data: clientes, error } = await supabase
-//       .from('clientes')
-//       .select('*');
+    if (error) throw error;
 
-//     if (error) throw error;
+    // Devuelve solo los datos no sensibles
+    res.json({
+      id_cliente: cliente.id_cliente,
+      primer_nombre: cliente.primer_nombre,
+      primer_apellido: cliente.primer_apellido,
+      fecha_registro: cliente.fecha_registro
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener datos del dashboard' });
+  }
+});
 
-//     res.status(200).json(clientes);
-//   } catch (error) {
-//     console.error('Error al obtener los clientes:', error);
-//     res.status(500).json({ error: 'Error al obtener los clientes', details: error.message });
-//   }
-// });
+function verifyToken(req, res, next) {
+  const token = req.headers['authorization'];
+  if (!token) return res.status(403).json({ error: 'No token provided' });
 
-// // Obtener todos los operadores
-// app.get('/api/operadores', async (req, res) => {
-//   console.log("Obteniendo todos los operadores...");
-
-//   try {
-//     const { data: operadores, error } = await supabase
-//       .from('operadores')
-//       .select('*');
-
-//     if (error) throw error;
-
-//     res.status(200).json(operadores);
-//   } catch (error) {
-//     console.error('Error al obtener los operadores:', error);
-//     res.status(500).json({ error: 'Error al obtener los operadores', details: error.message });
-//   }
-// });
-
-// // Obtener todas las secciones
-// app.get('/api/secciones', async (req, res) => {
-//   console.log("Obteniendo todas las secciones...");
-
-//   try {
-//     const { data: secciones, error } = await supabase
-//       .from('secciones')
-//       .select('*');
-
-//     if (error) throw error;
-
-//     res.status(200).json(secciones);
-//   } catch (error) {
-//     console.error('Error al obtener las secciones:', error);
-//     res.status(500).json({ error: 'Error al obtener las secciones', details: error.message });
-//   }
-// });
-
-// // Obtener todas las autorizaciones de registro
-// app.get('/api/autorizaciones', async (req, res) => {
-//   console.log("Obteniendo todas las autorizaciones de registro...");
-
-//   try {
-//     const { data: autorizaciones, error } = await supabase
-//       .from('autorizaciones_registro')
-//       .select('*');
-
-//     if (error) throw error;
-
-//     res.status(200).json(autorizaciones);
-//   } catch (error) {
-//     console.error('Error al obtener las autorizaciones:', error);
-//     res.status(500).json({ error: 'Error al obtener las autorizaciones', details: error.message });
-//   }
-// });
-
-// Iniciar el servidor
-// Servidor inicial
-// app.listen(port, () => {
-//   console.log(`Servidor backend escuchando en http://localhost:${port}`);
-// });
-
-// Si no estamos en pruebas, escuchar en el puerto
-if (!isTest) {
-  app.listen(port, '0.0.0.0', () => {
-    console.log(`Servidor backend escuchando en el puerto ${port}`);
+  jwt.verify(token, jwtSecret, (err, decoded) => {
+    if (err) return res.status(500).json({ error: 'Failed to authenticate token' });
+    req.userId = decoded.id_cliente;
+    next();
   });
 }
 
-module.exports = app; // Exportamos la app para las pruebas
+
+
+// ---------------------------------------------------------------------------------------------------
+// Consultas de prueba quedaran al final del script
+// Obtener todos los clientes
+app.get('/api/clientes', async (req, res) => {
+  console.log("Obteniendo todos los clientes...");
+
+  try {
+    const { data: clientes, error } = await supabase
+      .from('clientes')
+      .select('*');
+
+    if (error) throw error;
+
+    res.status(200).json(clientes);
+  } catch (error) {
+    console.error('Error al obtener los clientes:', error);
+    res.status(500).json({ error: 'Error al obtener los clientes', details: error.message });
+  }
+});
+
+// Obtener todos los operadores
+app.get('/api/operadores', async (req, res) => {
+  console.log("Obteniendo todos los operadores...");
+
+  try {
+    const { data: operadores, error } = await supabase
+      .from('operadores')
+      .select('*');
+
+    if (error) throw error;
+
+    res.status(200).json(operadores);
+  } catch (error) {
+    console.error('Error al obtener los operadores:', error);
+    res.status(500).json({ error: 'Error al obtener los operadores', details: error.message });
+  }
+});
+
+// Obtener todas las secciones
+app.get('/api/secciones', async (req, res) => {
+  console.log("Obteniendo todas las secciones...");
+
+  try {
+    const { data: secciones, error } = await supabase
+      .from('secciones')
+      .select('*');
+
+    if (error) throw error;
+
+    res.status(200).json(secciones);
+  } catch (error) {
+    console.error('Error al obtener las secciones:', error);
+    res.status(500).json({ error: 'Error al obtener las secciones', details: error.message });
+  }
+});
+
+// Obtener todas las autorizaciones de registro
+app.get('/api/autorizaciones', async (req, res) => {
+  console.log("Obteniendo todas las autorizaciones de registro...");
+
+  try {
+    const { data: autorizaciones, error } = await supabase
+      .from('autorizaciones_registro')
+      .select('*');
+
+    if (error) throw error;
+
+    res.status(200).json(autorizaciones);
+  } catch (error) {
+    console.error('Error al obtener las autorizaciones:', error);
+    res.status(500).json({ error: 'Error al obtener las autorizaciones', details: error.message });
+  }
+});
+
+// Iniciar el servidor
+// Servidor inicial
+app.listen(port, () => {
+  console.log(`Servidor backend escuchando en http://localhost:${port}`);
+});
+
+// Si no estamos en pruebas, escuchar en el puerto
+// if (!isTest) {
+//   app.listen(port, '0.0.0.0', () => {
+//     console.log(`Servidor backend escuchando en el puerto ${port}`);
+//   });
+// }
+
+// module.exports = app; // Exportamos la app para las pruebas
