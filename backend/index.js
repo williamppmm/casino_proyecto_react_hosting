@@ -260,6 +260,53 @@ function verifyToken(req, res, next) {
 
 // Endpoints relacionados al perfil del cliente
 
+// Endpoint para obtener los datos del cliente
+app.post('/api/clientes/datos-cliente', verifyToken, async (req, res) => {
+  try {
+    const clienteId = req.userId;  // Extraer el ID del cliente desde el token JWT
+
+    console.log('ID del cliente obtenido del token:', clienteId);
+
+    // Obtener los datos del cliente en la base de datos
+    const { data: cliente, error } = await supabase
+      .from('clientes')
+      .select(`
+        id_cliente,
+        primer_nombre,
+        segundo_nombre,
+        primer_apellido,
+        fecha_registro,
+        numero_documento,
+        lugar_expedicion,
+        nacionalidad,
+        fecha_nacimiento,
+        correo_electronico,
+        telefono_movil,
+        direccion,
+        municipio
+      `)
+      .eq('id_cliente', clienteId)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error en la consulta a la base de datos:', error.message);
+      return res.status(500).json({ error: 'Error en la base de datos.' });
+    }
+
+    if (!cliente) {
+      return res.status(404).json({ error: 'No se encontró el cliente con el ID proporcionado.' });
+    }
+
+    console.log('Datos del cliente obtenidos:', cliente);
+
+    // Devolver los datos del cliente
+    res.status(200).json(cliente);
+  } catch (error) {
+    console.error('Error en el servidor al obtener los datos del cliente:', error.message);
+    res.status(500).json({ error: 'Error en el servidor al obtener los datos del cliente.' });
+  }
+});
+
 // Endpoint para actualizar los datos personales del cliente
 app.put('/api/clientes/actualizar-datos/:id', verifyToken, async (req, res) => {
   try {

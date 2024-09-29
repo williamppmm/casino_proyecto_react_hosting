@@ -141,6 +141,24 @@ export const actualizarDatosCliente = async (id, datos) => {
     throw error.response?.data?.error || "Error al actualizar los datos del cliente";
   }
 };
+
+// Función para obtener los datos del cliente
+export const obtenerClienteInfo = async (token) => {
+  try {
+    const response = await api.post(
+      '/api/clientes/datos-cliente',
+      {}, // No se envía nada en el cuerpo de la solicitud
+      {
+        headers: { Authorization: token } // Enviar el token tal cual, sin prefijo
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener los datos del cliente:', error.response?.data || error.message);
+    throw error.response?.data?.error || 'Error al obtener los datos del cliente';
+  }
+};
+
 // **Interceptor de respuesta eliminado temporalmente**
 
 export default api;

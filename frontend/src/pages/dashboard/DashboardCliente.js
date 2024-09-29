@@ -1,7 +1,7 @@
 // src/pages/Dashboard/DashboardCliente.js
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 
@@ -184,6 +184,9 @@ function DashboardCliente() {
                   Cerrar Sesión
                 </Button>
               </Card.Body>
+              <p className="text-light">
+                <Link to="/dashboard-cliente" className="text-secondary">Volver al Dashboard</Link>
+              </p>
             </Card>
           </Col>
         </Row>

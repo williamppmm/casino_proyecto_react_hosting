@@ -7,7 +7,7 @@ import RegistroCliente from './pages/register/RegistroCliente'; // Importar el c
 import LoginCliente from './pages/login/LoginCliente'; // Importar el componente de login de clientes
 import ProtectedRoute from './components/common/ProtectedRoute'; // Importar componente de proteccion de ruta
 import DashboardCliente from './pages/dashboard/DashboardCliente'; // Importar el Dashboard del cliente
-import PerfilCliente from './components/perfil/PerfilCliente'; // Importar el componente de Perfil
+import PerfilCliente from './components/profile/PerfilCliente'; // Importar el componente de Perfil
 
 import CustomNavbar from './components/common/Navbar'; // Importar la Navbar
 import Footer from './components/common/Footer';
