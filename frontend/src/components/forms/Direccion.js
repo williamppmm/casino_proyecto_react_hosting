@@ -46,7 +46,12 @@ const Direccion = ({ onDireccionCompleta }) => {
 
   return (
     <div>
-      <Form.Label className="mb-1">Dirección</Form.Label>
+      <Form.Label className="mb-1">
+        Dirección{" "}
+        <span style={{ color: '#a0a0a0', fontSize: '0.9em' }}>
+          (Ej: Calle 33 # 24 - 16 San Fernando)
+        </span>
+      </Form.Label>
       <Row className="g-1 align-items-center">
         <Col xs={3} sm={3}>
           <Form.Select
@@ -70,7 +75,7 @@ const Direccion = ({ onDireccionCompleta }) => {
             onChange={handleInputChange(setNumero1, 'uppercase')}
             required
             maxLength="6"
-            placeholder="25A"
+            placeholder=""
           />
         </Col>
 
@@ -85,7 +90,7 @@ const Direccion = ({ onDireccionCompleta }) => {
             onChange={handleInputChange(setNumero2, 'uppercase')}
             required
             maxLength="6"
-            placeholder="2C"
+            placeholder=""
           />
         </Col>
 
@@ -100,7 +105,7 @@ const Direccion = ({ onDireccionCompleta }) => {
             onChange={handleInputChange(setNumero3, 'number')}
             required
             maxLength="3"
-            placeholder="32"
+            placeholder=""
           />
         </Col>
 
@@ -113,7 +118,7 @@ const Direccion = ({ onDireccionCompleta }) => {
             type="text"
             value={complemento}
             onChange={handleInputChange(setComplemento, 'capitalizeWords')}
-            placeholder="Cristóbal Colón"
+            placeholder=""
           />
         </Col>
       </Row>

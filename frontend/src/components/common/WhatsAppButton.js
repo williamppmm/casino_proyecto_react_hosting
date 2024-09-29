@@ -1,4 +1,5 @@
 // src/components/common/WhatsAppButton.js
+
 import React from 'react';
 import './WhatsAppButton.css'; // Si no tienes el archivo CSS, puedes agregar estos estilos inline
 

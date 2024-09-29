@@ -8,6 +8,11 @@ import LoginCliente from './pages/login/LoginCliente'; // Importar el componente
 import ProtectedRoute from './components/common/ProtectedRoute'; // Importar componente de proteccion de ruta
 import DashboardCliente from './pages/dashboard/DashboardCliente'; // Importar el Dashboard del cliente
 import PerfilCliente from './components/profile/PerfilCliente'; // Importar el componente de Perfil
+import ActualizarDatos from './components/profile/ActualizarDatos'; // Importar el componente para actualizar datos no sensibles
+import CambiarContrasena from './components/profile/CambiarContrasena'; // Importar el componente para cambiar la contraseña
+import CambiarMail from './components/profile/CambiarMail'; // Importar el componente para cambiar el mail
+import DarseDeBaja from './components/profile/DarseDeBaja'; // Importar el componente para darse de baja
+
 
 import CustomNavbar from './components/common/Navbar'; // Importar la Navbar
 import Footer from './components/common/Footer';
@@ -21,8 +26,6 @@ function App() {
         <Route path="/registro-cliente" element={<RegistroCliente />} />
         <Route path="/login-cliente" element={<LoginCliente />} />
         
-
-
         <Route 
           path="/dashboard-cliente" 
           element={
@@ -39,9 +42,38 @@ function App() {
             </ProtectedRoute>
           } 
         />
-        
-
-
+                <Route 
+          path="/modificar-informacion" 
+          element={
+            <ProtectedRoute>
+              <ActualizarDatos />
+            </ProtectedRoute>
+          } 
+        />
+              <Route 
+          path="/cambiar-contrasena" 
+          element={
+            <ProtectedRoute>
+              <CambiarContrasena />
+            </ProtectedRoute>
+          } 
+        />
+              <Route 
+          path="/cambiar-mail" 
+          element={
+            <ProtectedRoute>
+              <CambiarMail />
+            </ProtectedRoute>
+          } 
+        />
+              <Route 
+          path="/darse-de-baja" 
+          element={
+            <ProtectedRoute>
+              <DarseDeBaja />
+            </ProtectedRoute>
+          } 
+        />
  
        </Routes>
       <Footer />

@@ -1,9 +1,10 @@
+// src/components/profile/PerfilCliente.js
+
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Container, Card, Row, Col, Button, Alert, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
 
-// Componente reutilizable para mostrar los detalles del cliente
 const DetallesCliente = ({ cliente }) => (
   <ListGroup variant="flush">
     <ListGroup.Item style={{ backgroundColor: '#141414', color: 'white' }}>
@@ -138,7 +139,7 @@ const PerfilCliente = () => {
               <Card.Body className="p-3">
                 <Card.Title>Cambio de Correo Electrónico</Card.Title>
                 <Card.Text>Actualiza tu correo electrónico.</Card.Text>
-                <Button variant="primary" onClick={() => navigate('/cambiar-correo')}>
+                <Button variant="primary" onClick={() => navigate('/cambiar-mail')}>
                   Cambiar Correo Electrónico
                 </Button>
               </Card.Body>
@@ -159,9 +160,14 @@ const PerfilCliente = () => {
         </Row>
 
         <div className="mt-4 text-center">
-          <Button variant="secondary" onClick={handleLogout}>
+          <Button variant="secondary" onClick={handleLogout} className="me-2">
             Cerrar Sesión
           </Button>
+        </div>
+        <div className="mt-4 text-center">
+          <Link to="/dashboard-cliente" className="btn btn-outline-primary btn-lg">
+            Dashboard
+          </Link>
         </div>
       </Container>
     </div>
