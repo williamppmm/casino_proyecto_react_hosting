@@ -21,6 +21,7 @@ function ocultarInfo(str, visibleChars = 4) {
 console.log('SUPABASE_URL:', ocultarInfo(process.env.SUPABASE_URL, 10));
 console.log('SUPABASE_ANON_KEY:', ocultarInfo(process.env.SUPABASE_ANON_KEY));
 console.log('JWT_SECRET:', ocultarInfo(process.env.JWT_SECRET));
+console.log('RECAPTCHA_SECRET_KEY:', ocultarInfo(process.env.RECAPTCHA_SECRET_KEY));
 
 // Framework para crear aplicaciones web con Node.js
 const compression = require('compression')
@@ -40,7 +41,7 @@ const allowedOrigins = [
   process.env.FRONTEND_URL, // Agregado desde la variable de entorno
   'http://localhost:3000', // Permitir desarrollo local
   'https://casino-la-fortuna.vercel.app', // Dominio principal
-  'https://casino-la-fortuna-git-main-william-perezs-projects-827fb858.vercel.app' // Asegúrate de incluir el dominio de Vercel
+  'https://casino-la-fortuna-git-main-william-perezs-projects-827fb858.vercel.app'
   
 ];
 
@@ -94,6 +95,8 @@ async function verificarDuplicados(correo, documento) {
 
 // Función para verificar el reCAPTCHA
 async function verificarReCaptcha(token) {
+  console.log('Token recibido para verificar reCAPTCHA:', token);
+
   const secretKey = process.env.RECAPTCHA_SECRET_KEY;
 
   // Verificar que la clave secreta está definida
@@ -127,6 +130,7 @@ async function verificarReCaptcha(token) {
 // Endpoint para el registro de clientes
 app.post('/api/clientes/registro-cliente', async (req, res) => {
   console.log('Datos recibidos para registro:', req.body);
+  console.log('Valor de recaptcha recibido:', req.body.recaptcha);
 
   try {
     const {
@@ -141,7 +145,6 @@ app.post('/api/clientes/registro-cliente', async (req, res) => {
     if (!reCaptchaValido) {
       return res.status(400).json({ error: 'Verificación de reCAPTCHA fallida' });
     }
-
     // Verificar si el cliente ya existe
     const clienteExistente = await verificarDuplicados(correo_electronico, numero_documento);
     if (clienteExistente) {

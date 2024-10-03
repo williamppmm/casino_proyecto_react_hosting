@@ -74,6 +74,7 @@ export default function RegistroClientes() {
   };
 
   const handleCaptchaChange = (value) => {
+    console.log('Captcha changed:', value); 
     setCaptchaValue(value);
   };
 
@@ -111,13 +112,17 @@ export default function RegistroClientes() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
+  
+    console.log('Captcha Value before submit:', captchaValue); 
+  
     const datosParaEnviar = {
       ...formValues,
       correo_electronico: email,
       user_pass: password,
       recaptcha: captchaValue,
     };
+  
+    console.log('Datos para enviar:', datosParaEnviar);
 
     try {
       const response = await registerCliente(datosParaEnviar);
@@ -343,7 +348,7 @@ export default function RegistroClientes() {
                 </Col>
               </Row>
 
-              <Direccion onDireccionCompleta={handleDireccionChange} /> {/* Este componente ya está siendo usado */}
+              <Direccion onDireccionCompleta={handleDireccionChange} /> 
 
               <Row className="mb-4">
                 <Col md={6}>
