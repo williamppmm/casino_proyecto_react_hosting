@@ -95,10 +95,28 @@ async function verificarDuplicados(correo, documento) {
 // Función para verificar el reCAPTCHA
 async function verificarReCaptcha(token) {
   const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-  const verifyURL = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`;
+
+  // Verificar que la clave secreta está definida
+  if (!secretKey) {
+    console.error('La clave secreta de reCAPTCHA no está definida.');
+    return false;
+  }
+
+  // Construir los datos del formulario
+  const params = new URLSearchParams();
+  params.append('secret', secretKey);
+  params.append('response', token);
 
   try {
-    const response = await axios.post(verifyURL);
+    // Enviar la solicitud POST con los datos del formulario
+    const response = await axios.post('https://www.google.com/recaptcha/api/siteverify', params.toString(), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    console.log('Respuesta de reCAPTCHA:', response.data);
+
     return response.data.success;
   } catch (error) {
     console.error('Error al verificar reCAPTCHA:', error);
