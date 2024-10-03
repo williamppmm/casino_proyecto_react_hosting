@@ -1,0 +1,58 @@
+/* src/components/forms/CustomDatePicker.css */
+
+/* Personaliza el input del DatePicker */
+.custom-datepicker {
+    background-color: #fff;  /* Fondo blanco */
+    color: #000;  /* Texto negro */
+    border: 1px solid #444;  /* Borde oscuro */
+    padding: 6px 12px;
+    width: 100%;
+    border-radius: 4px;
+  }
+  
+  .custom-datepicker::placeholder {
+    color: #212121; /* Color de marcador más claro */
+  }
+  
+  .custom-datepicker:focus {
+    border-color: #007bff;  /* Color azul para el foco */
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);  /* Efecto de foco */
+  }
+  
+  /* Personaliza el calendario del DatePicker */
+  .react-datepicker {
+    background-color: #595959;  /* Fondo oscuro */
+    color: #fff;  /* Texto blanco */
+    border: 1px solid #444;  /* Borde oscuro */
+  }
+  
+  .react-datepicker__header {
+    background-color: #1e1e1e;  /* Fondo ligeramente más claro */
+    border-bottom: 1px solid #444;
+  }
+  
+  .react-datepicker__current-month,
+  .react-datepicker__day-name,
+  .react-datepicker__day {
+    color: #fff;  /* Texto blanco */
+  }
+  
+  .react-datepicker__day:hover {
+    background-color: #007bff;  /* Fondo azul al pasar el ratón */
+    color: #242424;  /* Texto blanco al pasar el ratón */
+  }
+  
+  .react-datepicker__day--selected {
+    background-color: #007bff;  /* Día seleccionado en azul */
+    color: #fff;  /* Texto blanco para el día seleccionado */
+  }
+  
+  .react-datepicker__day--keyboard-selected {
+    background-color: rgba(0, 123, 255, 0.5);  /* Día seleccionado con teclado */
+    color: #fff;  /* Texto blanco para selección con teclado */
+  }
+  
+  .react-datepicker__day--today {
+    background-color: #333333; /* Día actual en fondo ligeramente diferente */
+  }

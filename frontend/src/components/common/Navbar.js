@@ -54,17 +54,17 @@ function NavigationBar() {
           {/* Menú desplegable para iniciar sesión */}
           <Nav>
             <NavDropdown title="Inicio de sesión" id="basic-nav-dropdown" align="end">
-              {/* Submenú para Clientes */}
-              <NavDropdown.Header>Cliente</NavDropdown.Header>
-              <NavDropdown.Item as={Link} to="/login-cliente">Iniciar sesión Cliente</NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/registro-cliente">Registrarse como Cliente</NavDropdown.Item>
+              {/* Submenú para Clientes - por buenas practicas elimine registro-login operadores */}
+              <NavDropdown.Header>Bienvenido</NavDropdown.Header>
+              <NavDropdown.Item as={Link} to="/login-cliente">Iniciar sesión</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/registro-cliente">Registrarse</NavDropdown.Item>
 
               <NavDropdown.Divider /> {/* Separador entre clientes y operadores */}
 
-              {/* Submenú para Operadores */}
+              {/* Submenú para Operadores
               <NavDropdown.Header>Operador</NavDropdown.Header>
               <NavDropdown.Item as={Link} to="/login-operador">Iniciar sesión Operador</NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/registro-operador">Registrarse como Operador</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/registro-operador">Registrarse como Operador</NavDropdown.Item> */}
             </NavDropdown>
           </Nav>
         </Navbar.Collapse>

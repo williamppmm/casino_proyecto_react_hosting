@@ -1,7 +1,7 @@
 // src/components/common/WhatsAppButton.js
 
 import React from 'react';
-import './WhatsAppButton.css'; // Si no tienes el archivo CSS, puedes agregar estos estilos inline
+import './WhatsAppButton.css'; // Para agregar estilos personalizados
 
 // Asegúrate de que el ícono esté en la ruta correcta
 import WhatsAppIcon from '../../assets/icons/WhatsApp.svg';
@@ -9,7 +9,7 @@ import WhatsAppIcon from '../../assets/icons/WhatsApp.svg';
 const WhatsAppButton = () => {
   return (
     <a
-      href="https://wa.me/573001234567" // Cambia el número por el real
+      href="https://wa.me/573152728882" 
       target="_blank"
       rel="noopener noreferrer"
       title="¿Necesitas ayuda? Chatea con nosotros en WhatsApp"

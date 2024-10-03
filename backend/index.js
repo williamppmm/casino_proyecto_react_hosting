@@ -29,6 +29,7 @@ const bcrypt = require('bcrypt');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 
 // Crear una instancia de la aplicación Express
 const app = express();
@@ -91,6 +92,20 @@ async function verificarDuplicados(correo, documento) {
   }
 }
 
+// Función para verificar el reCAPTCHA
+async function verificarReCaptcha(token) {
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+  const verifyURL = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`;
+
+  try {
+    const response = await axios.post(verifyURL);
+    return response.data.success;
+  } catch (error) {
+    console.error('Error al verificar reCAPTCHA:', error);
+    return false;
+  }
+}
+
 // Endpoint para el registro de clientes
 app.post('/api/clientes/registro-cliente', async (req, res) => {
   console.log('Datos recibidos para registro:', req.body);
@@ -100,8 +115,14 @@ app.post('/api/clientes/registro-cliente', async (req, res) => {
       tipo_documento, numero_documento, fecha_expedicion, primer_nombre, segundo_nombre,
       primer_apellido, segundo_apellido, lugar_expedicion, correo_electronico, telefono_movil,
       user_pass, fecha_nacimiento, genero, nacionalidad, direccion, municipio, interdicto,
-      pep, consentimiento_datos, comunicaciones_comerciales, terminos_condiciones
+      pep, consentimiento_datos, comunicaciones_comerciales, terminos_condiciones, recaptcha
     } = req.body;
+
+    // Verificar reCAPTCHA
+    const reCaptchaValido = await verificarReCaptcha(recaptcha);
+    if (!reCaptchaValido) {
+      return res.status(400).json({ error: 'Verificación de reCAPTCHA fallida' });
+    }
 
     // Verificar si el cliente ya existe
     const clienteExistente = await verificarDuplicados(correo_electronico, numero_documento);
@@ -111,6 +132,8 @@ app.post('/api/clientes/registro-cliente', async (req, res) => {
 
     // Hash de la contraseña
     const hashedPassword = await bcrypt.hash(user_pass, 10);
+
+    // Insertar el nuevo cliente
     const { data: nuevoCliente, error: errorInsercion } = await supabase
       .from('clientes')
       .insert([{
@@ -581,76 +604,76 @@ app.delete('/api/clientes/darse-de-baja/:id', verifyToken, async (req, res) => {
 // ---------------------------------------------------------------------------------------------------
 // Consultas de prueba quedaran al final del script
 // Obtener todos los clientes
-// app.get('/api/clientes', async (req, res) => {
-//   console.log("Obteniendo todos los clientes...");
+app.get('/api/clientes', async (req, res) => {
+  console.log("Obteniendo todos los clientes...");
 
-//   try {
-//     const { data: clientes, error } = await supabase
-//       .from('clientes')
-//       .select('*');
+  try {
+    const { data: clientes, error } = await supabase
+      .from('clientes')
+      .select('*');
 
-//     if (error) throw error;
+    if (error) throw error;
 
-//     res.status(200).json(clientes);
-//   } catch (error) {
-//     console.error('Error al obtener los clientes:', error);
-//     res.status(500).json({ error: 'Error al obtener los clientes', details: error.message });
-//   }
-// });
+    res.status(200).json(clientes);
+  } catch (error) {
+    console.error('Error al obtener los clientes:', error);
+    res.status(500).json({ error: 'Error al obtener los clientes', details: error.message });
+  }
+});
 
-// // Obtener todos los operadores
-// app.get('/api/operadores', async (req, res) => {
-//   console.log("Obteniendo todos los operadores...");
+// Obtener todos los operadores
+app.get('/api/operadores', async (req, res) => {
+  console.log("Obteniendo todos los operadores...");
 
-//   try {
-//     const { data: operadores, error } = await supabase
-//       .from('operadores')
-//       .select('*');
+  try {
+    const { data: operadores, error } = await supabase
+      .from('operadores')
+      .select('*');
 
-//     if (error) throw error;
+    if (error) throw error;
 
-//     res.status(200).json(operadores);
-//   } catch (error) {
-//     console.error('Error al obtener los operadores:', error);
-//     res.status(500).json({ error: 'Error al obtener los operadores', details: error.message });
-//   }
-// });
+    res.status(200).json(operadores);
+  } catch (error) {
+    console.error('Error al obtener los operadores:', error);
+    res.status(500).json({ error: 'Error al obtener los operadores', details: error.message });
+  }
+});
 
-// // Obtener todas las secciones
-// app.get('/api/secciones', async (req, res) => {
-//   console.log("Obteniendo todas las secciones...");
+// Obtener todas las secciones
+app.get('/api/secciones', async (req, res) => {
+  console.log("Obteniendo todas las secciones...");
 
-//   try {
-//     const { data: secciones, error } = await supabase
-//       .from('secciones')
-//       .select('*');
+  try {
+    const { data: secciones, error } = await supabase
+      .from('secciones')
+      .select('*');
 
-//     if (error) throw error;
+    if (error) throw error;
 
-//     res.status(200).json(secciones);
-//   } catch (error) {
-//     console.error('Error al obtener las secciones:', error);
-//     res.status(500).json({ error: 'Error al obtener las secciones', details: error.message });
-//   }
-// });
+    res.status(200).json(secciones);
+  } catch (error) {
+    console.error('Error al obtener las secciones:', error);
+    res.status(500).json({ error: 'Error al obtener las secciones', details: error.message });
+  }
+});
 
-// // Obtener todas las autorizaciones de registro
-// app.get('/api/autorizaciones', async (req, res) => {
-//   console.log("Obteniendo todas las autorizaciones de registro...");
+// Obtener todas las autorizaciones de registro
+app.get('/api/autorizaciones', async (req, res) => {
+  console.log("Obteniendo todas las autorizaciones de registro...");
 
-//   try {
-//     const { data: autorizaciones, error } = await supabase
-//       .from('autorizaciones_registro')
-//       .select('*');
+  try {
+    const { data: autorizaciones, error } = await supabase
+      .from('autorizaciones_registro')
+      .select('*');
 
-//     if (error) throw error;
+    if (error) throw error;
 
-//     res.status(200).json(autorizaciones);
-//   } catch (error) {
-//     console.error('Error al obtener las autorizaciones:', error);
-//     res.status(500).json({ error: 'Error al obtener las autorizaciones', details: error.message });
-//   }
-// });
+    res.status(200).json(autorizaciones);
+  } catch (error) {
+    console.error('Error al obtener las autorizaciones:', error);
+    res.status(500).json({ error: 'Error al obtener las autorizaciones', details: error.message });
+  }
+});
 
 // Iniciar el servidor
 // Servidor inicial

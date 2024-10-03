@@ -4,14 +4,16 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Form, Button, Container, Row, Col, Alert, Card } from 'react-bootstrap';
 import { registerCliente } from '../../services/api'; // Importa la función de registro
-import Direccion from '../../components/forms/Direccion';
-import DatePicker from '../../components/forms/DatePicker';
-import PasswordInput from '../../components/forms/PasswordInput';
-import EmailInput from '../../components/forms/EmailInput';
+import Direccion from '../../components/forms/Direccion'; // Importar el componente Direccion
+import DatePicker from '../../components/forms/DatePicker'; // Importar el componente DatePicker
+import PasswordInput from '../../components/forms/PasswordInput'; // Importar el componente PasswordInput
+import EmailInput from '../../components/forms/EmailInput'; // Importar el componente EmailInput
+import ReCaptcha from '../../components/common/ReCaptcha'; // Importar el componente ReCaptcha
 
 export default function RegistroClientes() {
   const navigate = useNavigate();
-  
+
+  // Estados
   const [formValues, setFormValues] = useState({
     tipo_documento: "",
     numero_documento: "",
@@ -35,14 +37,15 @@ export default function RegistroClientes() {
     // captcha: false // problemas de implementación lo eliminé
   });
 
-  const [phoneError, setPhoneError] = useState(""); // Añadimos validación para teléfono
   const [email, setEmail] = useState('');
   const [confirmEmail, setConfirmEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [captchaValue, setCaptchaValue] = useState(null); // Estado para almacenar el valor del captcha
+  const [phoneError, setPhoneError] = useState(""); // Añadimos validación para teléfono
   const [error, setError] = useState("");
 
-  // Manejar cambios de entrada
+  // Funciones de manejo de eventos
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     let newValue = value;
@@ -62,6 +65,18 @@ export default function RegistroClientes() {
     });
   };
 
+  // Manejar la dirección ingresada
+  const handleDireccionChange = (direccionCompleta) => {
+    setFormValues({
+      ...formValues,
+      direccion: direccionCompleta
+    });
+  };
+
+  const handleCaptchaChange = (value) => {
+    setCaptchaValue(value);
+  };
+
   // Validar el número de teléfono
   const validatePhoneNumber = (phoneNumber) => {
     if (phoneNumber.length !== 10) {
@@ -69,14 +84,6 @@ export default function RegistroClientes() {
     } else {
       setPhoneError("");
     }
-  };
-
-  // Manejar la dirección ingresada
-  const handleDireccionChange = (direccionCompleta) => {
-    setFormValues({
-      ...formValues,
-      direccion: direccionCompleta
-    });
   };
 
   const validateForm = () => {
@@ -92,10 +99,15 @@ export default function RegistroClientes() {
       setError("Debes aceptar el uso de datos y los términos y condiciones");
       return false;
     }
+    if (!captchaValue) {
+      setError("Por favor, completa el captcha.");
+      return false;
+    }
     setError("");
     return true;
   };
 
+  // Función de envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -103,7 +115,8 @@ export default function RegistroClientes() {
     const datosParaEnviar = {
       ...formValues,
       correo_electronico: email,
-      user_pass: password
+      user_pass: password,
+      recaptcha: captchaValue,
     };
 
     try {
@@ -159,6 +172,7 @@ export default function RegistroClientes() {
                   <Form.Group controlId="fecha_expedicion">
                     <Form.Label>Fecha de Expedición</Form.Label>
                     <DatePicker
+                      id="fecha_expedicion"
                       value={formValues.fecha_expedicion}
                       onDateChange={(date) => setFormValues({ ...formValues, fecha_expedicion: date })}
                     />
@@ -246,7 +260,7 @@ export default function RegistroClientes() {
                 </Col>
               </Row>
 
-              <EmailInput
+              <EmailInput 
                 email={email}
                 confirmEmail={confirmEmail}
                 onEmailChange={setEmail}
@@ -254,7 +268,7 @@ export default function RegistroClientes() {
                 autoComplete="email"
               />
 
-              <Row className="mb-2">
+              <Row className="mb-4">
                 <Col md={6}>
                   <PasswordInput
                     value={password}
@@ -275,7 +289,7 @@ export default function RegistroClientes() {
                 </Col>
               </Row>
               
-              <Row className="mb-4">
+              <Row className="mb-2">
                 <Col>
                   <p className="text-white small">
                     La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y un carácter especial.
@@ -283,7 +297,7 @@ export default function RegistroClientes() {
                 </Col>
               </Row>
 
-              <Row className="mb-4">
+              <Row className="mb-2">
                 <Col md={4}>
                   <Form.Group controlId="fecha_nacimiento">
                     <Form.Label>Fecha de Nacimiento</Form.Label>
@@ -410,6 +424,12 @@ export default function RegistroClientes() {
                     onChange={handleInputChange}
                     required
                   />
+                </Col>
+              </Row>
+
+              <Row className="mb-4">
+                <Col>
+                  <ReCaptcha onChange={handleCaptchaChange} />
                 </Col>
               </Row>
 

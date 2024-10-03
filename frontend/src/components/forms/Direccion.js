@@ -10,13 +10,19 @@ const Direccion = ({ onDireccionCompleta }) => {
   const [numero3, setNumero3] = useState('');
   const [complemento, setComplemento] = useState('');
 
+  // Función para eliminar caracteres especiales y capitalizar cada palabra
   const capitalizeEachWord = (str) => {
-    return str.replace(/\w+/g, function(w){return w[0].toUpperCase() + w.slice(1).toLowerCase();});
+    return str
+      .normalize('NFD') // Descompone los caracteres acentuados
+      .replace(/[\u0300-\u036f]/g, '') // Elimina los diacríticos (acentos)
+      .replace(/\w+/g, function (w) {
+        return w[0].toUpperCase() + w.slice(1).toLowerCase();
+      });
   };
 
   const handleInputChange = (setter, format) => (e) => {
     let value = e.target.value;
-    switch(format) {
+    switch (format) {
       case 'uppercase':
         value = value.toUpperCase();
         break;
@@ -24,7 +30,7 @@ const Direccion = ({ onDireccionCompleta }) => {
         value = capitalizeEachWord(value);
         break;
       case 'number':
-        value = value.replace(/\D/g, '');
+        value = value.replace(/\D/g, ''); // Solo permite números
         break;
       case 'mixed':
         break;
@@ -74,7 +80,7 @@ const Direccion = ({ onDireccionCompleta }) => {
             value={numero1}
             onChange={handleInputChange(setNumero1, 'uppercase')}
             required
-            maxLength="6"
+            maxLength="5"
             placeholder=""
           />
         </Col>
@@ -89,7 +95,7 @@ const Direccion = ({ onDireccionCompleta }) => {
             value={numero2}
             onChange={handleInputChange(setNumero2, 'uppercase')}
             required
-            maxLength="6"
+            maxLength="5"
             placeholder=""
           />
         </Col>
