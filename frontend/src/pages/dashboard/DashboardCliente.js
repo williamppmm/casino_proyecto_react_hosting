@@ -79,13 +79,14 @@ function DashboardCliente() {
       style={{
         backgroundColor: '#000',
         color: '#fff',
-        minHeight: '100vh',
-        paddingTop: '80px', // Ajuste para evitar que el contenido quede oculto
+        minHeight: '80vh',
+        paddingTop: '80px', 
+        marginTop: '65px'
       }}
     >
       <Container>
         <h1 className="text-center mb-5" style={{ color: '#fff', fontWeight: 'bold' }}>
-          {/* Bienvenido al Dashboard de Clientes */}
+          Bienvenido al Dashboard de Clientes
         </h1>
 
         {/* Mostrar los datos del cliente si están disponibles */}

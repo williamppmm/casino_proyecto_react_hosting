@@ -59,7 +59,7 @@ function NavigationBar() {
               <NavDropdown.Item as={Link} to="/login-cliente">Iniciar sesión</NavDropdown.Item>
               <NavDropdown.Item as={Link} to="/registro-cliente">Registrarse</NavDropdown.Item>
 
-              <NavDropdown.Divider /> {/* Separador entre clientes y operadores */}
+              {/* <NavDropdown.Divider /> Separador entre clientes y operadores */}
 
               {/* Submenú para Operadores
               <NavDropdown.Header>Operador</NavDropdown.Header>

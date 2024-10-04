@@ -100,7 +100,7 @@ const PerfilCliente = () => {
   }
 
   return (
-    <div style={{ backgroundColor: '#000', minHeight: '100vh', paddingTop: '80px', paddingBottom: '80px' }}>
+    <div style={{ backgroundColor: '#000', minHeight: '80vh', paddingTop: '80px', paddingBottom: '80px', marginTop: '65px' }}>
       <Container style={{ maxWidth: '900px', margin: '0 auto' }}>
         <Card className="shadow-lg text-light" style={{ backgroundColor: '#141414', borderRadius: '10px' }}>
           <Card.Body className="p-5">
@@ -160,12 +160,12 @@ const PerfilCliente = () => {
         </Row>
 
         <div className="mt-4 text-center">
-          <Button variant="secondary" onClick={handleLogout} className="me-2">
+          <Button variant="btn btn-outline-secondary" onClick={handleLogout}>
             Cerrar Sesión
           </Button>
         </div>
         <div className="mt-4 text-center">
-          <Link to="/dashboard-cliente" className="btn btn-outline-primary btn-lg">
+          <Link to="/dashboard-cliente" className="btn btn-outline-primary">
             Dashboard
           </Link>
         </div>

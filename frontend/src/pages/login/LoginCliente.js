@@ -97,9 +97,9 @@ export default function LoginCliente() {
 
               <Row className="mt-4 text-center">
                 <Col>
-                  <Button variant="link" className="text-light" onClick={() => navigate("/registro-cliente")}>
-                    ¿No tienes cuenta? Regístrate aquí
-                  </Button>
+                  ¿No tienes cuenta? <Link variant="link" className="text-primary" onClick={() => navigate("/registro-cliente")}>
+                    Regístrate aquí
+                  </Link>
                   <p className="text-light">
                     <Link to="/" className="text-secondary">Volver al inicio</Link>
                   </p>
