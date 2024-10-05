@@ -12,7 +12,7 @@ import MisionImagen from '../../assets/images/IMG_002.png'; // Imagen para "Nues
 // Definición del componente funcional QuienesSomos
 function QuienesSomos() {
   return (
-    <section className="quienes-somos-section py-5" style={{ backgroundColor: '#141414', color: '#fff', minHeight: '65vh', marginTop: '65px' }}>
+    <section className="quienes-somos-section py-5" style={{ backgroundColor: '#141414', color: '#fff', minHeight: '100vh', marginTop: '65px' }}>
       <Container>
         {/* Título de la página */}
         <h1 className="text-center mb-5" style={{ color: '#fff', fontWeight: 'bold' }}>Quiénes Somos</h1>
@@ -48,7 +48,7 @@ function QuienesSomos() {
                     moderna. Nuestro objetivo es garantizar la diversión y seguridad de todos nuestros
                     clientes.
                   </Card.Text>
-                  <Button variant="primary" as={Link} to="/juegos">Conoce nuestros juegos</Button>
+                  <Button variant="primary" as={Link} to="/nuestros-juegos">Conoce nuestros juegos</Button>
                 </div>
               </Card.ImgOverlay>
             </Card>

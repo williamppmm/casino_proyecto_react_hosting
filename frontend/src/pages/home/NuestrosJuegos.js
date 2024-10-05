@@ -1,8 +1,9 @@
-// src/pages/games/Juegos.js
+// src/pages/home/Juegos.js
 
 // Importaciones de bibliotecas externas
 import React from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 // Imágenes o íconos de los juegos (puedes reemplazar con las rutas correctas)
 import PokerImage from '../../assets/images/IMG_002.png'; 
@@ -37,6 +38,13 @@ function Juegos() {
               </Card>
             </Col>
           ))}
+        </Row>
+        <Row className="text-center mt-4">
+          <Col>
+            <p className="text-light">
+              ¿Ya eres cliente? <Link to="/login-cliente" className="text-primary">Inicia sesión aquí</Link>
+            </p>
+          </Col>
         </Row>
       </Container>
     </section>

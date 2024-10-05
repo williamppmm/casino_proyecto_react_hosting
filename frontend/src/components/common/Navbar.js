@@ -46,7 +46,7 @@ function NavigationBar() {
           <Nav className="me-auto">
             <Nav.Link as={Link} to="/" active={location.pathname === '/'}>Inicio</Nav.Link>
             <Nav.Link as={Link} to="/quienes-somos" active={location.pathname === '/quienes-somos'}>Quiénes somos</Nav.Link>
-            <Nav.Link as={Link} to="/juegos" active={location.pathname === '/juegos'}>Juegos</Nav.Link>
+            <Nav.Link as={Link} to="/nuestros-juegos" active={location.pathname === '/nuestros-juegos'}>Juegos</Nav.Link>
             <Nav.Link as={Link} to="/promociones" active={location.pathname === '/promociones'}>Promociones</Nav.Link>
             <Nav.Link as={Link} to="/contacto" active={location.pathname === '/contacto'}>Contacto</Nav.Link>
           </Nav>

@@ -4,7 +4,9 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './pages/home/Home'; // Importar la Home Page
 import QuienesSomos from './pages/home/QuienesSomos'; // Importar el componente juegos
-import Juegos from './pages/games/Juegos'; // Importar el componente de quienes somos
+import NuestrosJuegos from './pages/home/NuestrosJuegos'; // Importar el componente de quienes somos
+import Promociones from './pages/home/Promociones'; // Importar el componente de promociones
+import Contacto from './pages/home/Contacto'; // Importar el componente de contacto
 import RegistroCliente from './pages/register/RegistroCliente'; // Importar el componente de registro de clientes
 import LoginCliente from './pages/login/LoginCliente'; // Importar el componente de login de clientes
 import ProtectedRoute from './components/common/ProtectedRoute'; // Importar componente de proteccion de ruta
@@ -28,7 +30,9 @@ function App() {
         <Route path="/registro-cliente" element={<RegistroCliente />} />
         <Route path="/login-cliente" element={<LoginCliente />} />
         <Route path="/quienes-somos" element={<QuienesSomos />} />
-        <Route path="/juegos" element={<Juegos />} />
+        <Route path="/nuestros-juegos" element={<NuestrosJuegos />} />
+        <Route path="/promociones" element={<Promociones />} />
+        <Route path="/contacto" element={<Contacto />} />
         
         <Route 
           path="/dashboard-cliente" 
