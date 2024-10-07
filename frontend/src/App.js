@@ -1,7 +1,7 @@
 // src/App.js
 
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Home from './pages/home/Home'; // Importar la Home Page
 import QuienesSomos from './pages/home/QuienesSomos'; // Importar el componente juegos
 import NuestrosJuegos from './pages/home/NuestrosJuegos'; // Importar el componente de quienes somos
@@ -17,14 +17,27 @@ import CambiarContrasena from './components/profile/CambiarContrasena'; // Impor
 import CambiarMail from './components/profile/CambiarMail'; // Importar el componente para cambiar el mail
 import DarseDeBaja from './components/profile/DarseDeBaja'; // Importar el componente para darse de baja
 
-
 import CustomNavbar from './components/common/Navbar'; // Importar la Navbar
 import Footer from './components/common/Footer';
 
 function App() {
+  const location = useLocation();
+
+  // Rutas protegidas donde no se debe mostrar la Navbar
+  const rutasSinNavbar = [
+    "/dashboard-cliente",
+    "/perfil-cliente",
+    "/modificar-informacion",
+    "/cambiar-contrasena",
+    "/cambiar-mail",
+    "/darse-de-baja"
+  ];
+
   return (
-    <Router>
-      <CustomNavbar />
+    <>
+      {/* Mostrar Navbar si la ruta actual no está en las rutas sin Navbar */}
+      {!rutasSinNavbar.includes(location.pathname) && <CustomNavbar />}
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/registro-cliente" element={<RegistroCliente />} />
@@ -42,7 +55,7 @@ function App() {
             </ProtectedRoute>
           } 
         />
-                <Route 
+        <Route 
           path="/perfil-cliente" 
           element={
             <ProtectedRoute>
@@ -50,7 +63,7 @@ function App() {
             </ProtectedRoute>
           } 
         />
-                <Route 
+        <Route 
           path="/modificar-informacion" 
           element={
             <ProtectedRoute>
@@ -58,7 +71,7 @@ function App() {
             </ProtectedRoute>
           } 
         />
-              <Route 
+        <Route 
           path="/cambiar-contrasena" 
           element={
             <ProtectedRoute>
@@ -66,7 +79,7 @@ function App() {
             </ProtectedRoute>
           } 
         />
-              <Route 
+        <Route 
           path="/cambiar-mail" 
           element={
             <ProtectedRoute>
@@ -74,7 +87,7 @@ function App() {
             </ProtectedRoute>
           } 
         />
-              <Route 
+        <Route 
           path="/darse-de-baja" 
           element={
             <ProtectedRoute>
@@ -82,11 +95,19 @@ function App() {
             </ProtectedRoute>
           } 
         />
- 
-       </Routes>
+      </Routes>
+      
       <Footer />
+    </>
+  );
+}
+
+function AppWrapper() {
+  return (
+    <Router>
+      <App />
     </Router>
   );
 }
 
-export default App;
+export default AppWrapper;

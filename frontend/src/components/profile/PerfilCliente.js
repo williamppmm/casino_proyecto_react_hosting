@@ -100,11 +100,11 @@ const PerfilCliente = () => {
   }
 
   return (
-    <div style={{ backgroundColor: '#000', minHeight: '80vh', paddingTop: '80px', paddingBottom: '80px', marginTop: '65px' }}>
+    <div style={{ backgroundColor: '#000', minHeight: '80vh', paddingTop: '80px', paddingBottom: '80px', marginTop: '0px' }}>
       <Container style={{ maxWidth: '900px', margin: '0 auto' }}>
         <Card className="shadow-lg text-light" style={{ backgroundColor: '#141414', borderRadius: '10px' }}>
           <Card.Body className="p-5">
-            <h2 className="text-center mb-4">Información del Cliente</h2>
+            <h2 className="text-center mb-4">Tu información</h2>
             {clienteData && <DetallesCliente cliente={clienteData} />}
           </Card.Body>
         </Card>

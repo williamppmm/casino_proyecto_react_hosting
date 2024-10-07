@@ -17,3 +17,21 @@
   h4 {
     color: #d1d1d1;
   }
+
+  @keyframes bounceIn {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  .animate-logo {
+    animation: bounceIn 1.5s ease-in-out;
+  }

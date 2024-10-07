@@ -77,11 +77,10 @@ function DashboardCliente() {
     <section
       className="dashboard-clientes-section py-5"
       style={{
-        backgroundColor: '#000',
+        backgroundColor: '#141414',
         color: '#fff',
-        minHeight: '80vh',
-        paddingTop: '80px', 
-        marginTop: '65px'
+        minHeight: '50vh',
+        marginTop: '0px'
       }}
     >
       <Container>

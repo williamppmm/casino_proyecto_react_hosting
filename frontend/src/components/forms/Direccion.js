@@ -1,6 +1,6 @@
 // src/components/forms/Direccion.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Row, Col, Form } from 'react-bootstrap';
 
 const Direccion = ({ onDireccionCompleta }) => {
@@ -38,17 +38,14 @@ const Direccion = ({ onDireccionCompleta }) => {
         break;
     }
     setter(value);
-    handleDireccionChange();
   };
 
-  const handleDireccionChange = () => {
-    const direccionCompleta = `${tipoCalle} ${numero1.trim()} # ${numero2.trim()}-${numero3.trim()} ${complemento.trim()}`.replace(/\s+/g, ' ').trim();
+  useEffect(() => {
+    const direccionCompleta = `${tipoCalle} ${numero1.trim()} # ${numero2.trim()}-${numero3.trim()} ${complemento}`.replace(/\s+/g, ' ').trim();
     if (typeof onDireccionCompleta === 'function') {
       onDireccionCompleta(direccionCompleta);
-    } else {
-      console.error('onDireccionCompleta no es una función');
     }
-  };
+  }, [tipoCalle, numero1, numero2, numero3, complemento, onDireccionCompleta]);
 
   return (
     <div>

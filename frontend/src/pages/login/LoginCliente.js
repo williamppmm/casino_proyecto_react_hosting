@@ -61,7 +61,7 @@ export default function LoginCliente() {
   };
 
   return (
-    <div style={{ backgroundColor: "#000", minHeight: "100vh", paddingTop: "80px", paddingBottom: "80px" }}>
+    <div style={{ backgroundColor: "#000", minHeight: "100vh", paddingTop: "80px", paddingBottom: "80px", marginTop: '65px' }}>
       <Container style={{ maxWidth: "500px", margin: "0 auto" }}>
         <Card className="shadow-lg text-light" style={{ backgroundColor: "#141414", borderRadius: "10px" }}>
           <Card.Body className="p-5">

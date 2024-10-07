@@ -246,7 +246,9 @@ app.post('/api/clientes/login-cliente', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    console.log('Login exitoso, token generado:', token);
+    if (!isProduction) {
+      console.log('Login exitoso, token generado:', token);
+    }
 
     // Devolver la respuesta exitosa
     res.status(200).json({
@@ -341,7 +343,9 @@ app.post('/api/clientes/datos-cliente', verifyToken, async (req, res) => {
       return res.status(404).json({ error: 'No se encontró el cliente con el ID proporcionado.' });
     }
 
-    console.log('Datos del cliente obtenidos:', cliente);
+    if (!isProduction) {
+      console.log('Datos del cliente obtenidos:', cliente);
+    }
 
     // Devolver los datos del cliente
     res.status(200).json(cliente);

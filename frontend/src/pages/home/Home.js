@@ -17,7 +17,7 @@ const Home = () => {
       <Row>
         <Col>
           {/* Sección del logo */}
-          <img src={logo} alt="Casino La Fortuna" className="logo-img mb-4" />
+          <img src={logo} alt="Casino La Fortuna" className="logo-img mb-4 animate-logo" />
 
           {/* Título */}
           <h1 className="mb-4">¡Bienvenido a Casino La Fortuna!</h1>
