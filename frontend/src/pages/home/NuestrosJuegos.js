@@ -1,17 +1,17 @@
-// src/pages/home/Juegos.js
+// src/pages/home/NuestrosJuegos.js
 
 // Importaciones de bibliotecas externas
 import React from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-// Imágenes o íconos de los juegos (puedes reemplazar con las rutas correctas)
+// Imágenes o íconos de los juegos
 import PokerImage from '../../assets/images/IMG_002.png'; 
 import RuletaImage from '../../assets/images/IMG_001.png';
 import BlackjackImage from '../../assets/images/IMG_005.png'; 
 import TragamonedasImage from '../../assets/images/IMG_007.png';
 
-function Juegos() {
+function NuestrosJuegos() {
   const juegos = [
     { id: 1, nombre: 'Póker', descripcion: 'Clásico juego de cartas con múltiples variantes.', img: PokerImage },
     { id: 2, nombre: 'Ruleta', descripcion: 'Prueba tu suerte en la rueda de la fortuna.', img: RuletaImage },
@@ -42,7 +42,7 @@ function Juegos() {
         <Row className="text-center mt-4">
           <Col>
             <p className="text-light">
-              ¿Ya eres cliente? <Link to="/login-cliente" className="text-primary">Inicia sesión aquí</Link>
+              ¿Ya eres cliente? <Link to="/login-usuario" className="text-primary">Inicia sesión aquí</Link>
             </p>
           </Col>
         </Row>
@@ -51,4 +51,4 @@ function Juegos() {
   );
 }
 
-export default Juegos;
+export default NuestrosJuegos;

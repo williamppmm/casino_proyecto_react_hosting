@@ -1,6 +1,6 @@
 // src/components/forms/Direccion.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Row, Col, Form } from 'react-bootstrap';
 
 const Direccion = ({ onDireccionCompleta }) => {
@@ -13,12 +13,21 @@ const Direccion = ({ onDireccionCompleta }) => {
   // Función para eliminar caracteres especiales y capitalizar cada palabra
   const capitalizeEachWord = (str) => {
     return str
-      .normalize('NFD') // Descompone los caracteres acentuados
-      .replace(/[\u0300-\u036f]/g, '') // Elimina los diacríticos (acentos)
-      .replace(/\w+/g, function (w) {
-        return w[0].toUpperCase() + w.slice(1).toLowerCase();
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\w\S*/g, function(w) {
+        return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
       });
   };
+  const updateDireccionCompleta = useCallback(() => {
+    const direccionCompleta = `${tipoCalle} ${numero1.trim()} # ${numero2.trim()}-${numero3.trim()} ${complemento}`
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (typeof onDireccionCompleta === 'function') {
+      onDireccionCompleta(direccionCompleta);
+    }
+  }, [tipoCalle, numero1, numero2, numero3, complemento, onDireccionCompleta]);
 
   const handleInputChange = (setter, format) => (e) => {
     let value = e.target.value;
@@ -30,7 +39,7 @@ const Direccion = ({ onDireccionCompleta }) => {
         value = capitalizeEachWord(value);
         break;
       case 'number':
-        value = value.replace(/\D/g, ''); // Solo permite números
+        value = value.replace(/\D/g, '');
         break;
       case 'mixed':
         break;
@@ -38,18 +47,12 @@ const Direccion = ({ onDireccionCompleta }) => {
         break;
     }
     setter(value);
+    setTimeout(updateDireccionCompleta, 0);
   };
-
-  useEffect(() => {
-    const direccionCompleta = `${tipoCalle} ${numero1.trim()} # ${numero2.trim()}-${numero3.trim()} ${complemento}`.replace(/\s+/g, ' ').trim();
-    if (typeof onDireccionCompleta === 'function') {
-      onDireccionCompleta(direccionCompleta);
-    }
-  }, [tipoCalle, numero1, numero2, numero3, complemento, onDireccionCompleta]);
 
   return (
     <div>
-      <Form.Label className="mb-1">
+      <Form.Label className="mb-3">
         Dirección{" "}
         <span style={{ color: '#a0a0a0', fontSize: '0.9em' }}>
           (Ej: Calle 33 # 24 - 16 San Fernando)

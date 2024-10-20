@@ -76,7 +76,7 @@ const Contacto = () => {
               <Col>
                 <p className="text-light">
                   ¿Ya eres cliente?{' '}
-                  <Link to="/login-cliente" className="text-primary">
+                  <Link to="/login-usuario" className="text-primary">
                     Inicia sesión aquí
                   </Link>
                 </p>

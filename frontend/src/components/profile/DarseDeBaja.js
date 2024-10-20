@@ -1,3 +1,5 @@
+// src/components/profile/DarseDeBaja.js
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Container, Button, Form, Alert, Card } from 'react-bootstrap';

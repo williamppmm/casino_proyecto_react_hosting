@@ -30,7 +30,7 @@ function QuienesSomos() {
                     de primer nivel. Desde entonces, hemos crecido para convertirnos en uno de los destinos
                     de juego más emocionantes del país.
                   </Card.Text>
-                  <Button variant="primary" as={Link} to="/registro-cliente" className="me-2">Regístrate</Button>
+                  <Button variant="primary" as={Link} to="/registro-usuario" className="me-2">Regístrate</Button>
                 </div>
               </Card.ImgOverlay>
             </Card>
@@ -59,7 +59,7 @@ function QuienesSomos() {
         <Row className="text-center mt-4">
           <Col>
             <p className="text-light">
-              ¿Ya eres cliente? <Link to="/login-cliente" className="text-primary">Inicia sesión aquí</Link>
+              ¿Ya eres cliente? <Link to="/login-usuario" className="text-primary">Inicia sesión aquí</Link>
             </p>
           </Col>
         </Row>

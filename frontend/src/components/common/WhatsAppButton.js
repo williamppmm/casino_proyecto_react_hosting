@@ -2,8 +2,6 @@
 
 import React from 'react';
 import './WhatsAppButton.css'; // Para agregar estilos personalizados
-
-// Asegúrate de que el ícono esté en la ruta correcta
 import WhatsAppIcon from '../../assets/icons/WhatsApp.svg';
 
 const WhatsAppButton = () => {

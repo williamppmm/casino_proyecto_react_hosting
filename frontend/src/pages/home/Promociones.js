@@ -38,7 +38,7 @@ const Promociones = () => {
         <Row className="text-center mt-4">
           <Col>
             <p className="text-light">
-              ¿Ya eres cliente? <Link to="/login-cliente" className="text-primary">Inicia sesión aquí</Link>
+              ¿Ya eres cliente? <Link to="/login-usuario" className="text-primary">Inicia sesión aquí</Link>
             </p>
           </Col>
         </Row>

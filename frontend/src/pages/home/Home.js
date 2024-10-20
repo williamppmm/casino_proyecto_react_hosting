@@ -25,7 +25,7 @@ const Home = () => {
           {/* Botones interactivos */}
           <div className="mb-4">
             <Button 
-              onClick={() => navigate('/registro-cliente')} 
+              onClick={() => navigate('/registro-usuario')} 
               variant="primary" 
               size="lg" 
               className="mx-2"
@@ -33,7 +33,7 @@ const Home = () => {
               Registrarse
             </Button>
             <Button 
-              onClick={() => navigate('/login-cliente')} 
+              onClick={() => navigate('/login-usuario')} 
               variant="secondary" 
               size="lg" 
               className="mx-2"

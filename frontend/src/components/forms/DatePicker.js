@@ -17,7 +17,7 @@ const CustomDatePicker = ({ id, label, value, onDateChange }) => {
   };
 
   return (
-    <Form.Group className="mb-3">
+    <Form.Group className="md-3">
       <Form.Label htmlFor={id}>{label}</Form.Label>
       <DatePicker
         id={id}
@@ -29,10 +29,11 @@ const CustomDatePicker = ({ id, label, value, onDateChange }) => {
         showYearDropdown
         scrollableYearDropdown
         yearDropdownItemNumber={100}
-        placeholderText="Seleccione una fecha"
+        placeholderText="dd/mm/aaaa"
         isClearable
         showMonthDropdown
         dropdownMode="select"
+        maxDate={new Date()} // Añadido: Restringe la selección a la fecha actual o anterior
       />
     </Form.Group>
   );
