@@ -31,7 +31,7 @@ const Contacto = () => {
   return (
     <section
       className="contacto-section py-5"
-      style={{ backgroundColor: '#141414', color: '#fff', minHeight: '100vh', marginTop: '65px' }}
+      style={{ backgroundColor: '#141414', color: '#fff', minHeight: '100vh', marginTop: '0px' }}
     >
       <Container>
         <h1 className="text-center mb-5" style={{ color: '#fff', fontWeight: 'bold' }}>

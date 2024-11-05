@@ -39,4 +39,15 @@ export const verificarCodigoAutorizacion = async (codigo) => {
   }
 };
 
+// Función para el inicio de sesión
+export const login = async (credentials) => {
+  try {
+    const response = await api.post('/api/auth/login-usuario', credentials);
+    return response.data;
+  } catch (error) {
+    console.error(`Error en login (POST /api/auth/login-usuario): ${error.response?.status} - ${error.response?.data?.error || error.message}`);
+    throw error.response?.data?.error || "Error en el inicio de sesión";
+  }
+};
+
 export default api;

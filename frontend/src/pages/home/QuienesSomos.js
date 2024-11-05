@@ -4,6 +4,7 @@
 import React from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import WhatsAppButton from '../../components/common/WhatsAppButton';
 
 // Importaciones de assets
 import HistoriaImagen from '../../assets/images/IMG_007.png'; // Imagen para "Nuestra Historia"
@@ -12,7 +13,7 @@ import MisionImagen from '../../assets/images/IMG_002.png'; // Imagen para "Nues
 // Definición del componente funcional QuienesSomos
 function QuienesSomos() {
   return (
-    <section className="quienes-somos-section py-5" style={{ backgroundColor: '#141414', color: '#fff', minHeight: '100vh', marginTop: '65px' }}>
+    <section className="quienes-somos-section py-5" style={{ backgroundColor: '#141414', color: '#fff', minHeight: '100vh', marginTop: '0px' }}>
       <Container>
         {/* Título de la página */}
         <h1 className="text-center mb-5" style={{ color: '#fff', fontWeight: 'bold' }}>Quiénes Somos</h1>
@@ -64,6 +65,9 @@ function QuienesSomos() {
           </Col>
         </Row>
       </Container>
+      <div>
+        <WhatsAppButton />
+      </div>
     </section>
   );
 }

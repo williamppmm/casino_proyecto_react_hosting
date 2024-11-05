@@ -1,16 +1,34 @@
 // src/components/common/Navbar.js
 
-// Importaciones necesarias
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
 
 function NavigationBar() {
-  // Obtener la ruta actual para resaltar la página activa
   const location = useLocation();
-
-  // Estado para controlar si el menú está expandido o no
+  const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [userType, setUserType] = useState('');
+
+  useEffect(() => {
+    // Verificar el estado de autenticación
+    const token = sessionStorage.getItem('token');
+    const name = sessionStorage.getItem('user_name');
+    const type = sessionStorage.getItem('user_type');
+
+    setIsAuthenticated(!!token);
+    setUserName(name || '');
+    setUserType(type || '');
+  }, [location]); // Se actualiza cuando cambia la ruta
+
+  const handleLogout = () => {
+    // Limpiar sessionStorage
+    sessionStorage.clear();
+    // Redirigir a la página de inicio
+    navigate('/');
+  };
 
   return (
     <Navbar
@@ -19,11 +37,10 @@ function NavigationBar() {
       expand="lg"
       fixed="top"
       expanded={expanded}
-      onMouseEnter={() => setExpanded(true)} // Expandir al pasar el puntero
-      onMouseLeave={() => setExpanded(false)} // Contraer al salir el puntero
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
     >
       <Container>
-        {/* Logo y título del casino */}
         <Navbar.Brand as={Link} to="/">
           <img
             src={require('../../assets/logos/logo.png')}
@@ -31,34 +48,63 @@ function NavigationBar() {
             height="40"
             className="d-inline-block align-top"
             alt="Logo Casino La Fortuna"
-          />{' '}
+          />
           <span style={{ color: '#FFF', fontWeight: 'bold' }}>Casino La Fortuna</span>
         </Navbar.Brand>
 
-        {/* Botón de toggle para móviles */}
         <Navbar.Toggle
           aria-controls="basic-navbar-nav"
-          onClick={() => setExpanded(!expanded)} // Alternar estado en móviles
+          onClick={() => setExpanded(!expanded)}
         />
 
-        {/* Enlaces de navegación */}
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/" active={location.pathname === '/'}>Inicio</Nav.Link>
-            <Nav.Link as={Link} to="/quienes-somos" active={location.pathname === '/quienes-somos'}>Quiénes somos</Nav.Link>
-            <Nav.Link as={Link} to="/nuestros-juegos" active={location.pathname === '/nuestros-juegos'}>Juegos</Nav.Link>
-            <Nav.Link as={Link} to="/promociones" active={location.pathname === '/promociones'}>Promociones</Nav.Link>
-            <Nav.Link as={Link} to="/contacto" active={location.pathname === '/contacto'}>Contacto</Nav.Link>
+            <Nav.Link as={Link} to="/" active={location.pathname === '/'}>
+              Inicio
+            </Nav.Link>
+            <Nav.Link as={Link} to="/quienes-somos" active={location.pathname === '/quienes-somos'}>
+              Quiénes somos
+            </Nav.Link>
+            <Nav.Link as={Link} to="/nuestros-juegos" active={location.pathname === '/nuestros-juegos'}>
+              Juegos
+            </Nav.Link>
+            <Nav.Link as={Link} to="/promociones" active={location.pathname === '/promociones'}>
+              Promociones
+            </Nav.Link>
+            <Nav.Link as={Link} to="/contacto" active={location.pathname === '/contacto'}>
+              Contacto
+            </Nav.Link>
           </Nav>
 
-          {/* Menú desplegable para iniciar sesión */}
           <Nav>
-            <NavDropdown title="Inicio de sesión" id="basic-nav-dropdown" align="end">
-              <NavDropdown.Header>Bienvenido</NavDropdown.Header>
-              <NavDropdown.Item as={Link} to="/login-usuario">Iniciar sesión</NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/registro-usuario">Registrarse</NavDropdown.Item>
-
-            </NavDropdown>
+            {isAuthenticated ? (
+              <NavDropdown 
+                title={`Bienvenido, ${userName}`} 
+                id="basic-nav-dropdown" 
+                align="end"
+              >
+                <NavDropdown.Item 
+                  as={Link} 
+                  to={userType === 'cliente' ? '/dashboard-cliente' : '/dashboard-operador'}
+                >
+                  Mi Dashboard
+                </NavDropdown.Item>
+                <NavDropdown.Divider />
+                <NavDropdown.Item onClick={handleLogout}>
+                  Cerrar Sesión
+                </NavDropdown.Item>
+              </NavDropdown>
+            ) : (
+              <NavDropdown title="Inicio de sesión" id="basic-nav-dropdown" align="end">
+                <NavDropdown.Header>Bienvenido</NavDropdown.Header>
+                <NavDropdown.Item as={Link} to="/login-usuario">
+                  Iniciar sesión
+                </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/registro-usuario">
+                  Registrarse
+                </NavDropdown.Item>
+              </NavDropdown>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>

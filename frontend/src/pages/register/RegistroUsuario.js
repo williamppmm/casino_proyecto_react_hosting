@@ -623,7 +623,7 @@ export default function RegistroUsuario() {
               <Row className="mt-4">
                 <Col className="text-center">
                   <p className="text-light">
-                    ¿Ya tienes una cuenta? <Link to="/login" className="text-primary">Iniciar sesión</Link>
+                    ¿Ya tienes una cuenta? <Link to="/login-usuario" className="text-primary">Iniciar sesión</Link>
                   </p>
                   <p className="text-light">
                     <Link to="/" className="text-secondary">Volver al inicio</Link>

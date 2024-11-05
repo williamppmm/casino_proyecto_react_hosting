@@ -4,6 +4,8 @@ import React from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
+import WhatsAppButton from '../../components/common/WhatsAppButton';
+
 const Promociones = () => {
 
   const promociones = [
@@ -16,7 +18,7 @@ const Promociones = () => {
   ];
 
   return (
-    <section className="promociones-section py-5" style={{ backgroundColor: '#141414', color: '#fff', minHeight: '100vh', marginTop: '65px' }}>
+    <section className="promociones-section py-5" style={{ backgroundColor: '#141414', color: '#fff', minHeight: '100vh', marginTop: '0px' }}>
     <Container>
         <h1 className="text-center mb-5" style={{ fontWeight: 'bold' }}>Promociones Actuales</h1>
         <Row>
@@ -43,6 +45,9 @@ const Promociones = () => {
           </Col>
         </Row>
     </Container>
+    <div>
+      <WhatsAppButton />
+    </div>
     </section>
   );
 };

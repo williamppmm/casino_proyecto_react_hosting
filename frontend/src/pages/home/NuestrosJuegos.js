@@ -5,6 +5,8 @@ import React from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
+import WhatsAppButton from '../../components/common/WhatsAppButton';
+
 // Imágenes o íconos de los juegos
 import PokerImage from '../../assets/images/IMG_002.png'; 
 import RuletaImage from '../../assets/images/IMG_001.png';
@@ -20,7 +22,7 @@ function NuestrosJuegos() {
   ];
 
   return (
-    <section className="juegos-section py-5" style={{ backgroundColor: '#141414', color: '#fff', minHeight: '100vh', marginTop: '65px' }}>
+    <section className="juegos-section py-5" style={{ backgroundColor: '#141414', color: '#fff', minHeight: '100vh', marginTop: '0px' }}>
       {/* Aplicamos un marginTop para evitar que la navbar oculte el título */}
       <Container>
         <h1 className="text-center mb-5" style={{ fontWeight: 'bold' }}>Nuestros Juegos</h1>
@@ -47,6 +49,9 @@ function NuestrosJuegos() {
           </Col>
         </Row>
       </Container>
+      <div>
+        <WhatsAppButton />
+      </div>
     </section>
   );
 }

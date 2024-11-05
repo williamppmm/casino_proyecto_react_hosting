@@ -1,4 +1,4 @@
-// backend/controllers/usuarioController.js
+// backend/controllers/registerController.js
 
 const supabase = require('../config/supabaseClient');
 const bcrypt = require('bcrypt');
