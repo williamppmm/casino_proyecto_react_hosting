@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import axios from 'axios';
+// Importamos la función desde api.js
+import { obtenerDatosCliente } from '../../services/api';
 
 // Función auxiliar para formatear la fecha
 const formatearFecha = (fecha) => {
@@ -19,29 +20,18 @@ function DashboardCliente() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = sessionStorage.getItem('token');
-
-      if (!token) {
-        navigate('/login-usuario');
-        return;
-      }
-
       try {
-        // Obtener datos del cliente desde el backend
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/clientes/datos`,
-          {
-            headers: { Authorization: token }
-          }
-        );
-        setCliente(response.data);
+        // Llamamos a la función obtenerDatosCliente de api.js
+        const data = await obtenerDatosCliente();
+        setCliente(data);
         setLoading(false);
       } catch (err) {
         console.error('Error al obtener datos del cliente:', err);
         setError('Error al cargar los datos. Por favor, intente nuevamente.');
         setLoading(false);
-        
-        if (err.response?.status === 401 || err.response?.status === 403) {
+
+        // Si el error es de autenticación, redirigimos al login
+        if (err === 'Error al obtener datos del cliente' || err === 'No autorizado') {
           sessionStorage.clear();
           navigate('/login-usuario');
         }

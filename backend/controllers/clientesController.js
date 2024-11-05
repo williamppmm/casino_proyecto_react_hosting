@@ -19,6 +19,14 @@ exports.obtenerDatosCliente = async (req, res) => {
                 segundo_apellido,
                 correo_electronico,
                 telefono_movil,
+                direccion,
+                municipio,
+                fecha_nacimiento,
+                nacionalidad,
+                tipo_documento,
+                numero_documento,
+                lugar_expedicion,
+                fecha_expedicion,
                 fecha_registro
             `)
             .eq('id_cliente', id)

@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Container, Card, Row, Col, Button, Alert, ListGroup } from 'react-bootstrap';
-import axios from 'axios';
+import { obtenerDatosCliente } from '../../services/api';
 
 const DetallesCliente = ({ cliente }) => (
   <ListGroup variant="flush">
     <ListGroup.Item style={{ backgroundColor: '#141414', color: 'white' }}>
-      <strong>Nombre:</strong> {cliente.primer_nombre} {cliente.segundo_nombre} {cliente.primer_apellido}
+      <strong>Nombre:</strong> {cliente.primer_nombre} {cliente.segundo_nombre} {cliente.primer_apellido} {cliente.segundo_apellido}
     </ListGroup.Item>
     <ListGroup.Item style={{ backgroundColor: '#141414', color: 'white' }}>
       <strong>Correo electrónico:</strong> {cliente.correo_electronico}
@@ -29,10 +29,16 @@ const DetallesCliente = ({ cliente }) => (
       <strong>Nacionalidad:</strong> {cliente.nacionalidad}
     </ListGroup.Item>
     <ListGroup.Item style={{ backgroundColor: '#141414', color: 'white' }}>
+      <strong>Tipo de documento:</strong> {cliente.tipo_documento}
+    </ListGroup.Item>
+    <ListGroup.Item style={{ backgroundColor: '#141414', color: 'white' }}>
       <strong>Número de documento:</strong> {cliente.numero_documento}
     </ListGroup.Item>
     <ListGroup.Item style={{ backgroundColor: '#141414', color: 'white' }}>
       <strong>Lugar de expedición:</strong> {cliente.lugar_expedicion}
+    </ListGroup.Item>
+    <ListGroup.Item style={{ backgroundColor: '#141414', color: 'white' }}>
+      <strong>Fecha de expedición:</strong> {new Date(cliente.fecha_expedicion).toLocaleDateString()}
     </ListGroup.Item>
     <ListGroup.Item style={{ backgroundColor: '#141414', color: 'white' }}>
       <strong>Fecha de registro:</strong> {new Date(cliente.fecha_registro).toLocaleDateString()}
@@ -48,30 +54,19 @@ const PerfilCliente = () => {
 
   useEffect(() => {
     const fetchClienteData = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/login-cliente');
-        return;
-      }
-
       try {
-        const response = await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/api/clientes/datos-cliente`,
-          {},
-          {
-            headers: { Authorization: token }
-          }
-        );
-        setClienteData(response.data);
+        const data = await obtenerDatosCliente();
+        setClienteData(data);
+        setLoading(false);
       } catch (err) {
-        console.error('Error al obtener los datos del cliente:', err.response || err.message);
+        console.error('Error al obtener los datos del cliente:', err);
         setError('Error al obtener los datos del cliente. Por favor, intenta nuevamente.');
-        if (err.response && err.response.status === 401) {
-          localStorage.removeItem('token');
+        setLoading(false);
+
+        if (err.response?.status === 401) {
+          sessionStorage.removeItem('token');
           navigate('/login-cliente');
         }
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -79,7 +74,7 @@ const PerfilCliente = () => {
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     navigate('/login-cliente');
   };
 

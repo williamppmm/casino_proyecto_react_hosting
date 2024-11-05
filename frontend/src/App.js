@@ -12,6 +12,7 @@ import Contacto from './pages/home/Contacto';
 import LoginUsuario from './pages/login/LoginUsuario';
 import RegistroUsuario from './pages/register/RegistroUsuario';
 import DashboardCliente from './pages/dashboard/DashboardCliente';
+import PerfilCliente from './components/profile/PerfilCliente'; 
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
@@ -34,6 +35,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <DashboardCliente />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/perfil-cliente"
+            element={
+              <ProtectedRoute>
+                <PerfilCliente />
               </ProtectedRoute>
             }
           />

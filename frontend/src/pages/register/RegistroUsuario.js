@@ -632,6 +632,7 @@ export default function RegistroUsuario() {
               </Row>
 
             </Form>
+            
           </Card.Body>
         </Card>
       </Container>

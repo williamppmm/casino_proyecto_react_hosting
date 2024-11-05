@@ -1,8 +1,8 @@
 // src/pages/login/LoginUsuario.js
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Form, Button, Container, Card, Alert, Spinner } from 'react-bootstrap';
+import { useNavigate, Link } from 'react-router-dom';
+import { Form, Button, Container, Card, Alert, Spinner, Row, Col } from 'react-bootstrap';
 import { BsEye, BsEyeSlash } from 'react-icons/bs';
 import axios from 'axios';
 
@@ -153,6 +153,16 @@ export default function LoginUsuario() {
                 </Button>
               </div>
             </Form>
+            <Row className="mt-4">
+              <Col className="text-center">
+                <p className="text-light">
+                  ¿Aún no tienes una cuenta? <Link to="/registro-usuario" className="text-primary">Registrarse</Link>
+                </p>
+                <p className="text-light">
+                  <Link to="/" className="text-secondary">Volver al inicio</Link>
+                </p>
+              </Col>
+            </Row>
           </Card.Body>
         </Card>
       </Container>
