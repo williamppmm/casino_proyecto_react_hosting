@@ -12,6 +12,9 @@ import Contacto from './pages/home/Contacto';
 import LoginUsuario from './pages/login/LoginUsuario';
 import RegistroUsuario from './pages/register/RegistroUsuario';
 import DashboardCliente from './pages/dashboard/DashboardCliente';
+import DashboardAdmin from './pages/dashboard/DashboardAdmin';
+import DashboardFinanciero from './pages/dashboard/DashboardFinanciero';
+import DashboardSlots from './pages/dashboard/DashboardSlots';
 import PerfilCliente from './components/profile/PerfilCliente'; 
 import ProtectedRoute from './components/common/ProtectedRoute';
 
@@ -43,6 +46,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <PerfilCliente />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardAdmin />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/financial-dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardFinanciero />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/slot-machines-dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardSlots />
               </ProtectedRoute>
             }
           />

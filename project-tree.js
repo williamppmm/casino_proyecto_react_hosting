@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-function printDirectoryStructure(dir, depth = 0, maxDepth = Infinity, ignore = [], extensions = [], specialFiles = []) {
-  if (depth > maxDepth) return;
+function printDirectoryStructure(dir, depth = 0, maxDepth = Infinity, ignore = [], extensions = [], specialFiles = [], specialDirs = []) {
+  if (depth > maxDepth && !specialDirs.includes(path.basename(dir))) return;
 
   try {
     const files = fs.readdirSync(dir);
@@ -13,11 +13,14 @@ function printDirectoryStructure(dir, depth = 0, maxDepth = Infinity, ignore = [
       const filePath = path.join(dir, file);
       const stats = fs.statSync(filePath);
       const ext = path.extname(file).toLowerCase();
+      const currentDir = path.basename(dir);
       
       if (stats.isDirectory()) {
         console.log('  '.repeat(depth) + '|-- ' + file);
-        printDirectoryStructure(filePath, depth + 1, maxDepth, ignore, extensions, specialFiles);
+        const nextDepth = specialDirs.includes(currentDir) ? Infinity : depth + 1;
+        printDirectoryStructure(filePath, depth + 1, nextDepth, ignore, extensions, specialFiles, specialDirs);
       } else if (
+        (specialDirs.includes(currentDir) && extensions.includes(ext)) ||
         extensions.includes(ext) || 
         specialFiles.includes(file) || 
         file.startsWith('.env')
@@ -31,20 +34,33 @@ function printDirectoryStructure(dir, depth = 0, maxDepth = Infinity, ignore = [
 }
 
 // Configuración
-const maxDepth = 3; // Ajustar profundidad del árbol
+const maxDepth = 3; // Profundidad general del árbol
 const ignoreList = ['node_modules', '.git', 'build', 'dist']; // Directorios a ignorar
-const extensions = ['.js', '.css', '.json', '.md']; // Extensiones a mostrar
+const extensions = ['.js', '.css', '.json', '.md', '.svg', '.png', '.jpg', '.jpeg']; // Extensiones a mostrar
 const specialFiles = [
   '.gitignore',
   '.env',
   '.env.development',
   'README.md'
 ]; // Archivos especiales a mostrar
+const specialDirs = [
+  'icons',
+  'images',
+  'logos',
+  'common',
+  'forms',
+  'layout',
+  'profile',
+  'dashboard',
+  'home',
+  'login',
+  'register'
+]; // Directorios que quieres explorar completamente
 
 console.log('\nEstructura del proyecto:');
 console.log('|-- FRONTEND');
-printDirectoryStructure('./frontend', 1, maxDepth, ignoreList, extensions, specialFiles);
+printDirectoryStructure('./frontend', 1, maxDepth, ignoreList, extensions, specialFiles, specialDirs);
 console.log('\n|-- BACKEND');
-printDirectoryStructure('./backend', 1, maxDepth, ignoreList, extensions, specialFiles);
+printDirectoryStructure('./backend', 1, maxDepth, ignoreList, extensions, specialFiles, specialDirs);
 
 // Ejecutar con: node project-tree.js

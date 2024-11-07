@@ -45,6 +45,7 @@ export default function RegistroUsuario() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [captchaValue, setCaptchaValue] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -219,12 +220,15 @@ export default function RegistroUsuario() {
         fecha_ingreso: new Date()
     };
 
-    console.log('Datos enviados al backend:', datosParaEnviar);
-    
     try {
       const response = await registrarUsuario(datosParaEnviar);
       if (response.message === "Usuario registrado exitosamente") {
-        navigate('/login-usuario');
+        setShowSuccessModal(true);
+        // Esperar 3 segundos antes de redirigir
+        setTimeout(() => {
+          setShowSuccessModal(false);
+          navigate('/login-usuario');
+        }, 3000);
       }
     } catch (error) {
       console.error("Error en el proceso de registro:", error);
@@ -636,7 +640,7 @@ export default function RegistroUsuario() {
           </Card.Body>
         </Card>
       </Container>
-      {/* Modal para mostrar errores */}
+      {/* Modal de Error */}
       <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Error en el registro</Modal.Title>
@@ -647,6 +651,23 @@ export default function RegistroUsuario() {
             Cerrar
           </Button>
         </Modal.Footer>
+      </Modal>
+
+      {/* Modal de Éxito */}
+      <Modal 
+        show={showSuccessModal} 
+        onHide={() => setShowSuccessModal(false)}
+        centered
+        backdrop="static"
+        keyboard={false}
+      >
+        <Modal.Header style={{ backgroundColor: '#d4edda', borderBottom: '1px solid #c3e6cb' }}>
+          <Modal.Title style={{ color: '#155724' }}>¡Registro Exitoso!</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ backgroundColor: '#d4edda', color: '#155724' }}>
+          <p>Tu cuenta ha sido creada exitosamente.</p>
+          <p>Serás redirigido a la página de inicio de sesión en unos momentos...</p>
+        </Modal.Body>
       </Modal>
     </div>
   );
