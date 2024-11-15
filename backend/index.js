@@ -29,7 +29,7 @@ if (process.env.NODE_ENV === 'development') {
  ];
  
  // Expresión regular para permitir URLs de preview de Vercel
- const vercelPreviewRegex = /^https:\/\/casino-la-fortuna(-git-[\w-]+)?\.vercel\.app$/;
+ const vercelPreviewRegex = /^https:\/\/casino-la-fortuna-git-[a-zA-Z0-9-]+-[a-zA-Z0-9-]+-projects-[a-zA-Z0-9]+\.vercel\.app\/?$/;
  
  // Configuración de CORS con validación dinámica de orígenes
  app.use(cors({
