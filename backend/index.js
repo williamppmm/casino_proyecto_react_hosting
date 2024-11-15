@@ -18,23 +18,38 @@ const operadorRoutes = require('./routes/operadorRoutes');
 const clientesRoutes = require('./routes/clientesRoutes');
 const registerRoutes = require('./routes/registerRoutes');
 
-const app = express();
-
-// Configuración de CORS según el entorno
 const corsOptions = {
-    origin: process.env.FRONTEND_URL,
+    origin: [
+        process.env.FRONTEND_URL,
+        'http://localhost:3000',
+        'https://casino-la-fortuna.vercel.app',
+        'https://casino-la-fortuna-git-c-0e28cf-william-perezs-projects-827fb858.vercel.app'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
     preflightContinue: false,
     optionsSuccessStatus: 204
-};
+ };
+ 
+ // Actualizar para manejar múltiples orígenes
+ app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || corsOptions.origin.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('No permitido por CORS'));
+        }
+    },
+    credentials: corsOptions.credentials,
+    methods: corsOptions.methods,
+    allowedHeaders: corsOptions.allowedHeaders
+ }));
 
 console.log('Entorno actual:', process.env.NODE_ENV);
 console.log('URL del frontend:', process.env.FRONTEND_URL);
 
 // Middleware de seguridad y optimización
-app.use(cors(corsOptions));
 app.use(compression());
 app.use(helmet());
 app.use(express.json());
