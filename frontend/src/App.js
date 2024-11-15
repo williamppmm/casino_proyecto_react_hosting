@@ -15,6 +15,11 @@ import DashboardCliente from './pages/dashboard/DashboardCliente';
 import DashboardAdmin from './pages/dashboard/DashboardAdmin';
 import DashboardFinanciero from './pages/dashboard/DashboardFinanciero';
 import DashboardSlots from './pages/dashboard/DashboardSlots';
+import DashboardSportsBetting from './pages/dashboard/DashboardSportsBetting';
+import DashboardMarketing from './pages/dashboard/DashboardMarketing';
+import DashboardOnlineGames from './pages/dashboard/DashboardOnlineGames';
+import DashboardCashier from './pages/dashboard/DashboardCashier';
+import DashboardRestaurant from './pages/dashboard/DashboardRestaurant';
 import PerfilCliente from './components/profile/PerfilCliente'; 
 import ProtectedRoute from './components/common/ProtectedRoute';
 
@@ -70,6 +75,46 @@ function App() {
             element={
               <ProtectedRoute>
                 <DashboardSlots />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sports-betting-dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardSportsBetting />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/marketing-dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardMarketing />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/online-games-dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardOnlineGames />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cashier-dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardCashier />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/restaurant-dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardRestaurant />
               </ProtectedRoute>
             }
           />
