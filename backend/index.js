@@ -55,6 +55,22 @@ app.use(cors({
 }));
 // **Fin de reintegración de funcionalidad de CORS**
 
+// **Inicio de integración de Helmet**
+app.use(helmet({
+    crossOriginResourcePolicy: false, // Deshabilitar restricciones para recursos con CORS
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://casino-la-fortuna.vercel.app"],
+            connectSrc: ["'self'", "https://casino-la-fortuna-backend.onrender.com"],
+            imgSrc: ["'self'", "data:", "https:"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+            fontSrc: ["'self'", "https:"],
+        },
+    },
+}));
+// **Fin de integración de Helmet**
+
 // Middleware de compresión y seguridad
 app.use(compression());
 app.use(helmet());
