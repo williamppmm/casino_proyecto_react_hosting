@@ -2,6 +2,8 @@
 
 ## Descripción del Proyecto
 
+**Nuevo enfoque (Octubre 2024)**
+
 Casino La Fortuna es un proyecto de aprendizaje colaborativo desarrollado por William Pérez Muñoz, Hernan Darío Pérez Higuita y Penélope Noreña Ramos como parte del programa ADSO SENA 2758315. Este sistema está diseñado para optimizar la gestión administrativa y financiera de un casino moderno, integrando diversas tecnologías de vanguardia para ofrecer una solución robusta y escalable.
 
 A través de un stack tecnológico que incluye **React**, **Node.js** y **Supabase**, el proyecto ha evolucionado desde su versión inicial en **HTML/CSS** a una **aplicación web full-stack** que soporta múltiples funcionalidades, como el registro y autenticación de usuarios mediante **JWT** y la validación con **reCAPTCHA**. El objetivo es permitir la toma de decisiones informadas basadas en datos precisos y actualizados, mejorando la eficiencia operativa de las actividades del casino.
