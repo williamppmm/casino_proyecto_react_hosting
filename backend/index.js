@@ -29,14 +29,14 @@ if (process.env.NODE_ENV === 'development') {
  ];
  
  // Expresión regular para permitir URLs de preview de Vercel
- const vercelPreviewRegex = /^https:\/\/casino-la-fortuna-git-[a-zA-Z0-9-]+-[a-zA-Z0-9-]+-projects-[a-zA-Z0-9]+\.vercel\.app\/?$/;
+ const vercelPreviewRegex = /^https:\/\/casino-la-fortuna(-git-[\w-]+)?\.vercel\.app$/;
  
  // Configuración de CORS con validación dinámica de orígenes
- app.use(cors({
+ const corsOptions = {
     origin: function (origin, callback) {
         // Permitir requests sin origen (ej: Postman)
         if (!origin) return callback(null, true);
-        
+ 
         // Verificar si el origen está en la lista permitida o coincide con el patrón de Vercel
         if (allowedOrigins.includes(origin) || vercelPreviewRegex.test(origin)) {
             callback(null, true);
@@ -46,30 +46,44 @@ if (process.env.NODE_ENV === 'development') {
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept']
- }));
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+ };
+ 
+ // Middleware de CORS (debe ir antes que cualquier otro middleware o ruta)
+ app.use(cors(corsOptions));
+ 
+ // Manejar solicitudes OPTIONS para todas las rutas
+ app.options('*', cors(corsOptions));
+ 
+ // Middleware de parsing JSON
+ app.use(express.json());
  
  // Middleware de compresión y seguridad
  app.use(compression());
  app.use(helmet());
- app.use(express.json());
  
- // Logging en desarrollo
- if (process.env.NODE_ENV === 'development') {
-    app.use((req, res, next) => {
-        console.log(`${req.method} ${req.url}`);
-        console.log('Headers:', req.headers);
-        next();
-    });
+ // Logging para depuración
+ app.use((req, res, next) => {
+    console.log(`Solicitud recibida: ${req.method} ${req.url}`);
+    console.log('Origen:', req.headers.origin);
+    next();
+ });
+ 
+ // Middleware de autenticación (modificado para permitir OPTIONS)
+ function authMiddleware(req, res, next) {
+    if (req.method === 'OPTIONS') {
+        return next();
+    }
+    // Lógica de autenticación existente
+    next();
  }
- 
- // Habilitar pre-flight para todas las rutas
- app.options('*', cors());
  
  // Configuración de rutas de la API
  app.use('/api/auth', authRoutes);
- app.use('/api/operadores', operadorRoutes);
- app.use('/api/clientes', clientesRoutes);
+ app.use('/api/operadores', authMiddleware, operadorRoutes);
+ app.use('/api/clientes', authMiddleware, clientesRoutes);
  app.use('/api', registerRoutes);
  
  // Manejador global de errores con manejo específico para CORS
