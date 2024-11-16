@@ -6,6 +6,10 @@ const jwt = require('jsonwebtoken');
 
 // Controlador de login
 exports.login = async (req, res) => {
+    // logs para verificar que se reciben los datos
+    console.log('Solicitud de login recibida');
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
     try {
         const { correo_electronico, password } = req.body;
 
