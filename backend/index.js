@@ -17,29 +17,31 @@ const app = express();
 // Configuración de puertos según el entorno
 const port = process.env.PORT || (process.env.NODE_ENV === 'production' ? 10000 : 5000);
 
-// Lista de orígenes permitidos de manera flexible (agregaremos logs para depuración)
+// **Inicio de reintegración de funcionalidad de CORS**
+
+// Lista de orígenes permitidos explícitamente
 const allowedOrigins = [
     'http://localhost:3000',                 // Desarrollo local
     'https://casino-la-fortuna.vercel.app',  // Producción
     /^https:\/\/casino-la-fortuna(-git-[\w-]+)?(-[a-zA-Z0-9-]+-projects-[a-zA-Z0-9]+)?\.vercel\.app\/?$/ // Vercel previews
 ];
 
-// Configuración de CORS
+// Expresión regular para validación de orígenes
+const vercelPreviewRegex = /^https:\/\/casino-la-fortuna(-git-[\w-]+)?(-[a-zA-Z0-9-]+-projects-[a-zA-Z0-9]+)?\.vercel\.app\/?$/;
+
+// Configuración de CORS con validación dinámica de orígenes
 app.use(cors({
     origin: (origin, callback) => {
         console.log('CORS request received. Origin:', origin);
-        // Permitir solicitudes sin origen (por ejemplo, Postman)
+
+        // Permitir solicitudes sin origen (por ejemplo, Postman o herramientas locales)
         if (!origin) {
             console.log('Permitiendo solicitud sin origen.');
             return callback(null, true);
         }
 
-        // Verificar si el origen está permitido
-        const isAllowed = allowedOrigins.some((allowed) =>
-            typeof allowed === 'string' ? allowed === origin : allowed.test(origin)
-        );
-
-        if (isAllowed) {
+        // Verificar si el origen está explícitamente permitido o coincide con el patrón de Vercel
+        if (allowedOrigins.includes(origin) || vercelPreviewRegex.test(origin)) {
             console.log('Permitiendo origen:', origin);
             callback(null, true);
         } else {
@@ -51,6 +53,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept']
 }));
+// **Fin de reintegración de funcionalidad de CORS**
 
 // Middleware de compresión y seguridad
 app.use(compression());
