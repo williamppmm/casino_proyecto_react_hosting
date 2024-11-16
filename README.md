@@ -1,61 +1,121 @@
-# Casino La Fortuna: Sistema de Gestión Integral
+# Casino La Fortuna 🎰
 
-## Descripción del Proyecto
+Sistema de gestión integral para casinos desarrollado con React y Node.js.
 
-**Nuevo enfoque (Octubre 2024)**
+## 📋 Descripción
 
-Casino La Fortuna es un proyecto de aprendizaje colaborativo desarrollado por William Pérez Muñoz, Hernan Darío Pérez Higuita y Penélope Noreña Ramos como parte del programa ADSO SENA 2758315. Este sistema está diseñado para optimizar la gestión administrativa y financiera de un casino moderno, integrando diversas tecnologías de vanguardia para ofrecer una solución robusta y escalable.
+Casino La Fortuna es un software contable integral diseñado para optimizar la gestión financiera y operativa de casinos modernos. Desarrollado como proyecto educativo del programa ADSO SENA 2758315.
 
-A través de un stack tecnológico que incluye **React**, **Node.js** y **Supabase**, el proyecto ha evolucionado desde su versión inicial en **HTML/CSS** a una **aplicación web full-stack** que soporta múltiples funcionalidades, como el registro y autenticación de usuarios mediante **JWT** y la validación con **reCAPTCHA**. El objetivo es permitir la toma de decisiones informadas basadas en datos precisos y actualizados, mejorando la eficiencia operativa de las actividades del casino.
+### ✨ Características Principales
 
-## Stack Tecnológico
+* Gestión de máquinas tragamonedas
+* Control de apuestas deportivas online
+* Gestión de servicios adicionales (recargas, pines)
+* Sistema de roles y permisos
+* Generación de informes financieros
+* Dashboards personalizados por rol
 
-* **Frontend**: React con Bootstrap, para una interfaz de usuario moderna y responsiva.
-* **Backend**: Node.js con Express, para un servidor eficiente y escalable.
-* **Base de Datos**: Supabase, como solución de base de datos en la nube, con capacidades en tiempo real.
-* **Despliegue**:
-   * Vercel para el frontend.
-   * Render para el backend.
-* **Autenticación y Seguridad**: JSON Web Tokens (JWT) para autenticación segura y protección de rutas.
-* **Validaciones**: Implementación de reCAPTCHA para prevenir registros automatizados y proteger la seguridad del sistema.
-* **Desarrollo y Pruebas**: Postman para realizar pruebas de APIs y asegurar la integridad del backend.
+## 🛠️ Tecnologías
 
-## Funcionalidades Principales
+* **Frontend:** React, Bootstrap
+* **Backend:** Node.js, Express
+* **Base de Datos:** Supabase
+* **Despliegue:** 
+  * Frontend: Vercel
+  * Backend: Render
+* **Seguridad:** JWT, Google reCAPTCHA
 
-1. **Gestión de Máquinas Tragamonedas**:
-   * Registro y seguimiento de actividad por máquina.
-   * Control de entradas, salidas y premios mayores.
+## 📦 Requisitos Previos
 
-2. **Gestión de Clientes y Operadores**:
-   * Registro de clientes y operadores con validación de datos y seguridad avanzada.
-   * Autenticación mediante JWT y manejo seguro de sesiones.
-   * Actualización de datos no sensibles por parte del cliente desde el perfil.
+* Node.js
+* npm
+* Windows 10 o superior
+* 4 GB RAM mínimo
+* Conexión a Internet
 
-3. **Panel de Administración**:
-   * Acceso a secciones clave del casino (Contabilidad, Marketing, etc.) con permisos y dashboards personalizados.
+## 🚀 Instalación
 
-4. **Generación de Informes Financieros**:
-   * Visualizaciones interactivas de datos financieros que permiten a los administradores tomar decisiones informadas.
+1. **Clonar el repositorio**
+```bash
+git clone https://github.com/williamppmm/casino_proyecto_react_hosting
+```
 
-5. **Seguridad**:
-   * Sistema de autenticación robusto con manejo de tokens JWT para proteger el acceso a la información.
-   * Integración de Google reCAPTCHA para validar los registros de nuevos usuarios.
+2. **Configurar Backend**
+```bash
+cd casino_proyecto_react_hosting/backend
+npm install
+```
+Crear archivo `.env` con:
+* Credenciales de base de datos
+* Claves JWT
+* Clave reCAPTCHA
 
-## Proceso de Despliegue
+3. **Configurar Frontend**
+```bash
+cd ../frontend
+npm install
+```
+Crear archivo `.env` con:
+* URL del backend
+* Otras claves de API necesarias
 
-El despliegue del proyecto incluye una integración continua entre el frontend y el backend. Se utiliza **Vercel** para el frontend y **Render** para el backend, mientras que la base de datos en tiempo real es gestionada a través de **Supabase**. Las pruebas se realizan con Postman para verificar la funcionalidad de los endpoints.
+4. **Configurar Base de Datos**
+* Usar Supabase o importar el script SQL del directorio `database`
 
-1. **Vercel**: Se utiliza para desplegar el frontend, lo que permite que la aplicación React esté disponible para los usuarios.
-2. **Render**: Alojamiento del backend Node.js con endpoints seguros y validados mediante Postman.
-3. **Supabase**: Gestor de la base de datos en la nube, ofreciendo características como autenticación y reglas de acceso en tiempo real.
+5. **Iniciar en Desarrollo**
+```bash
+# Backend
+cd backend
+npm run dev
 
-## Objetivos de Aprendizaje
+# Frontend
+cd frontend
+npm start
+```
 
-* Dominar la creación de aplicaciones web full-stack con tecnologías modernas.
-* Implementar seguridad avanzada con JWT y reCAPTCHA.
-* Conocer las buenas prácticas de despliegue continuo con herramientas como Vercel y Render.
-* Integrar bases de datos en tiempo real utilizando Supabase.
-* Mejorar habilidades en diseño de interfaces con React y Bootstrap.
-* Practicar la validación de formularios y autenticación de usuarios de manera segura.
+## 👥 Roles del Sistema
 
-Este proyecto es un reflejo del proceso de aprendizaje en la construcción de aplicaciones web escalables, poniendo en práctica conocimientos en frontend y backend, y explorando los desafíos de seguridad y despliegue en la nube.
+* ADMINISTRACIÓN
+* CONTABILIDAD
+* MÁQUINAS TRAGAMONEDAS
+* JUEGOS EN LÍNEA
+* APUESTAS DEPORTIVAS
+* ALIMENTOS Y BEBIDAS
+* CAJA
+* MARKETING
+
+## 🤝 Contribuir
+
+1. Fork del proyecto
+2. Crear nueva rama
+```bash
+git checkout -b feature-nueva-funcionalidad
+```
+3. Commit de cambios
+```bash
+git commit -m "Añadir nueva funcionalidad"
+```
+4. Push a la rama
+```bash
+git push origin feature-nueva-funcionalidad
+```
+5. Crear Pull Request
+
+## 📄 Licencia
+
+Proyecto educativo. Uso, distribución y modificación permitidos solo con autorización explícita de los autores.
+
+## ✉️ Contacto
+
+* **William Pérez Muñoz** - Desarrollador Principal
+* Email: williamppmm@hotmail.com
+* GitHub: [williamppmm](https://github.com/williamppmm/casino_proyecto_react_hosting)
+
+## 👨‍💻 Equipo
+
+* William Pérez Muñoz
+* Hernán Darío Pérez Higuita
+* Penélope Noreña Ramos
+
+---
+Desarrollado como parte del programa ADSO SENA 2758315 🎓
