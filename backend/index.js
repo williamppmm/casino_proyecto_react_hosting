@@ -92,10 +92,11 @@ const operadorRoutes = require('./routes/operadorRoutes');
 const clientesRoutes = require('./routes/clientesRoutes');
 const registerRoutes = require('./routes/registerRoutes');
 
+
 app.use('/api/auth', authRoutes);
 app.use('/api/operadores', operadorRoutes);
 app.use('/api/clientes', clientesRoutes);
-app.use('/api', registerRoutes);
+app.use('/api/registro', registerRoutes);
 
 // Endpoint raíz para verificar que el servidor está funcionando
 app.get('/', (req, res) => {

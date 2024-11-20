@@ -32,7 +32,7 @@ api.interceptors.request.use((config) => {
 
 export const registrarUsuario = async (datosParaEnviar) => {
   try {
-    const response = await api.post('/api/registro-usuario', datosParaEnviar);
+    const response = await api.post('/api/registro/registro-usuario', datosParaEnviar);
     return response.data;
   } catch (error) {
     console.error(`Error en registrarUsuario: ${error.response?.status} - ${error.response?.data?.error || error.message}`);
@@ -42,7 +42,7 @@ export const registrarUsuario = async (datosParaEnviar) => {
 
 export const verificarCodigoAutorizacion = async (codigo) => {
   try {
-    const response = await api.get(`/api/verificar-autorizacion/${codigo}`);
+    const response = await api.get(`/api/registro/verificar-autorizacion/${codigo}`);
     return response.data;
   } catch (error) {
     console.error(`Error en verificarCodigoAutorizacion: ${error.response?.status} - ${error.response?.data?.error || error.message}`);
