@@ -10,6 +10,8 @@ import EmailInput from '../../components/forms/EmailInput';
 import CodigoAutorizacion from '../../components/forms/CodigoAutorizacion';
 import ReCaptcha from '../../components/common/ReCaptcha';
 import { registrarUsuario } from '../../services/api';
+import NacionalidadInput from '../../components/forms/NacionalidadInput';
+import TelefonoInput from '../../components/forms/TelefonoInput';
 
 export default function RegistroUsuario() {
   const navigate = useNavigate();
@@ -42,6 +44,7 @@ export default function RegistroUsuario() {
   const [tipoUsuario, setTipoUsuario] = useState('Cliente');
   const [email, setEmail] = useState('');
   const [confirmEmail, setConfirmEmail] = useState('');
+  const [emailValidation, setEmailValidation] = useState({ isValid: false, error: null });
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [captchaValue, setCaptchaValue] = useState(null);
@@ -49,7 +52,20 @@ export default function RegistroUsuario() {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const capitalizeWords = (str) => {
+    return str.split(' ')
+      .map(word => {
+        if (word.length === 0) return word;
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join(' ');
+  };
+
   const handleTipoUsuarioChange = (e) => setTipoUsuario(e.target.value);
+
+  const handleEmailValidation = (validation) => {
+    setEmailValidation(validation);
+  };
 
   const validateDates = (fechaNacimiento, fechaExpedicion) => {
     if (!fechaNacimiento || !fechaExpedicion) return '';
@@ -81,7 +97,7 @@ export default function RegistroUsuario() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    let newValue = value ? value : '';  // Asegúrate de que value no sea null o undefined
+    let newValue = value || '';
     let error = '';
   
     if (name === 'numero_documento') {
@@ -95,21 +111,18 @@ export default function RegistroUsuario() {
       }
     } else if (name === 'telefono_movil') {
       newValue = newValue.replace(/\D/g, '').slice(0, 10);
-      error = newValue.length === 10 ? '' : 'Ingresa un número de teléfono válido de 10 dígitos. ';
+      error = newValue.length === 10 ? '' : 'Ingresa un número de teléfono válido de 10 dígitos.';
     } else if (['primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido', 'lugar_expedicion', 'municipio', 'cargo'].includes(name)) {
-      newValue = newValue
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ')
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-    } else if (type !== "checkbox") {
-      newValue = newValue.toUpperCase();
+      // Permitir ñ, Ñ, vocales con tilde, espacios y apóstrofes
+      newValue = value.replace(/[^a-záéíóúñA-ZÁÉÍÓÚÑ\s'-]/g, '');
+      newValue = capitalizeWords(newValue);
+    } else if (type === "checkbox") {
+      newValue = checked;
     }
   
     let updatedFormValues = {
       ...formValues,
-      [name]: type === "checkbox" ? checked : newValue
+      [name]: newValue
     };
   
     if (name === 'fecha_nacimiento' || name === 'fecha_expedicion') {
@@ -144,69 +157,97 @@ export default function RegistroUsuario() {
     let isValid = true;
     let newErrors = {};
 
-    if (email !== confirmEmail) {
-      newErrors.email = "Los correos electrónicos no coinciden";
+    // Validación de campos requeridos
+    const camposRequeridos = {
+      tipo_documento: "Tipo de Documento",
+      numero_documento: "Número de Documento",
+      fecha_expedicion: "Fecha de Expedición",
+      primer_nombre: "Primer Nombre",
+      primer_apellido: "Primer Apellido",
+      lugar_expedicion: "Lugar de Expedición",
+      telefono_movil: "Teléfono Móvil",
+      fecha_nacimiento: "Fecha de Nacimiento",
+      genero: "Género",
+      nacionalidad: "Nacionalidad",
+      municipio: "Municipio"
+    };
+
+    Object.entries(camposRequeridos).forEach(([campo, nombre]) => {
+      if (!formValues[campo]) {
+        newErrors[campo] = `El campo ${nombre} es requerido`;
+        isValid = false;
+      }
+    });
+
+    // Validación de email
+    if (!emailValidation.isValid) {
+      newErrors.email = emailValidation.error || "El correo electrónico no es válido";
       isValid = false;
     }
   
-    if (password !== confirmPassword) {
+    // Validación de contraseña
+    if (!password) {
+      newErrors.password = "La contraseña es requerida";
+      isValid = false;
+    } else if (password !== confirmPassword) {
       newErrors.password = "Las contraseñas no coinciden";
       isValid = false;
     }
   
-    if (tipoUsuario === 'Cliente' && (!formValues.consentimiento_datos || !formValues.terminos_condiciones)) {
-      newErrors.terminos = "Debes aceptar el uso de datos y los términos y condiciones";
-      isValid = false;
+    // Validaciones específicas por tipo de usuario
+    if (tipoUsuario === 'Cliente') {
+      if (!formValues.consentimiento_datos || !formValues.terminos_condiciones) {
+        newErrors.terminos = "Debes aceptar el uso de datos y los términos y condiciones";
+        isValid = false;
+      }
+    } else if (tipoUsuario === 'Operador') {
+      if (!formValues.codigo_autorizacion) {
+        newErrors.codigo_autorizacion = "El código de autorización es requerido para operadores";
+        isValid = false;
+      }
+      if (!formValues.cargo) {
+        newErrors.cargo = "El cargo es requerido para operadores";
+        isValid = false;
+      }
     }
   
+    // Validación de ReCaptcha
     if (!captchaValue) {
-      newErrors.captcha = "Por favor, completa el captcha.";
+      newErrors.captcha = "Por favor, completa el captcha";
       isValid = false;
     }
   
-    if (tipoUsuario === 'Operador' && !formValues.codigo_autorizacion) {
-      newErrors.codigo_autorizacion = "El código de autorización es requerido para operadores.";
-      isValid = false;
-    }
-  
+    // Validaciones específicas de formato
     const { tipo_documento, numero_documento } = formValues;
-    if (!numero_documento) {
-      newErrors.numero_documento = "El número de documento es requerido.";
-      isValid = false;
-    } else {
+    if (numero_documento) {
       switch (tipo_documento) {
         case 'CC':
         case 'CE':
           if (!/^\d{5,10}$/.test(numero_documento)) {
-            newErrors.numero_documento = "El número de cédula debe contener entre 5 y 10 dígitos numéricos.";
+            newErrors.numero_documento = "El número de documento debe contener entre 5 y 10 dígitos numéricos";
             isValid = false;
           }
           break;
         case 'PA':
           if (!/^[A-Z0-9]{9,15}$/.test(numero_documento)) {
-            newErrors.numero_documento = "El pasaporte debe contener entre 9 y 15 caracteres alfanuméricos.";
+            newErrors.numero_documento = "El pasaporte debe contener entre 9 y 15 caracteres alfanuméricos";
             isValid = false;
           }
           break;
         default:
-          newErrors.numero_documento = "Selecciona un tipo de documento válido.";
+          newErrors.tipo_documento = "Selecciona un tipo de documento válido";
           isValid = false;
       }
     }
   
-    if (!formValues.telefono_movil) {
-      newErrors.telefono_movil = "El número de teléfono es requerido.";
-      isValid = false;
-    } else if (!/^\d{10}$/.test(formValues.telefono_movil)) {
-      newErrors.telefono_movil = "El número de teléfono debe contener exactamente 10 dígitos.";
+    if (formValues.telefono_movil && !/^\d{10}$/.test(formValues.telefono_movil)) {
+      newErrors.telefono_movil = "El número de teléfono debe contener exactamente 10 dígitos";
       isValid = false;
     }
   
     setErrors(newErrors);
-  
     return isValid;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -224,7 +265,6 @@ export default function RegistroUsuario() {
       const response = await registrarUsuario(datosParaEnviar);
       if (response.message === "Usuario registrado exitosamente") {
         setShowSuccessModal(true);
-        // Esperar 3 segundos antes de redirigir
         setTimeout(() => {
           setShowSuccessModal(false);
           navigate('/login-usuario');
@@ -232,11 +272,10 @@ export default function RegistroUsuario() {
       }
     } catch (error) {
       console.error("Error en el proceso de registro:", error);
-      setErrorMessage(error || "Ocurrió un error durante el registro. Por favor, inténtalo de nuevo más tarde.");
+      setErrorMessage(error?.message || "Ocurrió un error durante el registro. Por favor, inténtalo de nuevo más tarde.");
       setShowErrorModal(true);
     }
   };
-
 
   return (
     <div style={{ backgroundColor: '#000', minHeight: '100vh', paddingTop: '80px', paddingBottom: '80px' }}>
@@ -247,7 +286,7 @@ export default function RegistroUsuario() {
             <Form onSubmit={handleSubmit}>
               <Form.Group as={Row} className="mb-4">
                 <Form.Label as="legend" column sm={2}>
-                  Tipo de Usuario
+                  Tipo de Usuario <span className="text-danger">*</span>
                 </Form.Label>
                 <Col sm={10}>
                   <Form.Check
@@ -257,6 +296,7 @@ export default function RegistroUsuario() {
                     value="Cliente"
                     checked={tipoUsuario === 'Cliente'}
                     onChange={handleTipoUsuarioChange}
+                    required
                   />
                   <Form.Check
                     type="radio"
@@ -265,6 +305,7 @@ export default function RegistroUsuario() {
                     value="Operador"
                     checked={tipoUsuario === 'Operador'}
                     onChange={handleTipoUsuarioChange}
+                    required
                   />
                 </Col>
               </Form.Group>
@@ -273,48 +314,60 @@ export default function RegistroUsuario() {
               <Row className="mb-4">
                 <Col md={4}>
                   <Form.Group controlId="tipo_documento">
-                    <Form.Label>Tipo de Documento</Form.Label>
+                    <Form.Label>
+                      Tipo de Documento <span className="text-danger">*</span>
+                    </Form.Label>
                     <Form.Select
                       name="tipo_documento"
                       value={formValues.tipo_documento}
                       onChange={handleInputChange}
                       required
+                      isInvalid={!!errors.tipo_documento}
                     >
                       <option value="">Seleccionar</option>
                       <option value="CC">Cédula de Ciudadanía</option>
                       <option value="CE">Cédula de Extranjería</option>
                       <option value="PA">Pasaporte</option>
                     </Form.Select>
+                    {errors.tipo_documento && (
+                      <Form.Control.Feedback type="invalid">
+                        {errors.tipo_documento}
+                      </Form.Control.Feedback>
+                    )}
                   </Form.Group>
                 </Col>
 
                 <Col md={4}>
                   <Form.Group controlId="numero_documento">
-                    <Form.Label>Número de Documento</Form.Label>
+                    <Form.Label>
+                      Número de Documento <span className="text-danger">*</span>
+                    </Form.Label>
                     <Form.Control
                       type="text"
                       name="numero_documento"
                       value={formValues.numero_documento}
                       onChange={handleInputChange}
                       required
+                      isInvalid={!!errors.numero_documento}
                     />
-                    {errors.numero_documento && (
-                      <Form.Text className="text-danger">
-                        {errors.numero_documento}
-                      </Form.Text>
-                    )}
+                    <Form.Control.Feedback type="invalid">
+                      {errors.numero_documento}
+                    </Form.Control.Feedback>
                   </Form.Group>
                 </Col>
 
                 <Col md={4}>
                   <Form.Group controlId="fecha_expedicion">
-                    <Form.Label>Fecha de Expedición</Form.Label>
+                    <Form.Label>
+                      Fecha de Expedición <span className="text-danger">*</span>
+                    </Form.Label>
                     <DatePicker
                       id="fecha_expedicion"
                       value={formValues.fecha_expedicion}
                       onDateChange={(date) => handleInputChange({
                         target: { name: 'fecha_expedicion', value: date }
                       })}
+                      required
                     />
                     {errors.fecha_expedicion && (
                       <Form.Text className="text-danger">
@@ -324,47 +377,50 @@ export default function RegistroUsuario() {
                   </Form.Group>
                 </Col>
               </Row>
-
               <Row className="mb-4">
                 <Col md={4}>
                   <Form.Group controlId="genero">
-                    <Form.Label>Género</Form.Label>
+                    <Form.Label>
+                      Género <span className="text-danger">*</span>
+                    </Form.Label>
                     <Form.Select
                       name="genero"
                       value={formValues.genero}
                       onChange={handleInputChange}
                       required
+                      isInvalid={!!errors.genero}
                     >
                       <option value="">Seleccionar</option>
                       <option value="M">Masculino</option>
                       <option value="F">Femenino</option>
                       <option value="O">Otro</option>
                     </Form.Select>
+                    {errors.genero && (
+                      <Form.Control.Feedback type="invalid">
+                        {errors.genero}
+                      </Form.Control.Feedback>
+                    )}
                   </Form.Group>
                 </Col>
 
                 <Col md={4}>
-                  <Form.Group controlId="nacionalidad">
-                    <Form.Label>Nacionalidad</Form.Label>
-                    <Form.Select
-                      name="nacionalidad"
-                      value={formValues.nacionalidad}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="">Seleccionar</option>
-                      <option value="CO">Colombia</option>
-                      <option value="US">Estados Unidos</option>
-                      <option value="MX">México</option>
-                      <option value="AR">Argentina</option>
-                      <option value="BR">Brasil</option>
-                    </Form.Select>
-                  </Form.Group>
+                  <NacionalidadInput
+                    value={formValues.nacionalidad}
+                    onChange={(e) => handleInputChange(e)}
+                    error={errors.nacionalidad}
+                    required={true}
+                    onPrefixChange={(prefix) => {
+                      // Actualiza el prefijo en caso de necesitarlo para algún campo adicional
+                      console.log(`Prefijo seleccionado: ${prefix}`);
+                    }}
+                  />
                 </Col>
 
                 <Col md={4}>
                   <Form.Group controlId="fecha_nacimiento">
-                    <Form.Label>Fecha de Nacimiento</Form.Label>
+                    <Form.Label>
+                      Fecha de Nacimiento <span className="text-danger">*</span>
+                    </Form.Label>
                     <DatePicker
                       id="fecha_nacimiento"
                       value={formValues.fecha_nacimiento}
@@ -385,14 +441,22 @@ export default function RegistroUsuario() {
               <Row className="mb-4">
                 <Col md={3}>
                   <Form.Group controlId="primer_nombre">
-                    <Form.Label>Primer Nombre</Form.Label>
+                    <Form.Label>
+                      Primer Nombre <span className="text-danger">*</span>
+                    </Form.Label>
                     <Form.Control
                       type="text"
                       name="primer_nombre"
                       value={formValues.primer_nombre}
                       onChange={handleInputChange}
                       required
+                      isInvalid={!!errors.primer_nombre}
                     />
+                    {errors.primer_nombre && (
+                      <Form.Control.Feedback type="invalid">
+                        {errors.primer_nombre}
+                      </Form.Control.Feedback>
+                    )}
                   </Form.Group>
                 </Col>
 
@@ -410,14 +474,22 @@ export default function RegistroUsuario() {
 
                 <Col md={3}>
                   <Form.Group controlId="primer_apellido">
-                    <Form.Label>Primer Apellido</Form.Label>
+                    <Form.Label>
+                      Primer Apellido <span className="text-danger">*</span>
+                    </Form.Label>
                     <Form.Control
                       type="text"
                       name="primer_apellido"
                       value={formValues.primer_apellido}
                       onChange={handleInputChange}
                       required
+                      isInvalid={!!errors.primer_apellido}
                     />
+                    {errors.primer_apellido && (
+                      <Form.Control.Feedback type="invalid">
+                        {errors.primer_apellido}
+                      </Form.Control.Feedback>
+                    )}
                   </Form.Group>
                 </Col>
 
@@ -437,43 +509,53 @@ export default function RegistroUsuario() {
               <Row className="mb-4">
                 <Col md={6}>
                   <Form.Group controlId="lugar_expedicion">
-                    <Form.Label>Lugar de Expedición</Form.Label>
+                    <Form.Label>
+                      Lugar de Expedición <span className="text-danger">*</span>
+                    </Form.Label>
                     <Form.Control
                       type="text"
                       name="lugar_expedicion"
                       value={formValues.lugar_expedicion}
                       onChange={handleInputChange}
                       required
+                      isInvalid={!!errors.lugar_expedicion}
                     />
+                    {errors.lugar_expedicion && (
+                      <Form.Control.Feedback type="invalid">
+                        {errors.lugar_expedicion}
+                      </Form.Control.Feedback>
+                    )}
                   </Form.Group>
                 </Col>
 
                 <Col md={6}>
-                  <Form.Group controlId="telefono_movil">
-                    <Form.Label>Teléfono Móvil</Form.Label>
-                    <Form.Control
-                      type="tel"
-                      name="telefono_movil"
-                      value={formValues.telefono_movil}
-                      onChange={handleInputChange}
-                      isInvalid={!!errors.telefono_movil}
-                      required
-                    />
-                    <Form.Control.Feedback type="invalid">
-                    {errors.telefono_movil}
-                    </Form.Control.Feedback>
-                  </Form.Group>
+                  <TelefonoInput
+                    value={formValues.telefono_movil}
+                    onChange={(telefono) =>
+                      handleInputChange({
+                        target: { name: 'telefono_movil', value: telefono }
+                      })
+                    }
+                    error={errors.telefono_movil}
+                    required={true}
+                  />
                 </Col>
               </Row>
-              
               <Row className="mb-4">
                 <EmailInput 
                   email={email}
                   confirmEmail={confirmEmail}
                   onEmailChange={setEmail}
                   onConfirmEmailChange={setConfirmEmail}
+                  onValidationChange={handleEmailValidation}
                   autoComplete="email"
+                  required={true}
                 />
+                {errors.email && (
+                  <Form.Text className="text-danger">
+                    {errors.email}
+                  </Form.Text>
+                )}
               </Row>
 
               <Row className="mb-4">
@@ -482,9 +564,15 @@ export default function RegistroUsuario() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     name="user_pass"
-                    label="Contraseña"
+                    label={<>Contraseña <span className="text-danger">*</span></>}
                     autoComplete="new-password"
+                    required={true}
                   />
+                  {errors.password && (
+                    <Form.Text className="text-danger">
+                      {errors.password}
+                    </Form.Text>
+                  )}
                 </Col>
 
                 <Col md={6}>
@@ -492,27 +580,40 @@ export default function RegistroUsuario() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     name="confirm_user_pass"
-                    label="Confirmar Contraseña"
+                    label={<>Confirmar Contraseña <span className="text-danger">*</span></>}
                     autoComplete="new-password"
+                    required={true}
                   />
                 </Col>
               </Row>
               
               <Row className="mb-4">
-                <Direccion onDireccionCompleta={handleDireccionChange} />
+                <Direccion 
+                  onDireccionCompleta={handleDireccionChange} 
+                  required={true}
+                  error={errors.direccion}
+                />
               </Row>
 
               <Row className="mb-4">
                 <Col md={6}>
                   <Form.Group controlId="municipio">
-                    <Form.Label>Municipio</Form.Label>
+                    <Form.Label>
+                      Municipio <span className="text-danger">*</span>
+                    </Form.Label>
                     <Form.Control
                       type="text"
                       name="municipio"
                       value={formValues.municipio}
                       onChange={handleInputChange}
                       required
+                      isInvalid={!!errors.municipio}
                     />
+                    {errors.municipio && (
+                      <Form.Control.Feedback type="invalid">
+                        {errors.municipio}
+                      </Form.Control.Feedback>
+                    )}
                   </Form.Group>
                 </Col>
               </Row>
@@ -552,10 +653,11 @@ export default function RegistroUsuario() {
                         type="checkbox"
                         id="consentimiento_datos"
                         name="consentimiento_datos"
-                        label="Acepto el tratamiento de mis datos personales"
+                        label={<>Acepto el tratamiento de mis datos personales <span className="text-danger">*</span></>}
                         checked={formValues.consentimiento_datos}
                         onChange={handleInputChange}
                         required
+                        isInvalid={!!errors.terminos}
                       />
                     </Col>
                   </Row>
@@ -579,11 +681,17 @@ export default function RegistroUsuario() {
                         type="checkbox"
                         id="terminos_condiciones"
                         name="terminos_condiciones"
-                        label="Acepto los términos y condiciones"
+                        label={<>Acepto los términos y condiciones <span className="text-danger">*</span></>}
                         checked={formValues.terminos_condiciones}
                         onChange={handleInputChange}
                         required
+                        isInvalid={!!errors.terminos}
                       />
+                      {errors.terminos && (
+                        <Form.Control.Feedback type="invalid" style={{ display: 'block' }}>
+                          {errors.terminos}
+                        </Form.Control.Feedback>
+                      )}
                     </Col>
                   </Row>
                 </>
@@ -593,32 +701,55 @@ export default function RegistroUsuario() {
                 <Row className="mb-4">
                   <Col md={6}>
                     <Form.Group controlId="cargo">
-                      <Form.Label>Cargo</Form.Label>
+                      <Form.Label>
+                        Cargo <span className="text-danger">*</span>
+                      </Form.Label>
                       <Form.Control
                         type="text"
                         name="cargo"
                         value={formValues.cargo}
                         onChange={handleInputChange}
                         required
+                        isInvalid={!!errors.cargo}
                       />
+                      {errors.cargo && (
+                        <Form.Control.Feedback type="invalid">
+                          {errors.cargo}
+                        </Form.Control.Feedback>
+                      )}
                     </Form.Group>
                   </Col>
 
                   <Col md={6}>
-                    <CodigoAutorizacion onCodigoValido={handleCodigoValido} />
+                    <CodigoAutorizacion 
+                      onCodigoValido={handleCodigoValido} 
+                      required={true}
+                      error={errors.codigo_autorizacion}
+                    />
                   </Col>
                 </Row>
               )}
-
               <Row className="mb-4">
                 <Col>
+                  <Form.Label>
+                    Verificación <span className="text-danger">*</span>
+                  </Form.Label>
                   <ReCaptcha onChange={setCaptchaValue} />
+                  {errors.captcha && (
+                    <Form.Text className="text-danger d-block mt-2">
+                      {errors.captcha}
+                    </Form.Text>
+                  )}
                 </Col>
               </Row>
 
               <Row>
                 <Col className="text-center">
-                  <Button type="submit" variant="primary" className="px-5 py-2 btn-lg">
+                  <Button 
+                    type="submit" 
+                    variant="primary" 
+                    className="px-5 py-2 btn-lg"
+                  >
                     Registrarse
                   </Button>
                 </Col>
@@ -634,20 +765,27 @@ export default function RegistroUsuario() {
                   </p>
                 </Col>
               </Row>
-
             </Form>
-            
           </Card.Body>
         </Card>
       </Container>
+
       {/* Modal de Error */}
-      <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)} centered>
+      <Modal 
+        show={showErrorModal} 
+        onHide={() => setShowErrorModal(false)} 
+        centered
+        aria-labelledby="error-modal"
+      >
         <Modal.Header closeButton>
-          <Modal.Title>Error en el registro</Modal.Title>
+          <Modal.Title id="error-modal">Error en el registro</Modal.Title>
         </Modal.Header>
         <Modal.Body>{errorMessage}</Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowErrorModal(false)}>
+          <Button 
+            variant="secondary" 
+            onClick={() => setShowErrorModal(false)}
+          >
             Cerrar
           </Button>
         </Modal.Footer>
@@ -660,13 +798,19 @@ export default function RegistroUsuario() {
         centered
         backdrop="static"
         keyboard={false}
+        aria-labelledby="success-modal"
       >
         <Modal.Header style={{ backgroundColor: '#d4edda', borderBottom: '1px solid #c3e6cb' }}>
-          <Modal.Title style={{ color: '#155724' }}>¡Registro Exitoso!</Modal.Title>
+          <Modal.Title id="success-modal" style={{ color: '#155724' }}>
+            ¡Registro Exitoso!
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ backgroundColor: '#d4edda', color: '#155724' }}>
-          <p>Tu cuenta ha sido creada exitosamente.</p>
-          <p>Serás redirigido a la página de inicio de sesión en unos momentos...</p>
+          <div className="text-center">
+            <i className="bi bi-check-circle-fill h1"></i>
+            <p className="mt-3">Tu cuenta ha sido creada exitosamente.</p>
+            <p className="mb-0">Serás redirigido a la página de inicio de sesión en unos momentos...</p>
+          </div>
         </Modal.Body>
       </Modal>
     </div>

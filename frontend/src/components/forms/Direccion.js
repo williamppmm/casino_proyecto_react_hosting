@@ -3,22 +3,24 @@
 import React, { useState, useCallback } from 'react';
 import { Row, Col, Form } from 'react-bootstrap';
 
-const Direccion = ({ onDireccionCompleta }) => {
+const Direccion = ({ onDireccionCompleta, required = true, error }) => {
   const [tipoCalle, setTipoCalle] = useState('');
   const [numero1, setNumero1] = useState('');
   const [numero2, setNumero2] = useState('');
   const [numero3, setNumero3] = useState('');
   const [complemento, setComplemento] = useState('');
 
-  // Función para eliminar caracteres especiales y capitalizar cada palabra
+  // Función para capitalizar cada palabra manteniendo ñ y acentos
   const capitalizeEachWord = (str) => {
     return str
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/\w\S*/g, function(w) {
-        return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
-      });
+      .split(' ')
+      .map(word => {
+        if (!word) return word;
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join(' ');
   };
+
   const updateDireccionCompleta = useCallback(() => {
     const direccionCompleta = `${tipoCalle} ${numero1.trim()} # ${numero2.trim()}-${numero3.trim()} ${complemento}`
       .replace(/\s+/g, ' ')
@@ -33,9 +35,11 @@ const Direccion = ({ onDireccionCompleta }) => {
     let value = e.target.value;
     switch (format) {
       case 'uppercase':
-        value = value.toUpperCase();
+        value = value.replace(/[^0-9A-ZÑñ\s]/g, '').toUpperCase();
         break;
       case 'capitalizeWords':
+        // Permitir letras, números, ñ, tildes, espacios y algunos caracteres especiales
+        value = value.replace(/[^a-záéíóúñA-ZÁÉÍÓÚÑ0-9\s'-]/g, '');
         value = capitalizeEachWord(value);
         break;
       case 'number':
@@ -53,7 +57,7 @@ const Direccion = ({ onDireccionCompleta }) => {
   return (
     <div>
       <Form.Label className="mb-3">
-        Dirección{" "}
+        Dirección {required && <span className="text-danger">*</span>}{" "}
         <span style={{ color: '#a0a0a0', fontSize: '0.9em' }}>
           (Ej: Calle 33 # 24 - 16 San Fernando)
         </span>
@@ -63,7 +67,8 @@ const Direccion = ({ onDireccionCompleta }) => {
           <Form.Select
             value={tipoCalle}
             onChange={handleInputChange(setTipoCalle, 'mixed')}
-            required
+            required={required}
+            isInvalid={!!error}
           >
             <option value="">Seleccionar</option>
             <option value="Calle">Calle</option>
@@ -79,9 +84,10 @@ const Direccion = ({ onDireccionCompleta }) => {
             type="text"
             value={numero1}
             onChange={handleInputChange(setNumero1, 'uppercase')}
-            required
+            required={required}
             maxLength="5"
             placeholder=""
+            isInvalid={!!error}
           />
         </Col>
 
@@ -94,9 +100,10 @@ const Direccion = ({ onDireccionCompleta }) => {
             type="text"
             value={numero2}
             onChange={handleInputChange(setNumero2, 'uppercase')}
-            required
+            required={required}
             maxLength="5"
             placeholder=""
+            isInvalid={!!error}
           />
         </Col>
 
@@ -109,9 +116,10 @@ const Direccion = ({ onDireccionCompleta }) => {
             type="text"
             value={numero3}
             onChange={handleInputChange(setNumero3, 'number')}
-            required
+            required={required}
             maxLength="3"
             placeholder=""
+            isInvalid={!!error}
           />
         </Col>
 
@@ -128,6 +136,11 @@ const Direccion = ({ onDireccionCompleta }) => {
           />
         </Col>
       </Row>
+      {error && (
+        <Form.Text className="text-danger">
+          {error}
+        </Form.Text>
+      )}
     </div>
   );
 };
