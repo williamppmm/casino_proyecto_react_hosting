@@ -160,9 +160,6 @@ exports.verificarToken = (req, res, next) => {
     }
 };
 
-// Trabajo actual en el tema de recuperación de contraseña
-// ----------------------------------------------------
-
 // Validar reCAPTCHA y generar token de recuperación
 exports.recuperarContrasena = async (req, res) => {
     const { email, recaptcha } = req.body;
@@ -339,5 +336,63 @@ exports.verificarTokenRecuperacion = async (req, res) => {
     } catch (error) {
         console.error('Error al verificar token:', error);
         res.status(500).json({ error: 'Error al verificar el token.' });
+    }
+};
+
+// Función ambiar la contraseña del usuario
+exports.cambiarPassword = async (req, res) => {
+    const { token, nueva_password, confirmar_password } = req.body;
+
+    if (nueva_password !== confirmar_password) {
+        return res.status(400).json({ error: 'Las contraseñas no coinciden.' });
+    }
+
+    try {
+        const { data: tokenValido, error } = await supabase
+            .from('password_resets')
+            .select('id_cliente, id_operador, expires_at, used')
+            .eq('token', token)
+            .single();
+
+        if (!tokenValido || error || tokenValido.used || new Date(tokenValido.expires_at) < new Date()) {
+            return res.status(400).json({ error: 'Token inválido o expirado.' });
+        }
+
+        const hashedPassword = await bcrypt.hash(nueva_password, 10);
+
+        if (tokenValido.id_cliente) {
+            const { error: updateError } = await supabase
+                .from('clientes')
+                .update({ user_pass: hashedPassword })
+                .eq('id_cliente', tokenValido.id_cliente);
+
+            if (updateError) {
+                return res.status(500).json({ error: 'Error al actualizar la contraseña.' });
+            }
+        } else if (tokenValido.id_operador) {
+            const { error: updateError } = await supabase
+                .from('operadores')
+                .update({ user_pass: hashedPassword })
+                .eq('id_operador', tokenValido.id_operador);
+
+            if (updateError) {
+                return res.status(500).json({ error: 'Error al actualizar la contraseña.' });
+            }
+        }
+
+        // Marcar el token como usado
+        const { error: tokenUpdateError } = await supabase
+            .from('password_resets')
+            .update({ used: true })
+            .eq('token', token);
+
+        if (tokenUpdateError) {
+            console.error('Error al marcar token como usado:', tokenUpdateError);
+        }
+
+        res.json({ message: 'Contraseña actualizada exitosamente.' });
+    } catch (error) {
+        console.error('Error al restablecer contraseña:', error);
+        res.status(500).json({ error: 'Error al restablecer la contraseña.' });
     }
 };

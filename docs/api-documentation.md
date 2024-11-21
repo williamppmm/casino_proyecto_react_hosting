@@ -1163,6 +1163,133 @@ GET http://localhost:5000/api/auth/verificar-token-reset/546c31b645be33aafe9c49f
 - Se utiliza un token suficientemente largo y aleatorio
 - Se implementa expiración temporal de tokens
 
+# Cambiar Contraseña
 
+Endpoint para restablecer la contraseña de un usuario utilizando un token de recuperación.
+
+## Información General
+
+- **Método:** `POST`
+- **URL:** `http://localhost:5000/api/auth/cambiar-password`
+- **Content-Type:** `application/json`
+
+## Request
+
+### Headers
+```json
+{
+    "Content-Type": "application/json"
+}
+```
+
+### Body
+```json
+{
+    "token": "97f043bec5d447ea6616c1257ca7c3d1360b4888a89141c4a69608f071af0d09",
+    "nueva_password": "Maleja1980%",
+    "confirmar_password": "Maleja1980%"
+}
+```
+
+### Campos Requeridos
+| Campo | Tipo | Descripción | Validaciones |
+|-------|------|-------------|--------------|
+| `token` | string | Token de recuperación recibido por correo | - Debe ser válido y no expirado |
+| `nueva_password` | string | Nueva contraseña | - Mínimo 8 caracteres<br>- Al menos una mayúscula<br>- Al menos una minúscula<br>- Al menos un número<br>- Al menos un carácter especial |
+| `confirmar_password` | string | Confirmación de la nueva contraseña | - Debe coincidir con nueva_password |
+
+## Respuestas
+
+### Respuesta Exitosa
+**Código:** 200 OK
+```json
+{
+    "message": "Contraseña actualizada exitosamente."
+}
+```
+
+### Errores Posibles
+
+#### Contraseñas No Coinciden
+**Código:** 400 Bad Request
+```json
+{
+    "error": "Las contraseñas no coinciden."
+}
+```
+
+#### Token Inválido o Expirado
+**Código:** 400 Bad Request
+```json
+{
+    "error": "Token inválido o expirado."
+}
+```
+
+#### Error al Actualizar
+**Código:** 500 Internal Server Error
+```json
+{
+    "error": "Error al actualizar la contraseña."
+}
+```
+
+#### Error del Servidor
+**Código:** 500 Internal Server Error
+```json
+{
+    "error": "Error al restablecer la contraseña."
+}
+```
+
+## Ejemplo de Uso en Postman
+
+### Request
+```http
+POST http://localhost:5000/api/auth/cambiar-password
+Content-Type: application/json
+
+{
+    "token": "97f043bec5d447ea6616c1257ca7c3d1360b4888a89141c4a69608f071af0d09",
+    "nueva_password": "Maleja1980%",
+    "confirmar_password": "Maleja1980%"
+}
+```
+
+## Casos de Prueba
+
+1. **Cambio Exitoso**
+   - Token válido
+   - Contraseñas coinciden y cumplen requisitos
+   - Resultado esperado: 200 OK
+
+2. **Contraseñas No Coinciden**
+   - Token válido
+   - Contraseñas diferentes
+   - Resultado esperado: Error 400
+
+3. **Token Inválido**
+   - Token expirado o ya usado
+   - Resultado esperado: Error 400
+
+4. **Contraseña Débil**
+   - No cumple requisitos de seguridad
+   - Resultado esperado: Error 400
+
+## Notas de Implementación
+
+- El token se invalida después de un uso exitoso
+- Existe un límite de tiempo para usar el token
+- Las contraseñas se hashean antes de almacenarse
+- Se verifican múltiples condiciones de seguridad
+
+## Validaciones de Contraseña
+
+La nueva contraseña debe cumplir:
+- Longitud mínima de 8 caracteres
+- Al menos una letra mayúscula
+- Al menos una letra minúscula
+- Al menos un número
+- Al menos un carácter especial (!@#$%^&*)
 
 CONTINUA LOS ENDPOINTS DE RECUPERACION DE CONTRASEÑAS, PRUEBAS POSTMAN HE IMPLEMENTACION EN EL FRONTEND

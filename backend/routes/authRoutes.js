@@ -14,4 +14,5 @@ router.post('/recuperar-password', authController.recuperarContrasena);
 router.post('/cambiar-password', authController.cambiarPassword);
 router.get('/verificar-token-reset/:token', authController.verificarTokenRecuperacion);
 
+
 module.exports = router;
