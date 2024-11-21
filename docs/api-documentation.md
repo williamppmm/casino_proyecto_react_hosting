@@ -804,4 +804,365 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 3. Intentar acceder con token de cliente → Debe retornar error 403
 4. Intentar acceder con token inválido → Debe retornar error 401
 
+### Solicitar Recuperación de Contraseña
+
+Genera un token de recuperación de contraseña y envía un correo electrónico con un enlace para restablecerla.
+
+**URL**: `POST http://localhost:5000/api/auth/recuperar-password`
+
+**Headers**:
+```json
+{
+    "Content-Type": "application/json"
+}
+```
+
+**Request Body**:
+```json
+{
+    "correo_electronico": "ejemplo@correo.com",
+    "recaptcha": "03AFcWeA6_4zT7Zhe_Ui5VwZvkA_9EENszgbrC2CAKP7uxFlnAdVUkGm..."
+}
+```
+
+**IMPORTANTE**: El token de reCAPTCHA debe obtenerse completando el reCAPTCHA en el frontend.
+
+**Respuesta Exitosa (200)**:
+```json
+{
+    "message": "Se ha enviado un correo con instrucciones para restablecer tu contraseña"
+}
+```
+
+**Errores Posibles**:
+
+- **400 Bad Request** (reCAPTCHA Inválido):
+```json
+{
+    "error": "Verificación de reCAPTCHA fallida"
+}
+```
+*Causa*: Token de reCAPTCHA inválido o expirado.
+
+- **404 Not Found**:
+```json
+{
+    "error": "No se encontró una cuenta asociada a este correo electrónico"
+}
+```
+*Causa*: El correo proporcionado no está registrado en el sistema.
+
+- **429 Too Many Requests**:
+```json
+{
+    "error": "Demasiadas solicitudes. Por favor, espera 15 minutos antes de intentar nuevamente"
+}
+```
+*Causa*: Se han realizado múltiples intentos de recuperación para el mismo correo.
+
+- **500 Internal Server Error**:
+```json
+{
+    "error": "Error al procesar la solicitud de recuperación"
+}
+```
+*Causa*: Error interno del servidor al procesar la solicitud.
+
+### Verificar Token de Recuperación
+
+Verifica la validez de un token de recuperación de contraseña.
+
+**URL**: `GET http://localhost:5000/api/auth/verificar-token-recuperacion/:token`
+
+**Parámetros de Ruta**:
+- `:token` - Token de recuperación recibido por correo
+
+**Respuesta Exitosa (200)**:
+```json
+{
+    "valid": true,
+    "correo_electronico": "ejemplo@correo.com"
+}
+```
+
+**Errores Posibles**:
+
+- **400 Bad Request**:
+```json
+{
+    "error": "Token inválido o expirado"
+}
+```
+*Causa*: El token no existe, ya fue utilizado o ha expirado.
+
+### Restablecer Contraseña
+
+Permite al usuario establecer una nueva contraseña utilizando un token de recuperación válido.
+
+**URL**: `POST http://localhost:5000/api/auth/restablecer-password`
+
+**Headers**:
+```json
+{
+    "Content-Type": "application/json"
+}
+```
+
+**Request Body**:
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "nueva_password": "NuevaContraseña123%",
+    "confirmar_password": "NuevaContraseña123%"
+}
+```
+
+**Validaciones de Contraseña**:
+- Mínimo 8 caracteres
+- Al menos una letra mayúscula
+- Al menos una letra minúscula
+- Al menos un número
+- Al menos un carácter especial
+- Las contraseñas deben coincidir
+
+**Respuesta Exitosa (200)**:
+```json
+{
+    "message": "Contraseña actualizada exitosamente"
+}
+```
+
+**Errores Posibles**:
+
+- **400 Bad Request** (Token Inválido):
+```json
+{
+    "error": "Token inválido o expirado"
+}
+```
+*Causa*: El token no existe, ya fue utilizado o ha expirado.
+
+- **400 Bad Request** (Contraseña Inválida):
+```json
+{
+    "error": "La contraseña no cumple con los requisitos de seguridad"
+}
+```
+*Causa*: La nueva contraseña no cumple con las validaciones requeridas.
+
+- **400 Bad Request** (Contraseñas No Coinciden):
+```json
+{
+    "error": "Las contraseñas no coinciden"
+}
+```
+*Causa*: Los campos `nueva_password` y `confirmar_password` son diferentes.
+
+- **500 Internal Server Error**:
+```json
+{
+    "error": "Error al actualizar la contraseña"
+}
+```
+*Causa*: Error interno del servidor al actualizar la contraseña.
+
+**Notas de Implementación Frontend**:
+
+1. **Página de Solicitud de Recuperación**:
+   - Implementar reCAPTCHA v2
+   - Mostrar mensaje de éxito indicando revisar el correo
+   - Implementar límite de intentos por dirección IP
+   - Validar formato de correo electrónico
+
+2. **Página de Restablecimiento de Contraseña**:
+   - Validar token en la URL al cargar la página
+   - Implementar validaciones en tiempo real de la contraseña
+   - Mostrar indicador de fortaleza de contraseña
+   - Redireccionar a login tras éxito
+
+**Ejemplos de Pruebas en Postman**:
+
+1. **Solicitar Recuperación**:
+```http
+POST http://localhost:5000/api/auth/recuperar-password
+Content-Type: application/json
+
+{
+    "correo_electronico": "usuario@ejemplo.com",
+    "recaptcha": "03AFcWeA6_4zT7Zhe_Ui5VwZvkA_9EENszgbrC2CAKP7uxFlnAdVUkGm..."
+}
+```
+
+2. **Verificar Token**:
+```http
+GET http://localhost:5000/api/auth/verificar-token-recuperacion/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+3. **Restablecer Contraseña**:
+```http
+POST http://localhost:5000/api/auth/restablecer-password
+Content-Type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "nueva_password": "NuevaContraseña123%",
+    "confirmar_password": "NuevaContraseña123%"
+}
+```
+
+**Casos de Prueba Recomendados**:
+
+1. Flujo Exitoso:
+   - Solicitar recuperación → Recibir correo
+   - Verificar token válido → Obtener confirmación
+   - Restablecer contraseña → Login exitoso
+
+2. Casos de Error:
+   - Solicitud sin reCAPTCHA
+   - Correo no registrado
+   - Token expirado o inválido
+   - Contraseña que no cumple requisitos
+   - Contraseñas que no coinciden
+   - Múltiples intentos de recuperación
+
+# Verificar Token de Recuperación
+
+Este endpoint se utiliza para validar si un token de recuperación de contraseña es válido (no expirado, no usado, y existente).
+
+## Información General
+
+- **Método:** `GET`
+- **URL:** `http://localhost:5000/api/auth/verificar-token-reset/:token`
+
+## Parámetros
+
+### Parámetros de URL
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `:token` | string | Token único generado durante el proceso de recuperación de contraseña |
+
+## Respuestas
+
+### Respuesta Exitosa
+**Código:** 200 OK
+```json
+{
+    "valid": true
+}
+```
+
+### Errores Posibles
+
+#### Token Inválido o Expirado
+**Código:** 400 Bad Request
+```json
+{
+    "error": "Token inválido o expirado."
+}
+```
+
+#### Error del Servidor
+**Código:** 500 Internal Server Error
+```json
+{
+    "error": "Error al verificar el token."
+}
+```
+
+## Implementación del Controlador
+
+```javascript
+exports.verificarTokenRecuperacion = async (req, res) => {
+    const { token } = req.params;
+    
+    try {
+        const { data: tokenValido, error } = await supabase
+            .from('password_resets')
+            .select('id_cliente, id_operador, expires_at, used')
+            .eq('token', token)
+            .single();
+
+        if (!tokenValido || error || tokenValido.used || new Date(tokenValido.expires_at) < new Date()) {
+            return res.status(400).json({ 
+                error: 'Token inválido o expirado.' 
+            });
+        }
+
+        res.json({ valid: true });
+        
+    } catch (error) {
+        console.error('Error al verificar token:', error);
+        res.status(500).json({ 
+            error: 'Error al verificar el token.' 
+        });
+    }
+};
+```
+
+## Ejemplo de Uso en Postman
+
+### Request
+```http
+GET http://localhost:5000/api/auth/verificar-token-reset/546c31b645be33aafe9c49f00eac0e63dadf222902cd34cbd80ad638b39410f2
+```
+
+### Respuestas Posibles
+
+#### Éxito
+```json
+{
+    "valid": true
+}
+```
+
+#### Error
+```json
+{
+    "error": "Token inválido o expirado."
+}
+```
+
+## Casos de Prueba
+
+1. **Token Válido**
+   - Token existente
+   - No usado previamente
+   - Dentro del tiempo de expiración
+   - Resultado esperado: `{ "valid": true }`
+
+2. **Token Expirado**
+   - Token existente pero fuera del tiempo de validez
+   - Resultado esperado: Error 400
+
+3. **Token Ya Utilizado**
+   - Token existente pero marcado como usado
+   - Resultado esperado: Error 400
+
+4. **Token Inexistente**
+   - Token que no existe en la base de datos
+   - Resultado esperado: Error 400
+
+5. **Token Malformado**
+   - Token con formato incorrecto
+   - Resultado esperado: Error 400
+
+## Notas de Implementación
+
+- El endpoint verifica el token contra la tabla `password_resets` en la base de datos
+- Se realizan múltiples validaciones:
+  - Existencia del token en la base de datos
+  - Verificación de uso previo
+  - Validación de fecha de expiración
+- La respuesta es minimalista para mantener la seguridad
+- No se devuelve información sensible en caso de error
+
+## Seguridad
+
+- No se revelan detalles específicos sobre la razón del fallo
+- Todas las validaciones se realizan en el servidor
+- Se utiliza un token suficientemente largo y aleatorio
+- Se implementa expiración temporal de tokens
+
+
+
 CONTINUA LOS ENDPOINTS DE RECUPERACION DE CONTRASEÑAS, PRUEBAS POSTMAN HE IMPLEMENTACION EN EL FRONTEND

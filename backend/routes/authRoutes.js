@@ -8,9 +8,10 @@ router.post('/login-usuario', authController.login);
 router.get('/verificar-sesion', authController.verificarToken, authController.verificarSesion);
 router.post('/logout', authController.verificarToken, authController.logout);
 router.post('/recuperar-contraseña', authController.recuperarContraseña);
-// Rutas para recuperación de contraseña
+
+// Rutas para autenticación y recuperación de contraseña
 router.post('/recuperar-password', authController.recuperarContraseña);
+router.post('/cambiar-password', authController.cambiarPassword);
 router.get('/verificar-token-reset/:token', authController.verificarTokenRecuperacion);
-router.post('/resetear-password', authController.resetearContraseña);
 
 module.exports = router;

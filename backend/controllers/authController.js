@@ -5,6 +5,28 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const axios = require('axios');
+
+const verificarReCaptcha = async (recaptchaToken) => {
+    try {
+        const secretKey = process.env.RECAPTCHA_SECRET_KEY; // Llave secreta de reCAPTCHA
+        const response = await axios.post(
+            `https://www.google.com/recaptcha/api/siteverify`,
+            null,
+            {
+                params: {
+                    secret: secretKey,
+                    response: recaptchaToken,
+                },
+            }
+        );
+
+        return response.data.success;
+    } catch (error) {
+        console.error('Error al verificar reCAPTCHA:', error);
+        return false;
+    }
+};
 
 // Controlador de login
 exports.login = async (req, res) => {
@@ -141,20 +163,40 @@ exports.verificarToken = (req, res, next) => {
 // Trabajo actual en el tema de recuperación de contraseña
 // ----------------------------------------------------
 
-// Función para solicitar recuperación de contraseña
+// Validar reCAPTCHA y generar token de recuperación
 exports.recuperarContraseña = async (req, res) => {
-    const { email } = req.body;
+    const { email, recaptcha } = req.body;
 
     try {
+        // Verificar el reCAPTCHA
+        const reCaptchaValido = await verificarReCaptcha(recaptcha);
+        if (!reCaptchaValido) {
+            return res.status(400).json({ error: 'Verificación de reCAPTCHA fallida.' });
+        }
+
         // Buscar al usuario en la tabla de clientes o operadores
-        const { data: usuario, error } = await supabase
-            .from('clientes') // Cambia a 'operadores' si aplica
+        let { data: cliente, error: errorCliente } = await supabase
+            .from('clientes')
             .select('id_cliente, correo_electronico')
             .eq('correo_electronico', email)
             .single();
 
-        if (!usuario || error) {
-            return res.status(404).json({ error: 'Correo no registrado.' });
+        let usuario = cliente;
+        let tipoUsuario = 'cliente';
+
+        if (!cliente || errorCliente) {
+            const { data: operador, error: errorOperador } = await supabase
+                .from('operadores')
+                .select('id_operador, correo_electronico')
+                .eq('correo_electronico', email)
+                .single();
+
+            if (operador) {
+                usuario = operador;
+                tipoUsuario = 'operador';
+            } else {
+                return res.status(404).json({ error: 'Correo no registrado.' });
+            }
         }
 
         // Generar un token único
@@ -165,7 +207,8 @@ exports.recuperarContraseña = async (req, res) => {
         const { error: tokenError } = await supabase
             .from('password_resets')
             .insert({
-                id_cliente: usuario.id_cliente, // Cambia a `id_operador` si aplica
+                id_cliente: tipoUsuario === 'cliente' ? usuario.id_cliente : null,
+                id_operador: tipoUsuario === 'operador' ? usuario.id_operador : null,
                 token,
                 expires_at: expiresAt,
             });
@@ -175,25 +218,9 @@ exports.recuperarContraseña = async (req, res) => {
             return res.status(500).json({ error: 'Error al procesar la solicitud.' });
         }
 
-        // Configuración para enviar el correo
-        const transporter = nodemailer.createTransport({
-            service: 'gmail', // Cambia según el proveedor que uses
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-        });
-
+        // Enviar correo con el enlace de recuperación
         const resetUrl = `${process.env.FRONTEND_URL}/resetear-contraseña?token=${token}`;
-        await transporter.sendMail({
-            to: email,
-            subject: 'Recuperación de contraseña',
-            html: `
-                <p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>
-                <a href="${resetUrl}">${resetUrl}</a>
-                <p>El enlace expira en 15 minutos.</p>
-            `,
-        });
+        await enviarCorreoRecuperacion(email, resetUrl);
 
         res.json({ message: 'Correo enviado. Revisa tu bandeja de entrada.' });
     } catch (error) {
@@ -202,34 +229,8 @@ exports.recuperarContraseña = async (req, res) => {
     }
 };
 
-// Función para verificar el token
-exports.verificarTokenRecuperacion = async (req, res) => {
-    const { token } = req.params;
-
-    try {
-        const { data: tokenValido, error } = await supabase
-            .from('password_resets')
-            .select('id_cliente, expires_at, used') // Cambia a `id_operador` si aplica
-            .eq('token', token)
-            .single();
-
-        if (!tokenValido || error) {
-            return res.status(400).json({ error: 'Token inválido o expirado.' });
-        }
-
-        if (tokenValido.used || new Date(tokenValido.expires_at) < new Date()) {
-            return res.status(400).json({ error: 'Token inválido o expirado.' });
-        }
-
-        res.json({ valid: true });
-    } catch (error) {
-        console.error('Error al verificar token:', error);
-        res.status(500).json({ error: 'Error al verificar el token.' });
-    }
-};
-
-// Función para restablecer la contraseña
-exports.resetearContraseña = async (req, res) => {
+// Cambiar la contraseña del usuario
+exports.cambiarPassword = async (req, res) => {
     const { token, nueva_password, confirmar_password } = req.body;
 
     if (nueva_password !== confirmar_password) {
@@ -239,24 +240,34 @@ exports.resetearContraseña = async (req, res) => {
     try {
         const { data: tokenValido, error } = await supabase
             .from('password_resets')
-            .select('id_cliente, used') // Cambia a `id_operador` si aplica
+            .select('id_cliente, id_operador, expires_at, used')
             .eq('token', token)
             .single();
 
-        if (!tokenValido || error || tokenValido.used) {
+        if (!tokenValido || error || tokenValido.used || new Date(tokenValido.expires_at) < new Date()) {
             return res.status(400).json({ error: 'Token inválido o expirado.' });
         }
 
         const hashedPassword = await bcrypt.hash(nueva_password, 10);
 
-        // Actualizar la contraseña del usuario
-        const { error: updateError } = await supabase
-            .from('clientes') // Cambia a 'operadores' si aplica
-            .update({ user_pass: hashedPassword })
-            .eq('id_cliente', tokenValido.id_cliente);
+        if (tokenValido.id_cliente) {
+            const { error: updateError } = await supabase
+                .from('clientes')
+                .update({ user_pass: hashedPassword })
+                .eq('id_cliente', tokenValido.id_cliente);
 
-        if (updateError) {
-            return res.status(500).json({ error: 'Error al actualizar la contraseña.' });
+            if (updateError) {
+                return res.status(500).json({ error: 'Error al actualizar la contraseña.' });
+            }
+        } else if (tokenValido.id_operador) {
+            const { error: updateError } = await supabase
+                .from('operadores')
+                .update({ user_pass: hashedPassword })
+                .eq('id_operador', tokenValido.id_operador);
+
+            if (updateError) {
+                return res.status(500).json({ error: 'Error al actualizar la contraseña.' });
+            }
         }
 
         // Marcar el token como usado
@@ -273,5 +284,60 @@ exports.resetearContraseña = async (req, res) => {
     } catch (error) {
         console.error('Error al restablecer contraseña:', error);
         res.status(500).json({ error: 'Error al restablecer la contraseña.' });
+    }
+};
+
+// Función para enviar correo electrónico
+const enviarCorreoRecuperacion = async (email, resetUrl) => {
+    try {
+        // Configura el transporte de nodemailer
+        const transporter = nodemailer.createTransport({
+            service: 'gmail', // Cambia según el proveedor que uses
+            auth: {
+                user: process.env.EMAIL_USER, // Tu correo configurado en .env
+                pass: process.env.EMAIL_PASS, // La contraseña generada para aplicaciones
+            },
+        });
+
+        // Configura el contenido del correo
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Recuperación de contraseña',
+            html: `
+                <h1>Recuperación de Contraseña</h1>
+                <p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>
+                <a href="${resetUrl}">${resetUrl}</a>
+                <p>Este enlace es válido por 15 minutos.</p>
+            `,
+        };
+
+        // Envía el correo
+        await transporter.sendMail(mailOptions);
+        console.log(`Correo de recuperación enviado a: ${email}`);
+    } catch (error) {
+        console.error('Error al enviar correo:', error);
+        throw new Error('Error al enviar el correo.');
+    }
+};
+
+exports.verificarTokenRecuperacion = async (req, res) => {
+    const { token } = req.params;
+
+    try {
+        const { data: tokenValido, error } = await supabase
+            .from('password_resets')
+            .select('id_cliente, id_operador, expires_at, used')
+            .eq('token', token)
+            .single();
+
+        if (!tokenValido || error || tokenValido.used || new Date(tokenValido.expires_at) < new Date()) {
+            return res.status(400).json({ error: 'Token inválido o expirado.' });
+        }
+
+        res.json({ valid: true });
+    } catch (error) {
+        console.error('Error al verificar token:', error);
+        res.status(500).json({ error: 'Error al verificar el token.' });
     }
 };

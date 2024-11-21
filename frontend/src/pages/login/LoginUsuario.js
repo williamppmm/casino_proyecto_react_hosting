@@ -159,6 +159,9 @@ export default function LoginUsuario() {
                   ¿Aún no tienes una cuenta? <Link to="/registro-usuario" className="text-primary">Registrarse</Link>
                 </p>
                 <p className="text-light">
+                  <Link to="/recuperar-password" className="text-primary">¿Olvidaste tu contraseña?</Link>
+                </p>
+                <p className="text-light">
                   <Link to="/" className="text-secondary">Volver al inicio</Link>
                 </p>
               </Col>

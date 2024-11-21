@@ -22,6 +22,7 @@ import DashboardCashier from './pages/dashboard/DashboardCashier';
 import DashboardRestaurant from './pages/dashboard/DashboardRestaurant';
 import PerfilCliente from './components/profile/PerfilCliente'; 
 import ProtectedRoute from './components/common/ProtectedRoute';
+import RecuperarContraseña from "./pages/login/RecuperarContraseña";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/registro-usuario" element={<RegistroUsuario />} />
           <Route path="/login-usuario" element={<LoginUsuario />} />
+          <Route path="/recuperar-password" element={<RecuperarContraseña />} />
           
           {/* Rutas protegidas */}
           <Route
