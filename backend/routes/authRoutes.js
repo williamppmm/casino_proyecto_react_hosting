@@ -7,10 +7,10 @@ const authController = require('../controllers/authController');
 router.post('/login-usuario', authController.login);
 router.get('/verificar-sesion', authController.verificarToken, authController.verificarSesion);
 router.post('/logout', authController.verificarToken, authController.logout);
-router.post('/recuperar-contraseña', authController.recuperarContraseña);
+router.post('/recuperar-contrasena', authController.recuperarContrasena);
 
 // Rutas para autenticación y recuperación de contraseña
-router.post('/recuperar-password', authController.recuperarContraseña);
+router.post('/recuperar-password', authController.recuperarContrasena);
 router.post('/cambiar-password', authController.cambiarPassword);
 router.get('/verificar-token-reset/:token', authController.verificarTokenRecuperacion);
 

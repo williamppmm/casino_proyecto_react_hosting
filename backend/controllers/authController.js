@@ -164,7 +164,7 @@ exports.verificarToken = (req, res, next) => {
 // ----------------------------------------------------
 
 // Validar reCAPTCHA y generar token de recuperación
-exports.recuperarContraseña = async (req, res) => {
+exports.recuperarContrasena = async (req, res) => {
     const { email, recaptcha } = req.body;
 
     try {
@@ -219,7 +219,7 @@ exports.recuperarContraseña = async (req, res) => {
         }
 
         // Enviar correo con el enlace de recuperación
-        const resetUrl = `${process.env.FRONTEND_URL}/resetear-contraseña?token=${token}`;
+        const resetUrl = `${process.env.FRONTEND_URL}/resetear-contrasena?token=${token}`;
         await enviarCorreoRecuperacion(email, resetUrl);
 
         res.json({ message: 'Correo enviado. Revisa tu bandeja de entrada.' });
