@@ -1,7 +1,8 @@
 import React from 'react';
 import { Container, Card, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import logo from '../../assets/logos/logo.png'; // Asegúrate de que esta ruta sea válida
+import logo from '../../assets/logos/logo.png';
+import { Mail, Phone, HelpCircle } from 'lucide-react';
 
 const Politicas = () => {
   return (
@@ -89,18 +90,50 @@ const Politicas = () => {
               </Row>
             </section>
 
-            {/* Contacto */}
+            <section className="mb-5">
+              <h3 className="text-primary mb-3">4. Políticas de Juego Responsable</h3>
+              <p className="text-light">
+                En Casino La Fortuna promovemos el juego responsable y saludable. Para ello, ofrecemos las siguientes medidas de protección:
+              </p>
+              <ul className="text-light ps-4">
+                <li className="mb-2">Límites de depósito diarios, semanales y mensuales</li>
+                <li className="mb-2">Autoexclusión voluntaria por tiempo determinado</li>
+                <li className="mb-2">Asesoramiento y apoyo psicológico</li>
+                <li className="mb-2">Información sobre riesgos y prevención</li>
+              </ul>
+            </section>
+
+            <section className="mb-5">
+              <h3 className="text-primary mb-3">5. Políticas de Privacidad y Cookies</h3>
+              <p className="text-light">
+                En Casino La Fortuna respetamos tu privacidad y protegemos tus datos personales. Consulta nuestra <Link to="/privacidad" className="text-primary">Política de Privacidad</Link> y <Link to="/cookies" className="text-primary">Política de Cookies</Link> para más información.
+              </p>
+            </section>
+
+            <section className="mb-5">
+              <h3 className="text-primary mb-3">6. Políticas de Contenido y Propiedad Intelectual</h3>
+              <p className="text-light">
+                Todo el contenido publicado en Casino La Fortuna es propiedad exclusiva de la empresa y está protegido por derechos de autor. Queda prohibida la reproducción, distribución o modificación sin autorización previa.
+              </p>
+            </section>
+            
             <section className="mb-5">
               <h3 className="text-primary mb-3">7. Contacto y Soporte</h3>
               <ul className="list-unstyled text-light ps-4">
                 <li className="mb-2">
-                  📧 Consultas generales: <a href="mailto:info@casinolafortuna.com" className="text-primary">info@casinolafortuna.com</a>
+                  <Mail className="inline-block mr-2" size={18} /> 
+                  Consultas generales: <a href="mailto:info@casinolafortuna.com" className="text-primary">
+                    info@casinolafortuna.com</a>
                 </li>
                 <li className="mb-2">
-                  💬 Soporte técnico: <a href="mailto:soporte@casinolafortuna.com" className="text-primary">soporte@casinolafortuna.com</a>
+                  <HelpCircle className="inline-block mr-2" size={18} /> 
+                  Soporte técnico: <a href="mailto:soporte@casinolafortuna.com" className="text-primary">
+                    soporte@casinolafortuna.com</a>
                 </li>
                 <li className="mb-2">
-                  📞 Línea de atención: <a href="tel:+573152728882" className="text-primary">+57 315 272 8882</a>
+                  <Phone className="inline-block mr-2" size={18} /> 
+                  Línea de atención: <a href="tel:+573152728882" className="text-primary">
+                    +57 315 272 8882</a>
                 </li>
               </ul>
             </section>

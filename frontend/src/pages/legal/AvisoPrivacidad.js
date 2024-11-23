@@ -2,6 +2,7 @@ import React from 'react';
 import { Container, Card, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/logos/logo.png'; 
+import { Mail, Phone } from 'lucide-react';
 
 const AvisoPrivacidad = () => {
   return (
@@ -115,8 +116,14 @@ const AvisoPrivacidad = () => {
                 Para ejercer sus derechos o realizar consultas sobre privacidad, contáctenos a través de:
               </p>
               <ul className="list-unstyled text-light ps-4">
-                <li className="mb-2">📧 Email: privacidad@casinolafortuna.com</li>
-                <li className="mb-2">📞 Teléfono: +57 315 272 8882</li>
+                <li className="mb-2">
+                  <Mail className="inline-block mr-2" size={18} /> 
+                  Email: privacidad@casinolafortuna.com
+                </li>
+                <li className="mb-2">
+                  <Phone className="inline-block mr-2" size={18} /> 
+                  Teléfono: +57 315 272 8882
+                </li>
               </ul>
             </section>
 

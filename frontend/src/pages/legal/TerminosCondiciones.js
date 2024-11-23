@@ -1,7 +1,8 @@
 import React from 'react';
 import { Container, Card, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import logo from '../../assets/logos/logo.png'; 
+import logo from '../../assets/logos/logo.png';
+import { Mail, Phone } from 'lucide-react'; 
 
 const TerminosCondiciones = () => {
   return (
@@ -83,16 +84,40 @@ const TerminosCondiciones = () => {
               </p>
             </section>
 
-            {/* Contacto */}
+            {/* Propiedad Intelectual */}
             <section className="mb-5">
-              <h3 className="text-primary mb-3">5. Contacto</h3>
-              <p className="text-light mb-2">Para consultas o soporte técnico, contáctenos a través de:</p>
-              <ul className="list-unstyled text-light ps-4">
-                <li className="mb-2">📧 Email: soporte@casinolafortuna.com</li>
-                <li className="mb-2">📞 Teléfono: +57 315 272 8882</li>
-              </ul>
+              <h3 className="text-primary mb-3">5. Propiedad Intelectual</h3>
+              <p className="text-light">
+                El software Casino La Fortuna y sus componentes están protegidos por derechos de autor y propiedad 
+                intelectual. Queda prohibida la reproducción o distribución no autorizada del contenido.
+              </p>
             </section>
 
+            {/* Limitación de Responsabilidad */}
+            <section className="mb-5">
+              <h3 className="text-primary mb-3">6. Limitación de Responsabilidad</h3>
+              <p className="text-light">
+                El software se proporciona tal cual, sin garantías de ningún tipo. No nos hacemos responsables 
+                de daños directos o indirectos causados por el uso del sistema.
+              </p>
+            </section>
+            
+            {/* Contacto */}
+            <section className="mb-4">
+              <h3 className="text-primary mb-3">7. Contacto</h3>
+              <p className="text-light mb-2">
+              Para consultas o soporte técnico, contáctenos a través de:
+              </p>
+              <ul className="list-unstyled text-light ps-4">
+                <li className="mb-2">
+                  <Mail className="inline-block mr-2" size={18} /> Email: soporte@casinolafortuna.com
+                </li>
+                <li className="mb-2">
+                  <Phone className="inline-block mr-2" size={18} /> Teléfono: +57 315 272 8882
+                </li>
+              </ul>
+            </section>
+        
             {/* Footer */}
             <Row className="mt-5">
               <Col className="text-center">

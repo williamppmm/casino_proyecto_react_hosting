@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Form, Button, Row, Col, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 
 const Contacto = () => {
   // Estado para almacenar los datos del formulario
@@ -89,10 +90,22 @@ const Contacto = () => {
               <Card.Header>Información de Contacto</Card.Header>
               <Card.Body>
                 <Card.Text>
-                  <strong>Teléfono:</strong> +573152728882<br />
-                  <strong>Email:</strong> contacto@casinolafortuna.com<br />
-                  <strong>Dirección:</strong> Av.6 #5-23 Santiago de Cali<br />
-                  <strong>Horario de atención:</strong> Lunes a Domingo, 24 horas
+                  <p className="mb-2">
+                    <Phone className="inline-block mr-2" size={18} />
+                    <strong>Teléfono:</strong> +573152728882
+                  </p>
+                  <p className="mb-2">
+                    <Mail className="inline-block mr-2" size={18} />
+                    <strong>Email:</strong> contacto@casinolafortuna.com
+                  </p>
+                  <p className="mb-2">
+                    <MapPin className="inline-block mr-2" size={18} />
+                    <strong>Dirección:</strong> Av.6 #5-23 Santiago de Cali
+                  </p>
+                  <p className="mb-2">
+                    <Clock className="inline-block mr-2" size={18} />
+                    <strong>Horario de atención:</strong> Lunes a Domingo, 24 horas
+                  </p>
                 </Card.Text>
               </Card.Body>
             </Card>

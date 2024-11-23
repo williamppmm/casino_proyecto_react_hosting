@@ -2,6 +2,7 @@ import React from 'react';
 import { Container, Card, Row, Col, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/logos/logo.png';
+import { Phone, MessageCircle, Building2 } from 'lucide-react';
 
 const JuegoResponsable = () => {
   return (
@@ -64,13 +65,22 @@ const JuegoResponsable = () => {
               <p className="text-light mb-3">Si tú o alguien cercano necesita ayuda, estas son las líneas de apoyo disponibles:</p>
               <ul className="list-unstyled text-light ps-4">
                 <li className="mb-2">
-                  🏥 Línea Nacional de Adicciones: <a href="tel:018000123123" className="text-primary"><strong>01 8000 123 123</strong></a>
+                  <Building2 className="inline-block mr-2" size={18} /> 
+                  Línea Nacional de Adicciones: <a href="tel:018000123123" className="text-primary">
+                    <strong>
+                      01 8000 123 123
+                    </strong></a>
                 </li>
                 <li className="mb-2">
-                  📞 Atención 24/7: <a href="tel:+573152728882" className="text-primary"><strong>+57 315 272 8882</strong></a>
+                  <Phone className="inline-block mr-2" size={18} /> 
+                  Atención 24/7: <a href="tel:+573152728882" className="text-primary">
+                    <strong>
+                      +57 315 272 8882
+                    </strong></a>
                 </li>
                 <li className="mb-2">
-                  💬 Chat de Ayuda: <Link to="/ayuda" className="text-primary">Centro de Ayuda</Link>
+                  <MessageCircle className="inline-block mr-2" size={18} /> 
+                  Chat de Ayuda: <Link to="/ayuda" className="text-primary">Centro de Ayuda</Link>
                 </li>
               </ul>
             </section>

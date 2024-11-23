@@ -15,6 +15,7 @@ function DashboardSlots() {
   });
 
   // Estado para datos estadísticos
+  // eslint-disable-next-line no-unused-vars
   const [statsData, setStatsData] = useState({
     totalMaquinas: 50,
     maquinasActivas: 45,
