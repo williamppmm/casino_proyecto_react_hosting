@@ -175,29 +175,43 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 3. Verificar token expirado → Debe retornar error 401
 4. Verificar token mal formado → Debe retornar error 400
 
-## Clientes
+## Gestión de Clientes
 
-### Obtener Datos del Cliente
+### Información General
+
+**Base URL:** `http://localhost:5000/api/clientes`
+
+### Autenticación
+
+Todas las rutas están protegidas mediante JWT (JSON Web Token).
+
+### Configuración del Header de Autorización
+
+- **Header Required:** `Authorization`
+- **Valor:** `{JWT_TOKEN}`
+
+> ⚠️ **IMPORTANTE:** El prefijo `Bearer` no está configurado en la API. Use el token JWT directamente.
+
+## Endpoint: Obtener Datos del Cliente
 
 Devuelve los datos personales del cliente autenticado.
 
-**URL**: `GET http://localhost:5000/api/clientes/datos`
+### Petición
 
-**Headers**:
-```json
-{
-    "Authorization": "<tu_token_JWT>"
-}
+```http
+GET /datos
 ```
 
-**IMPORTANTE**: No incluir el prefijo `Bearer` en el token.
+### Headers
 
-**Ejemplo de Request**:
-```
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+| Nombre          | Requerido | Descripción                    | Ejemplo                                      |
+|-----------------|-----------|--------------------------------|----------------------------------------------|
+| Authorization   | Sí        | Token JWT de autenticación     | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...     |
 
-**Respuesta Exitosa (200)**:
+### Respuestas
+
+#### 200 OK - Respuesta Exitosa
+
 ```json
 {
     "id_cliente": 11,
@@ -219,79 +233,96 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
-**Campos de la Respuesta**:
-- `id_cliente`: Identificador único del cliente
-- `primer_nombre`, `segundo_nombre`: Nombres del cliente
-- `primer_apellido`, `segundo_apellido`: Apellidos del cliente
-- `correo_electronico`: Email registrado del cliente
-- `telefono_movil`: Número de teléfono del cliente
-- `direccion`: Dirección de residencia
-- `municipio`: Municipio de residencia
-- `fecha_nacimiento`: Fecha de nacimiento del cliente
-- `nacionalidad`: Código del país (ISO-3166)
-- `tipo_documento`: Tipo de documento (CC, CE, PA)
-- `numero_documento`: Número del documento de identificación
-- `lugar_expedicion`: Lugar donde fue expedido el documento
-- `fecha_expedicion`: Fecha de expedición del documento
-- `fecha_registro`: Fecha en que el cliente se registró en el sistema
+#### Campos de la Respuesta
 
-**Errores Posibles**:
+| Campo               | Tipo     | Descripción                                           |
+|--------------------|----------|-------------------------------------------------------|
+| id_cliente         | integer  | Identificador único del cliente                       |
+| primer_nombre      | string   | Primer nombre del cliente                             |
+| segundo_nombre     | string   | Segundo nombre del cliente                            |
+| primer_apellido    | string   | Primer apellido del cliente                           |
+| segundo_apellido   | string   | Segundo apellido del cliente                          |
+| correo_electronico | string   | Email registrado del cliente                          |
+| telefono_movil     | string   | Número de teléfono del cliente                        |
+| direccion          | string   | Dirección de residencia                               |
+| municipio          | string   | Municipio de residencia                               |
+| fecha_nacimiento   | date     | Fecha de nacimiento del cliente (YYYY-MM-DD)          |
+| nacionalidad       | string   | Código del país (ISO-3166)                            |
+| tipo_documento     | string   | Tipo de documento (CC, CE, PA)                        |
+| numero_documento   | string   | Número del documento de identificación                 |
+| lugar_expedicion   | string   | Lugar donde fue expedido el documento                 |
+| fecha_expedicion   | date     | Fecha de expedición del documento (YYYY-MM-DD)        |
+| fecha_registro     | datetime | Fecha en que el cliente se registró en el sistema     |
 
-- **401 Unauthorized**:
+### Códigos de Error
+
+#### 401 Unauthorized
 ```json
 {
     "error": "Token no proporcionado"
 }
 ```
-*Causa*: Token no válido, expirado o no incluido.
+**Causa:** Token no válido, expirado o no incluido.
 
-- **403 Forbidden**:
+#### 403 Forbidden
 ```json
 {
     "error": "Acceso denegado"
 }
 ```
-*Causa*: Token pertenece a un rol que no es cliente.
+**Causa:** Token pertenece a un rol que no es cliente.
 
-- **404 Not Found**:
+#### 404 Not Found
 ```json
 {
     "error": "Cliente no encontrado"
 }
 ```
-*Causa*: No se encuentran datos para el cliente autenticado.
+**Causa:** No se encuentran datos para el cliente autenticado.
 
-- **500 Internal Server Error**:
+#### 500 Internal Server Error
 ```json
 {
     "error": "Error al obtener datos del cliente"
 }
 ```
-*Causa*: Error interno en el servidor.
+**Causa:** Error interno en el servidor.
 
-**Casos de Prueba Recomendados**:
+### Casos de Prueba Recomendados
+
 1. Verificar con token válido de cliente → Debe retornar datos del cliente
 2. Verificar con token inválido → Debe retornar error 401
 3. Verificar con token de operador → Debe retornar error 403
 4. Verificar con cliente no existente → Debe retornar error 404
 
-### Actualizar Datos del Cliente
+
+# Actualizar Datos del Cliente
+
+## Información General
 
 Permite a un cliente actualizar ciertos datos personales específicos.
 
-**URL**: `PUT http://localhost:5000/api/clientes/actualizar`
+**Base URL:** `http://localhost:5000/api/clientes`
 
-**Headers**:
-```json
-{
-    "Authorization": "<tu_token_JWT>",
-    "Content-Type": "application/json"
-}
+## Endpoint
+
+```http
+PUT /actualizar
 ```
 
-**IMPORTANTE**: No incluir el prefijo `Bearer` en el token.
+## Headers Requeridos
 
-**Request Body**:
+| Nombre          | Requerido | Descripción                    | Ejemplo                                      |
+|-----------------|-----------|--------------------------------|----------------------------------------------|
+| Authorization   | Sí        | Token JWT de autenticación     | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...     |
+| Content-Type    | Sí        | Tipo de contenido             | application/json                             |
+
+> ⚠️ **IMPORTANTE:** No incluir el prefijo `Bearer` en el token.
+
+## Request Body
+
+### Campos Actualizables
+
 ```json
 {
     "telefono_movil": "3101234567",
@@ -300,12 +331,16 @@ Permite a un cliente actualizar ciertos datos personales específicos.
 }
 ```
 
-**Campos Actualizables**:
-- `telefono_movil`: Nuevo número de teléfono
-- `direccion`: Nueva dirección de residencia
-- `municipio`: Nuevo municipio de residencia
+| Campo           | Tipo    | Requerido | Descripción                    |
+|----------------|---------|-----------|--------------------------------|
+| telefono_movil | string  | No        | Nuevo número de teléfono       |
+| direccion      | string  | No        | Nueva dirección de residencia  |
+| municipio      | string  | No        | Nuevo municipio de residencia  |
 
-**Respuesta Exitosa (200)**:
+## Respuestas
+
+### 200 OK - Actualización Exitosa
+
 ```json
 {
     "id_cliente": 11,
@@ -333,45 +368,387 @@ Permite a un cliente actualizar ciertos datos personales específicos.
 }
 ```
 
-**Errores Posibles**:
+### Campos de la Respuesta
 
-- **401 Unauthorized**:
-```json
-{
-    "error": "Token no proporcionado"
-}
-```
-*Causa*: Token no válido, expirado o no incluido.
+| Campo                      | Tipo     | Descripción                                    |
+|---------------------------|----------|------------------------------------------------|
+| id_cliente                | integer  | Identificador único del cliente                |
+| fecha_registro            | datetime | Fecha y hora de registro en el sistema         |
+| tipo_documento            | string   | Tipo de documento de identificación            |
+| numero_documento          | string   | Número del documento de identificación         |
+| fecha_expedicion          | date     | Fecha de expedición del documento             |
+| primer_nombre             | string   | Primer nombre del cliente                      |
+| segundo_nombre            | string   | Segundo nombre del cliente                     |
+| primer_apellido           | string   | Primer apellido del cliente                    |
+| segundo_apellido          | string   | Segundo apellido del cliente                   |
+| lugar_expedicion          | string   | Lugar de expedición del documento             |
+| correo_electronico        | string   | Correo electrónico del cliente                |
+| telefono_movil           | string   | Número de teléfono móvil actualizado          |
+| fecha_nacimiento          | date     | Fecha de nacimiento del cliente               |
+| genero                    | string   | Género del cliente (O: Otro)                  |
+| nacionalidad              | string   | Código de país de nacionalidad                |
+| direccion                 | string   | Dirección de residencia actualizada           |
+| municipio                 | string   | Municipio de residencia actualizado           |
+| interdicto                | boolean  | Indica si el cliente está interdicto          |
+| pep                       | boolean  | Indica si es persona políticamente expuesta   |
+| consentimiento_datos      | boolean  | Aceptación de política de datos              |
+| comunicaciones_comerciales| boolean  | Aceptación de comunicaciones comerciales      |
+| terminos_condiciones      | boolean  | Aceptación de términos y condiciones         |
 
-- **403 Forbidden**:
-```json
-{
-    "error": "Acceso denegado"
-}
-```
-*Causa*: Token pertenece a un rol que no es cliente.
+## Códigos de Error
 
-- **400 Bad Request**:
+### 400 Bad Request
 ```json
 {
     "error": "Datos inválidos para actualizar"
 }
 ```
-*Causa*: Se intentó actualizar campos no permitidos o body vacío.
+**Causa:** Se intentó actualizar campos no permitidos o body vacío.
 
-- **500 Internal Server Error**:
+### 401 Unauthorized
+```json
+{
+    "error": "Token no proporcionado"
+}
+```
+**Causa:** Token no válido, expirado o no incluido.
+
+### 403 Forbidden
+```json
+{
+    "error": "Acceso denegado"
+}
+```
+**Causa:** Token pertenece a un rol que no es cliente.
+
+### 500 Internal Server Error
 ```json
 {
     "error": "Error al actualizar datos del cliente"
 }
 ```
-*Causa*: Error interno en el servidor.
+**Causa:** Error interno en el servidor.
 
-**Casos de Prueba Recomendados**:
+## Casos de Prueba Recomendados
+
 1. Actualizar datos permitidos → Debe retornar datos actualizados
 2. Intentar actualizar campos no permitidos → Debe retornar error 400
 3. Verificar con token inválido → Debe retornar error 401
 4. Verificar con token de operador → Debe retornar error 403
+
+## Notas Adicionales
+
+- Solo se pueden actualizar los campos especificados en la sección "Campos Actualizables"
+- La actualización es parcial, lo que significa que solo se actualizarán los campos incluidos en el request
+- Los campos no incluidos en el request mantendrán sus valores actuales
+- Todos los campos actualizables son opcionales en el request body
+
+# Cambiar Contraseña del Cliente
+
+## Información General
+
+Permite a un cliente actualizar su contraseña. Este endpoint requiere autenticación y solo puede ser accedido por usuarios con rol de cliente.
+
+**Base URL:** `http://localhost:5000/api/clientes`
+
+## Endpoint
+
+```http
+PUT /cambiar-password
+```
+
+## Headers Requeridos
+
+| Nombre          | Requerido | Descripción                    | Ejemplo                                      |
+|-----------------|-----------|--------------------------------|----------------------------------------------|
+| Authorization   | Sí        | Token JWT de autenticación     | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...     |
+| Content-Type    | Sí        | Tipo de contenido             | application/json                             |
+
+> ⚠️ **IMPORTANTE:** No incluir el prefijo `Bearer` en el token.
+
+## Request Body
+
+```json
+{
+    "nuevaPassword": "MiNuevaContraseña123",
+    "confirmarPassword": "MiNuevaContraseña123"
+}
+```
+
+### Campos del Request
+
+| Campo             | Tipo   | Requerido | Descripción                           |
+|-------------------|--------|-----------|---------------------------------------|
+| nuevaPassword     | string | Sí        | Nueva contraseña del cliente         |
+| confirmarPassword | string | Sí        | Confirmación de la nueva contraseña  |
+
+## Respuestas
+
+### 200 OK - Cambio Exitoso
+
+```json
+{
+    "message": "Contraseña actualizada correctamente",
+    "cliente": {
+        "id_cliente": 11,
+        "correo_electronico": "cliente@ejemplo.com"
+    }
+}
+```
+
+### Campos de la Respuesta Exitosa
+
+| Campo                      | Tipo     | Descripción                               |
+|---------------------------|----------|-------------------------------------------|
+| message                   | string   | Mensaje de confirmación                   |
+| cliente                   | object   | Objeto con información básica del cliente |
+| cliente.id_cliente        | integer  | Identificador único del cliente           |
+| cliente.correo_electronico| string   | Correo electrónico del cliente           |
+
+## Códigos de Error
+
+### 400 Bad Request
+```json
+{
+    "error": "Debe proporcionar ambas contraseñas"
+}
+```
+**Causa:** No se proporcionaron todos los campos requeridos.
+
+```json
+{
+    "error": "Las contraseñas no coinciden"
+}
+```
+**Causa:** La nueva contraseña y su confirmación no son idénticas.
+
+```json
+{
+    "error": "Error al actualizar la contraseña"
+}
+```
+**Causa:** Error en la base de datos al intentar actualizar la contraseña.
+
+### 401 Unauthorized
+```json
+{
+    "error": "Token no proporcionado"
+}
+```
+**Causa:** No se proporcionó el token JWT en el header.
+
+```json
+{
+    "error": "Token inválido o expirado"
+}
+```
+**Causa:** El token proporcionado no es válido o ha expirado.
+
+### 403 Forbidden
+```json
+{
+    "error": "Acceso denegado"
+}
+```
+**Causa:** El token pertenece a un rol que no es cliente.
+
+### 500 Internal Server Error
+```json
+{
+    "error": "Error interno del servidor"
+}
+```
+**Causa:** Error en el servidor al procesar la solicitud.
+
+## Casos de Prueba Recomendados
+
+1. Cambio exitoso de contraseña:
+   - Enviar token válido y contraseñas coincidentes → Debe retornar 200 OK
+   - Verificar que la nueva contraseña funciona al iniciar sesión
+
+2. Validación de contraseñas:
+   - Enviar contraseñas que no coinciden → Debe retornar error 400
+   - Enviar request sin alguno de los campos de contraseña → Debe retornar error 400
+   - Enviar request con campos de contraseña vacíos → Debe retornar error 400
+
+3. Validación de autenticación:
+   - Realizar petición sin token → Debe retornar error 401
+   - Realizar petición con token expirado → Debe retornar error 401
+   - Realizar petición con token inválido → Debe retornar error 401
+
+4. Validación de autorización:
+   - Realizar petición con token de operador → Debe retornar error 403
+
+## Notas de Seguridad
+
+- La contraseña se almacena hasheada en la base de datos utilizando bcrypt
+- Se requiere autenticación mediante JWT para acceder al endpoint
+- Se verifica que el usuario tenga rol de 'cliente'
+- Se valida que ambas contraseñas coincidan antes de procesar el cambio
+- No se devuelve la contraseña hasheada en la respuesta
+- El endpoint está protegido contra inyección SQL mediante el ORM
+
+# Cambiar Correo Electrónico del Cliente
+
+## Información General
+
+Permite a un cliente actualizar su correo electrónico. Este endpoint requiere autenticación y solo puede ser accedido por usuarios con rol de cliente.
+
+**Base URL:** `http://localhost:5000/api/clientes`
+
+## Endpoint
+
+```http
+PUT /cambiar-correo
+```
+
+## Headers Requeridos
+
+| Nombre          | Requerido | Descripción                    | Ejemplo                                      |
+|-----------------|-----------|--------------------------------|----------------------------------------------|
+| Authorization   | Sí        | Token JWT de autenticación     | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...     |
+| Content-Type    | Sí        | Tipo de contenido             | application/json                             |
+
+> ⚠️ **IMPORTANTE:** No incluir el prefijo `Bearer` en el token.
+
+## Request Body
+
+```json
+{
+    "nuevoCorreo": "nuevo.correo@ejemplo.com",
+    "confirmarCorreo": "nuevo.correo@ejemplo.com"
+}
+```
+
+### Campos del Request
+
+| Campo           | Tipo   | Requerido | Descripción                           |
+|-----------------|--------|-----------|---------------------------------------|
+| nuevoCorreo     | string | Sí        | Nuevo correo electrónico del cliente |
+| confirmarCorreo | string | Sí        | Confirmación del nuevo correo        |
+
+## Respuestas
+
+### 200 OK - Cambio Exitoso
+
+```json
+{
+    "message": "Correo electrónico actualizado correctamente",
+    "cliente": {
+        "id_cliente": 11,
+        "correo_electronico": "nuevo.correo@ejemplo.com"
+    }
+}
+```
+
+### Campos de la Respuesta Exitosa
+
+| Campo                      | Tipo     | Descripción                               |
+|---------------------------|----------|-------------------------------------------|
+| message                   | string   | Mensaje de confirmación                   |
+| cliente                   | object   | Objeto con información básica del cliente |
+| cliente.id_cliente        | integer  | Identificador único del cliente           |
+| cliente.correo_electronico| string   | Nuevo correo electrónico del cliente     |
+
+## Códigos de Error
+
+### 400 Bad Request
+
+```json
+{
+    "error": "Debe proporcionar ambos campos de correo"
+}
+```
+**Causa:** No se proporcionaron todos los campos requeridos.
+
+```json
+{
+    "error": "Los correos no coinciden"
+}
+```
+**Causa:** El nuevo correo y su confirmación no son idénticos.
+
+```json
+{
+    "error": "Formato de correo electrónico inválido"
+}
+```
+**Causa:** El formato del correo electrónico proporcionado no es válido.
+
+```json
+{
+    "error": "El correo electrónico ya está en uso"
+}
+```
+**Causa:** El nuevo correo electrónico ya está registrado por otro usuario.
+
+### 401 Unauthorized
+```json
+{
+    "error": "Token no proporcionado"
+}
+```
+**Causa:** No se proporcionó el token JWT en el header.
+
+```json
+{
+    "error": "Token inválido o expirado"
+}
+```
+**Causa:** El token proporcionado no es válido o ha expirado.
+
+### 403 Forbidden
+```json
+{
+    "error": "Acceso denegado"
+}
+```
+**Causa:** El token pertenece a un rol que no es cliente.
+
+### 500 Internal Server Error
+```json
+{
+    "error": "Error interno del servidor"
+}
+```
+**Causa:** Error en el servidor al procesar la solicitud.
+
+## Casos de Prueba Recomendados
+
+1. Cambio exitoso de correo:
+   - Enviar token válido y correos coincidentes → Debe retornar 200 OK
+   - Verificar que se puede iniciar sesión con el nuevo correo
+
+2. Validación de formato:
+   - Enviar correos sin formato válido (@) → Debe retornar error 400
+   - Enviar correos que no coinciden → Debe retornar error 400
+   - Enviar request sin alguno de los campos → Debe retornar error 400
+   - Enviar request con campos vacíos → Debe retornar error 400
+
+3. Validación de duplicados:
+   - Intentar cambiar a un correo ya registrado → Debe retornar error 400
+
+4. Validación de autenticación:
+   - Realizar petición sin token → Debe retornar error 401
+   - Realizar petición con token expirado → Debe retornar error 401
+   - Realizar petición con token inválido → Debe retornar error 401
+
+5. Validación de autorización:
+   - Realizar petición con token de operador → Debe retornar error 403
+
+## Notas de Seguridad
+
+- Se requiere autenticación mediante JWT para acceder al endpoint
+- Se verifica que el usuario tenga rol de 'cliente'
+- Se valida el formato del correo electrónico
+- Se verifica que el nuevo correo no esté ya registrado
+- El endpoint está protegido contra inyección SQL mediante el ORM
+- Se implementa verificación de coincidencia entre correo y confirmación
+
+
+
+
+
 
 ### Cerrar Sesión
 
@@ -1292,4 +1669,10 @@ La nueva contraseña debe cumplir:
 - Al menos un número
 - Al menos un carácter especial (!@#$%^&*)
 
-CONTINUA LOS ENDPOINTS DE RECUPERACION DE CONTRASEÑAS, PRUEBAS POSTMAN HE IMPLEMENTACION EN EL FRONTEND
+
+
+
+
+
+
+CONTINUA LOS ENDPOINTS DE GESTION DE CLIENTES

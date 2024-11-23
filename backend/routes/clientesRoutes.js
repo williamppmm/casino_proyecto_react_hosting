@@ -2,16 +2,17 @@
 
 const router = require('express').Router();
 const clientesController = require('../controllers/clientesController');
-const authController = require('../controllers/authController');
-const { verificarRol } = require('../middlewares/authMiddleware');
+const { verificarToken, verificarRol } = require('../middlewares/authMiddleware');
 
-// Aplicar verificación de token a todas las rutas
-router.use(authController.verificarToken);
-// Aplicar verificación de rol de cliente a todas las rutas
-router.use(verificarRol(['cliente']));
+// Middleware
+router.use(verificarToken); // Aplica verificación de token a todas las rutas
+router.use(verificarRol(['cliente'])); // Aplica verificación de rol a todas las rutas
 
 // Rutas para clientes
-router.get('/datos', clientesController.obtenerDatosCliente);
-router.put('/actualizar', clientesController.actualizarDatosCliente);
+router.get('/datos', clientesController.obtenerDatosCliente); // Obtener perfil del cliente
+router.put('/actualizar', clientesController.actualizarDatosCliente); // Modificar datos no sensibles
+router.put('/cambiar-password', clientesController.cambiarPassword); // Cambiar contraseña
+router.put('/cambiar-correo', clientesController.cambiarCorreo); // Cambiar correo electrónico
+router.delete('/dar-de-baja', clientesController.darDeBaja); // Dar de baja la cuenta
 
 module.exports = router;
