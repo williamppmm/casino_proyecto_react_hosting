@@ -745,10 +745,183 @@ PUT /cambiar-correo
 - El endpoint está protegido contra inyección SQL mediante el ORM
 - Se implementa verificación de coincidencia entre correo y confirmación
 
+# Dar de Baja Cuenta de Cliente
 
+## Información General
 
+Permite a un cliente dar de baja su cuenta de forma lógica, requiriendo un motivo para la baja.
 
+**Base URL:** `http://localhost:5000/api/clientes`
 
+## Endpoint
+
+```http
+DELETE /dar-de-baja
+```
+
+## Headers Requeridos
+
+| Nombre          | Requerido | Descripción                    | Ejemplo                                      |
+|-----------------|-----------|--------------------------------|----------------------------------------------|
+| Authorization   | Sí        | Token JWT de autenticación     | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...     |
+| Content-Type    | Sí        | Tipo de contenido             | application/json                             |
+
+> ⚠️ **IMPORTANTE:** No incluir el prefijo `Bearer` en el token.
+
+## Request Body
+
+```json
+{
+    "motivo": "Cambio de proveedor de servicios"
+}
+```
+
+### Campos del Request
+
+| Campo   | Tipo   | Requerido | Descripción                   |
+|---------|--------|-----------|-------------------------------|
+| motivo  | string | Sí        | Razón de la baja de la cuenta |
+
+## Respuestas
+
+### 200 OK - Baja Exitosa
+
+```json
+{
+    "message": "Cuenta dada de baja exitosamente",
+    "fecha_baja": "2024-11-23T14:30:00.000Z",
+    "motivo_baja": "Cambio de proveedor de servicios"
+}
+```
+
+### Campos de la Respuesta Exitosa
+
+| Campo       | Tipo     | Descripción                                  |
+|------------|----------|----------------------------------------------|
+| message    | string   | Mensaje de confirmación                      |
+| fecha_baja | timestamp| Fecha y hora en que se procesó la baja      |
+| motivo_baja| string   | Motivo proporcionado para la baja           |
+
+## Códigos de Error
+
+### 400 Bad Request
+```json
+{
+    "error": "Debe proporcionar un motivo para dar de baja la cuenta"
+}
+```
+**Causa:** No se proporcionó el motivo o está vacío.
+
+### 401 Unauthorized
+```json
+{
+    "error": "Token no proporcionado"
+}
+```
+**Causa:** No se proporcionó el token JWT en el header.
+
+```json
+{
+    "error": "Token inválido o expirado"
+}
+```
+**Causa:** El token proporcionado no es válido o ha expirado.
+
+### 403 Forbidden
+```json
+{
+    "error": "Acceso denegado"
+}
+```
+**Causa:** El token pertenece a un rol que no es cliente.
+
+### 500 Internal Server Error
+```json
+{
+    "error": "Error al procesar la baja de la cuenta"
+}
+```
+**Causa:** Error en el servidor al procesar la solicitud.
+
+```json
+{
+    "error": "Error interno del servidor"
+}
+```
+**Causa:** Error general en el servidor.
+
+## Casos de Prueba Recomendados
+
+1. Baja exitosa:
+   - Enviar token válido y motivo → Debe retornar 200 OK con fecha y motivo
+   - Verificar que los campos activo, fecha_baja y motivo_baja se actualizan
+
+2. Validaciones de motivo:
+   - No enviar motivo → Debe retornar error 400
+   - Enviar motivo vacío → Debe retornar error 400
+   - Enviar motivo con solo espacios → Debe retornar error 400
+
+3. Validación de autenticación:
+   - Realizar petición sin token → Debe retornar error 401
+   - Realizar petición con token expirado → Debe retornar error 401
+   - Realizar petición con token inválido → Debe retornar error 401
+
+4. Validación de autorización:
+   - Realizar petición con token de operador → Debe retornar error 403
+
+## Cambios en Base de Datos
+
+Este endpoint actualiza los siguientes campos en la tabla `clientes`:
+
+```sql
+ALTER TABLE clientes 
+ADD COLUMN IF NOT EXISTS activo BOOLEAN DEFAULT true NOT NULL,
+ADD COLUMN IF NOT EXISTS fecha_baja TIMESTAMP NULL,
+ADD COLUMN IF NOT EXISTS motivo_baja VARCHAR(255) NULL;
+```
+
+| Campo        | Tipo      | Nulo    | Default | Descripción                    |
+|-------------|-----------|----------|---------|--------------------------------|
+| activo      | BOOLEAN   | NOT NULL | true    | Estado actual de la cuenta    |
+| fecha_baja  | TIMESTAMP | NULL     | NULL    | Fecha y hora de la baja       |
+| motivo_baja | VARCHAR   | NULL     | NULL    | Razón proporcionada para baja |
+
+## Notas Importantes
+
+1. **Baja Lógica:**
+   - La cuenta no se elimina físicamente de la base de datos
+   - Se marca como inactiva mediante el campo `activo`
+   - Se registra la fecha exacta de la baja
+   - Se requiere y guarda el motivo proporcionado por el cliente
+
+2. **Motivo Obligatorio:**
+   - El motivo es un campo requerido
+   - No puede estar vacío o contener solo espacios
+   - Se incluye en la respuesta exitosa
+
+3. **Registro de Fecha:**
+   - La fecha de baja se establece automáticamente al momento de la operación
+   - Se retorna en la respuesta en formato ISO
+
+4. **Seguridad:**
+   - Se requiere autenticación mediante JWT
+   - Solo pueden acceder usuarios con rol de cliente
+   - La operación es irreversible
+
+## Nota: 
+Es de anotar que la documentación de otros endpoint se hizo antes de abordar el tema de la baja logica por lo cual no se si hayan implicaciones, debí modificar las tablas iniciales de la base de datos para esta funcionalidad y la logica de login, recuperarContrasena, y cambiarPassword
+
+```
+ALTER TABLE clientes
+ADD COLUMN IF NOT EXISTS activo BOOLEAN DEFAULT true NOT NULL,
+ADD COLUMN IF NOT EXISTS fecha_baja TIMESTAMP NULL,
+ADD COLUMN IF NOT EXISTS motivo_baja VARCHAR(255) NULL;
+
+ALTER TABLE operadores
+ADD COLUMN activo BOOLEAN DEFAULT true NOT NULL,
+ADD COLUMN fecha_baja TIMESTAMP NULL,
+ADD COLUMN motivo_baja VARCHAR(255) NULL;
+```
 
 ### Cerrar Sesión
 

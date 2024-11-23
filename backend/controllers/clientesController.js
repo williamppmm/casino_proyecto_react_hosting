@@ -185,51 +185,45 @@ exports.cambiarCorreo = async (req, res) => {
 };
 
 // Dar de baja la cuenta
-// Dar de baja la cuenta
 exports.darDeBaja = async (req, res) => {
     try {
         const { id, tipo } = req.usuario;
 
-        // Validar que el usuario tenga el rol correcto
         if (tipo !== 'cliente') {
-            return res.status(403).json({ error: 'Acceso denegado: solo los clientes pueden realizar esta acción' });
+            return res.status(403).json({ error: 'Acceso denegado' });
         }
 
-        // Verificar si el cliente existe
-        const { data: cliente, error: errorBusqueda } = await supabase
-            .from('clientes')
-            .select('id_cliente')
-            .eq('id_cliente', id)
-            .single();
+        // Validar que exista el motivo en el body
+        const { motivo } = req.body;
 
-        if (errorBusqueda || !cliente) {
-            return res.status(404).json({ error: 'Cliente no encontrado en la base de datos' });
+        if (!motivo || motivo.trim() === '') {
+            return res.status(400).json({ error: 'Debe proporcionar un motivo para dar de baja la cuenta' });
         }
 
-        // Baja lógica del cliente (actualización del estado a inactivo)
-        const { error: errorBaja } = await supabase
+        // Actualizar los campos relacionados con la baja lógica
+        const fechaActual = new Date().toISOString();
+
+        const { error } = await supabase
             .from('clientes')
-            .update({ 
-                activo: false, // Asegúrate de que exista el campo 'activo' en la tabla
-                fecha_baja: new Date().toISOString(), // Campo para registrar la fecha de baja
-                motivo_baja: req.body.motivo || 'Baja voluntaria' // Registrar motivo opcional
+            .update({
+                activo: false,
+                fecha_baja: fechaActual,
+                motivo_baja: motivo
             })
             .eq('id_cliente', id);
 
-        if (errorBaja) {
-            console.error('Error al dar de baja la cuenta:', errorBaja);
-            return res.status(500).json({ error: 'Error al procesar la baja de la cuenta en la base de datos' });
+        if (error) {
+            console.error('Error al dar de baja la cuenta:', error);
+            return res.status(500).json({ error: 'Error al procesar la baja de la cuenta' });
         }
 
-        // Responder al cliente con confirmación de baja
-        res.json({ 
+        res.json({
             message: 'Cuenta dada de baja exitosamente',
-            fecha_baja: new Date().toISOString(),
-            motivo: req.body.motivo || 'Baja voluntaria'
+            fecha_baja: fechaActual,
+            motivo_baja: motivo
         });
-
     } catch (error) {
-        console.error('Error interno al dar de baja la cuenta:', error);
-        res.status(500).json({ error: 'Error interno del servidor al procesar la baja' });
+        console.error('Error al dar de baja la cuenta:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
 };

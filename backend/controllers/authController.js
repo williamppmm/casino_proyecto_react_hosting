@@ -28,11 +28,8 @@ const verificarReCaptcha = async (recaptchaToken) => {
     }
 };
 
-// Controlador de login
+// Login
 exports.login = async (req, res) => {
-    console.log('Solicitud de login recibida');
-    console.log('Headers:', req.headers);
-    console.log('Body:', req.body);
     try {
         const { correo_electronico, password } = req.body;
 
@@ -40,16 +37,12 @@ exports.login = async (req, res) => {
             return res.status(400).json({ error: "Correo y contraseña son requeridos" });
         }
 
-        // Buscar en la tabla de operadores
+        // Verificar en la tabla de operadores
         let { data: operador, error: errorOperador } = await supabase
             .from('operadores')
-            .select(`
-                *,
-                secciones:id_seccion (
-                    dashboard_url
-                )
-            `)
+            .select(`*, secciones:id_seccion (dashboard_url)`)
             .eq('correo_electronico', correo_electronico)
+            .eq('activo', true) // Validar que esté activo
             .single();
 
         let usuario = null;
@@ -61,11 +54,12 @@ exports.login = async (req, res) => {
             tipoUsuario = 'operador';
             dashboardUrl = operador.secciones.dashboard_url;
         } else {
-            // Buscar en la tabla de clientes
+            // Verificar en la tabla de clientes
             const { data: cliente, error: errorCliente } = await supabase
                 .from('clientes')
                 .select('*')
                 .eq('correo_electronico', correo_electronico)
+                .eq('activo', true) // Validar que esté activo
                 .single();
 
             if (cliente) {
@@ -76,22 +70,22 @@ exports.login = async (req, res) => {
         }
 
         if (!usuario) {
-            return res.status(401).json({ error: "Usuario no encontrado" });
+            return res.status(401).json({ error: "Usuario no encontrado o inactivo" });
         }
 
-        // Verificar la contraseña
+        // Verificar contraseña
         const passwordValida = await bcrypt.compare(password, usuario.user_pass);
         if (!passwordValida) {
             return res.status(401).json({ error: "Contraseña incorrecta" });
         }
 
-        // Crear token JWT
+        // Generar token JWT
         const token = jwt.sign(
             {
                 id: usuario.id_operador || usuario.id_cliente,
                 tipo: tipoUsuario,
                 email: usuario.correo_electronico,
-                nombre: usuario.primer_nombre
+                nombre: usuario.primer_nombre,
             },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
@@ -101,9 +95,8 @@ exports.login = async (req, res) => {
             token,
             tipo: tipoUsuario,
             nombre: `${usuario.primer_nombre} ${usuario.primer_apellido}`,
-            dashboard_url: dashboardUrl
+            dashboard_url: dashboardUrl,
         });
-
     } catch (error) {
         console.error('Error en el login:', error);
         res.status(500).json({ error: "Error en el proceso de login" });
@@ -160,47 +153,48 @@ exports.verificarToken = (req, res, next) => {
     }
 };
 
-// Validar reCAPTCHA y generar token de recuperación
+// Recuperar contraseña
 exports.recuperarContrasena = async (req, res) => {
     const { email, recaptcha } = req.body;
 
     try {
-        // Verificar el reCAPTCHA
+        // Verificar reCAPTCHA
         const reCaptchaValido = await verificarReCaptcha(recaptcha);
         if (!reCaptchaValido) {
             return res.status(400).json({ error: 'Verificación de reCAPTCHA fallida.' });
         }
 
-        // Buscar al usuario en la tabla de clientes o operadores
-        let { data: cliente, error: errorCliente } = await supabase
+        // Buscar en clientes y operadores
+        let { data: cliente } = await supabase
             .from('clientes')
-            .select('id_cliente, correo_electronico')
+            .select('id_cliente, correo_electronico, activo')
             .eq('correo_electronico', email)
+            .eq('activo', true) // Validar que esté activo
             .single();
 
         let usuario = cliente;
         let tipoUsuario = 'cliente';
 
-        if (!cliente || errorCliente) {
-            const { data: operador, error: errorOperador } = await supabase
+        if (!cliente) {
+            const { data: operador } = await supabase
                 .from('operadores')
-                .select('id_operador, correo_electronico')
+                .select('id_operador, correo_electronico, activo')
                 .eq('correo_electronico', email)
+                .eq('activo', true) // Validar que esté activo
                 .single();
 
             if (operador) {
                 usuario = operador;
                 tipoUsuario = 'operador';
             } else {
-                return res.status(404).json({ error: 'Correo no registrado.' });
+                return res.status(404).json({ error: 'Correo no registrado o usuario inactivo.' });
             }
         }
 
-        // Generar un token único
+        // Generar token de recuperación
         const token = crypto.randomBytes(32).toString('hex');
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
 
-        // Insertar el token en la base de datos
         const { error: tokenError } = await supabase
             .from('password_resets')
             .insert({
@@ -215,7 +209,7 @@ exports.recuperarContrasena = async (req, res) => {
             return res.status(500).json({ error: 'Error al procesar la solicitud.' });
         }
 
-        // Enviar correo con el enlace de recuperación
+        // Enviar correo
         const resetUrl = `${process.env.FRONTEND_URL}/resetear-contrasena?token=${token}`;
         await enviarCorreoRecuperacion(email, resetUrl);
 
