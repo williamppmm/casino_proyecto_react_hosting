@@ -9,6 +9,10 @@ import QuienesSomos from './pages/home/QuienesSomos';
 import NuestrosJuegos from './pages/home/NuestrosJuegos';
 import Promociones from './pages/home/Promociones';
 import Contacto from './pages/home/Contacto';
+import Politicas from './pages/legal/Politicas';
+import TerminosCondiciones from './pages/legal/TerminosCondiciones';
+import AvisoPrivacidad from './pages/legal/AvisoPrivacidad';
+import JuegoResponsable from './pages/legal/JuegoResponsable';
 import LoginUsuario from './pages/login/LoginUsuario';
 import RegistroUsuario from './pages/register/RegistroUsuario';
 import DashboardCliente from './pages/dashboard/DashboardCliente';
@@ -36,6 +40,10 @@ function App() {
           <Route path="/nuestros-juegos" element={<NuestrosJuegos />} />
           <Route path="/promociones" element={<Promociones />} />
           <Route path="/contacto" element={<Contacto />} />
+          <Route path="/politicas" element={<Politicas />} />
+          <Route path="/terminos" element={<TerminosCondiciones />} />
+          <Route path="/privacidad" element={<AvisoPrivacidad />} />
+          <Route path="/juego-responsable" element={<JuegoResponsable />} />
           <Route path="/registro-usuario" element={<RegistroUsuario />} />
           <Route path="/login-usuario" element={<LoginUsuario />} />
           <Route path="/recuperar-password" element={<RecuperarContrasena />} />

@@ -41,7 +41,7 @@ const Home = () => {
               Iniciar Sesión
             </Button>
           </div>
-          
+
           <div>
             <WhatsAppButton />
           </div>

@@ -116,7 +116,7 @@ export default function RecuperarContrasena() {
             <Row className="mt-4">
               <Col className="text-center">
                 <p className="text-light">
-                  ¿Ya recordaste tu contraseña? <Link to="/login" className="text-primary">Iniciar Sesión</Link>
+                  ¿Ya recordaste tu contraseña? <Link to="/login-usuario" className="text-primary">Iniciar Sesión</Link>
                 </p>
                 <p className="text-light">
                   ¿Aún no tienes una cuenta? <Link to="/registro-usuario" className="text-primary">Registrarse</Link>
