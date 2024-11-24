@@ -71,9 +71,12 @@ export const obtenerDatosCliente = async () => {
   }
 };
 
-export const actualizarDatosCliente = async (clienteId, datos) => {
+export const actualizarDatosCliente = async (datos) => {
+  if (!datos || !datos.contrasena) {
+    throw new Error('La contraseña es requerida para confirmar los cambios.');
+  }
   try {
-    const response = await api.put(`/api/clientes/actualizar-datos/${clienteId}`, datos);
+    const response = await api.put('/api/clientes/actualizar', datos);
     return response.data;
   } catch (error) {
     handleApiError(error, 'Error al actualizar datos del cliente');

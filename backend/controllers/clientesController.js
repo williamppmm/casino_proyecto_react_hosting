@@ -49,9 +49,32 @@ exports.obtenerDatosCliente = async (req, res) => {
 exports.actualizarDatosCliente = async (req, res) => {
     try {
         const { id, tipo } = req.usuario;
-        
+        const { contrasena, ...campos } = req.body; // Separar la contraseña del resto de los campos
+
         if (tipo !== 'cliente') {
             return res.status(403).json({ error: 'Acceso denegado' });
+        }
+
+        if (!contrasena) {
+            return res.status(400).json({ error: 'La contraseña es requerida para confirmar los cambios.' });
+        }
+
+        // Obtener la contraseña almacenada del cliente
+        const { data: cliente, error: fetchError } = await supabase
+            .from('clientes')
+            .select('user_pass') // Asegúrate de que el campo de la contraseña es 'user_pass'
+            .eq('id_cliente', id)
+            .single();
+
+        if (fetchError || !cliente) {
+            return res.status(404).json({ error: 'Cliente no encontrado.' });
+        }
+
+        // Verificar la contraseña
+        const contrasenaValida = await bcrypt.compare(contrasena, cliente.user_pass);
+
+        if (!contrasenaValida) {
+            return res.status(401).json({ error: 'La contraseña es incorrecta.' });
         }
 
         // Lista de campos que el cliente puede actualizar
@@ -60,23 +83,24 @@ exports.actualizarDatosCliente = async (req, res) => {
         // Filtrar solo los campos permitidos del req.body
         const datosActualizar = {};
         for (const campo of camposPermitidos) {
-            if (req.body[campo] !== undefined) {
-                datosActualizar[campo] = req.body[campo];
+            if (campos[campo] !== undefined) {
+                datosActualizar[campo] = campos[campo];
             }
         }
 
-        const { data: cliente, error } = await supabase
+        // Actualizar los datos del cliente
+        const { data: clienteActualizado, error: updateError } = await supabase
             .from('clientes')
             .update(datosActualizar)
             .eq('id_cliente', id)
             .select()
             .single();
 
-        if (error) {
+        if (updateError) {
             return res.status(400).json({ error: 'Error al actualizar datos del cliente' });
         }
 
-        res.json({ message: 'Información actualizada correctamente', cliente });
+        res.json({ message: 'Información actualizada correctamente', cliente: clienteActualizado });
     } catch (error) {
         console.error('Error al actualizar datos del cliente:', error);
         res.status(500).json({ error: 'Error interno del servidor' });

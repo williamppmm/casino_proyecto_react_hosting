@@ -1,109 +1,68 @@
-// src/components/profile/ActualizarDatos.js
-
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Container, Button, Form, Col, Alert, Card, Modal, Row } from 'react-bootstrap';
-import axios from 'axios';
-import Direccion from '../../components/forms/Direccion'; 
+import { Container, Card, Form, Button, Alert, Modal, Row, Col } from 'react-bootstrap';
+import { obtenerDatosCliente, actualizarDatosCliente } from '../../services/api';
+import TelefonoInput from '../forms/TelefonoInput';
+import Direccion from '../forms/Direccion';
 
 const ActualizarDatos = () => {
-  const [token, setToken] = useState(null);
-  const [cliente, setCliente] = useState(null);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     telefono_movil: '',
     direccion: '',
-    municipio: '',
-    interdicto: false,
-    pep: false
+    municipio: ''
   });
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [showModal, setShowModal] = useState(false); // Estado para el modal
+  const [password, setPassword] = useState(''); // Contraseña para confirmar cambios
 
   useEffect(() => {
-    const tokenFromStorage = localStorage.getItem('token');
-    const clienteInfo = JSON.parse(localStorage.getItem('clienteInfo'));
-
-    if (!tokenFromStorage || !clienteInfo) {
-      navigate('/login-cliente');
-    } else {
-      setToken(tokenFromStorage);
-      setCliente(clienteInfo);
-      resetFormData(clienteInfo);
-    }
-  }, [navigate]);
-
-  const resetFormData = (clienteInfo) => {
-    setFormData({
-      telefono_movil: clienteInfo.telefono_movil || '',
-      direccion: clienteInfo.direccion || '',
-      municipio: clienteInfo.municipio || '',
-      interdicto: clienteInfo.interdicto || false,
-      pep: clienteInfo.pep || false
-    });
-  };
-
-  const validatePhoneNumber = (phone) => {
-    return phone.length === 10;
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    let newValue = value;
-
-    if (name === 'telefono_movil') {
-      newValue = value.replace(/\D/g, '').slice(0, 10);
-      if (!validatePhoneNumber(newValue)) {
-        setMessage({ type: 'danger', text: 'El teléfono debe contener 10 dígitos' });
-      } else {
-        setMessage(null);
+    const fetchDatosActuales = async () => {
+      try {
+        const datos = await obtenerDatosCliente();
+        setFormData({
+          telefono_movil: datos.telefono_movil || '',
+          direccion: datos.direccion || '',
+          municipio: datos.municipio || ''
+        });
+      } catch (err) {
+        setError('Error al cargar los datos actuales');
+        console.error('Error:', err);
       }
-    } else if (['municipio'].includes(name)) {
-      newValue = value
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
-    }
+    };
 
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: type === 'checkbox' ? checked : newValue
+    fetchDatosActuales();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'municipio') {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value.charAt(0).toUpperCase() + value.slice(1)
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const handleTelefonoChange = (telefono) => {
+    setFormData((prev) => ({
+      ...prev,
+      telefono_movil: telefono
     }));
   };
 
   const handleDireccionChange = (direccionCompleta) => {
-    setFormData(prevData => ({
-      ...prevData,
+    setFormData((prev) => ({
+      ...prev,
       direccion: direccionCompleta
     }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!cliente || !token) {
-      return;
-    }
-
-    try {
-      await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/clientes/actualizar-datos/${cliente.id_cliente}`,
-        { ...formData, password },
-        {
-          headers: { Authorization: `${token}` }
-        }
-      );
-
-      const updatedCliente = { ...cliente, ...formData };
-      localStorage.setItem('clienteInfo', JSON.stringify(updatedCliente));
-      setCliente(updatedCliente);
-      setPassword('');
-      setShowModal(false);
-      setMessage({ type: 'success', text: 'Datos actualizados correctamente' });
-    } catch (error) {
-      console.error('Error al actualizar los datos del cliente:', error);
-      setMessage({ type: 'danger', text: 'Error al actualizar los datos del cliente' });
-    }
   };
 
   const handleOpenModal = () => setShowModal(true);
@@ -112,120 +71,162 @@ const ActualizarDatos = () => {
     setPassword('');
   };
 
+  const handleLogout = () => {
+    sessionStorage.removeItem('token');
+    navigate('/login-usuario');
+  };
+
+  const handleConfirm = async () => {
+    if (!password) {
+      setError('Debe ingresar su contraseña para confirmar.');
+      return;
+    }
+
+    const dataToSend = { ...formData, contrasena: password };
+
+    try {
+      setLoading(true);
+      setError(null);
+      await actualizarDatosCliente(dataToSend);
+      setSuccess(true);
+      setTimeout(() => {
+        navigate('/perfil-cliente');
+      }, 2000);
+    } catch (err) {
+      setError(err.message || 'Error al actualizar los datos');
+    } finally {
+      setLoading(false);
+      handleCloseModal();
+    }
+  };
+
   return (
     <div style={{ backgroundColor: '#000', minHeight: '100vh', paddingTop: '80px', paddingBottom: '80px' }}>
-      <Container style={{ maxWidth: '900px', margin: '0 auto' }}>
-        <Card className="shadow-lg text-light" style={{ backgroundColor: '#141414', borderRadius: '10px' }}>
+      <Container style={{ maxWidth: '700px' }}>
+        <Card className="shadow-lg text-light mb-4" style={{ backgroundColor: '#141414', borderRadius: '10px' }}>
           <Card.Body className="p-5">
-            <h2 className="text-center mb-4">Modificar Datos No Sensibles</h2>
+            <h2 className="text-center mb-4" style={{ fontSize: '1.8rem' }}>Actualizar Información</h2>
 
-            {message && (
-              <Alert variant={message.type} onClose={() => setMessage(null)} dismissible>
-                {message.text}
+            {error && (
+              <Alert variant="danger" className="mb-4">
+                {error}
               </Alert>
             )}
 
-            {cliente && (
-              <>
-                <Form>
-                  <Row>
-                    <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>Teléfono Móvil</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="telefono_movil"
-                          value={formData.telefono_movil}
-                          onChange={handleInputChange}
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Label>Municipio</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="municipio"
-                          value={formData.municipio}
-                          onChange={handleInputChange}
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-
-                  <Direccion onDireccionCompleta={handleDireccionChange} direccionInicial={formData.direccion} />
-
-                  <Row className="mt-3">
-                    <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Check
-                          type="checkbox"
-                          label="Interdicto"
-                          name="interdicto"
-                          checked={formData.interdicto}
-                          onChange={handleInputChange}
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group className="mb-3">
-                        <Form.Check
-                          type="checkbox"
-                          label="PEP"
-                          name="pep"
-                          checked={formData.pep}
-                          onChange={handleInputChange}
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-
-                  <Col className="text-center mt-4">
-                    <Button variant="primary" onClick={handleOpenModal}>
-                      Actualizar Información
-                    </Button>
-                  </Col>
-                </Form>
-
-                <Modal show={showModal} onHide={handleCloseModal}>
-                  <Modal.Header closeButton>
-                    <Modal.Title>Confirmar Actualización</Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body>
-                    <Form onSubmit={handleSubmit}>
-                      <Form.Group>
-                        <Form.Label>Introduce tu contraseña para confirmar</Form.Label>
-                        <Form.Control
-                          type="password"
-                          placeholder="Contraseña actual"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                        />
-                      </Form.Group>
-                      <Button variant="primary" type="submit" className="mt-3 w-100">
-                        Confirmar
-                      </Button>
-                    </Form>
-                  </Modal.Body>
-                </Modal>
-              </>
+            {success && (
+              <Alert variant="success" className="mb-4">
+                Datos actualizados correctamente. Redirigiendo...
+              </Alert>
             )}
 
-            <div className="mt-4 text-center">
-                <Button variant="link" className="text-light" onClick={() => navigate(-1)}>
-                    Regresar
+            <Form>
+              <TelefonoInput
+                value={formData.telefono_movil}
+                onChange={handleTelefonoChange}
+                required={true}
+              />
+
+              <div className="mb-3">
+                <Direccion
+                  onDireccionCompleta={handleDireccionChange}
+                  required={true}
+                />
+              </div>
+
+              <Form.Group className="mb-4">
+                <Form.Label style={{ fontSize: '1rem' }}>
+                  Municipio <span className="text-danger">*</span>
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  name="municipio"
+                  value={formData.municipio}
+                  onChange={handleChange}
+                  placeholder="Ingrese su municipio"
+                  required
+                  style={{ backgroundColor: '#fff', color: 'black', fontSize: '1rem' }}
+                />
+              </Form.Group>
+
+              <div className="d-flex justify-content-center gap-3">
+                <Button
+                  className="btn btn-primary px-4 py-2"
+                  type="button"
+                  onClick={handleOpenModal}
+                  disabled={loading}
+                  style={{ fontSize: '1rem' }}
+                >
+                  {loading ? 'Actualizando...' : 'Guardar Cambios'}
                 </Button>
-            </div>
+                <Link
+                  to="/perfil-cliente"
+                  className="btn btn-outline-secondary px-4 py-2"
+                  style={{ fontSize: '1rem' }}
+                >
+                  Cancelar
+                </Link>
+              </div>
+            </Form>
           </Card.Body>
         </Card>
-        
-        <div className="mt-4 text-center">
-          <Link to="/dashboard-cliente" className="btn btn-outline-primary btn-lg">
-            Dashboard
-          </Link>
-        </div>
+
+        {/* Botones adicionales fuera de la tarjeta */}
+        <Row className="text-center gap-3 justify-content-center">
+          <Col xs="auto">
+            <Link to="/perfil-cliente" className="btn btn-outline-primary px-4 py-2" style={{ fontSize: '1rem' }}>
+              Perfil
+            </Link>
+          </Col>
+          <Col xs="auto">
+            <Link to="/dashboard-cliente" className="btn btn-outline-primary px-4 py-2" style={{ fontSize: '1rem' }}>
+              Dashboard
+            </Link>
+          </Col>
+          <Col xs="auto">
+            <Button
+              variant="outline-secondary"
+              className="px-4 py-2"
+              style={{ fontSize: '1rem' }}
+              onClick={handleLogout}
+            >
+              Cerrar Sesión
+            </Button>
+          </Col>
+        </Row>
       </Container>
+
+      {/* Modal de Confirmación */}
+      <Modal
+        show={showModal}
+        onHide={handleCloseModal}
+        centered
+        style={{ color: 'black' }}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title style={{ fontSize: '1.5rem' }}>Confirmar Cambios</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group className="mb-3">
+            <Form.Label style={{ fontSize: '1rem' }}>Contraseña</Form.Label>
+            <Form.Control
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Ingrese su contraseña para confirmar"
+              required
+              style={{ fontSize: '1rem' }}
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button className="btn btn-light px-4 py-2" onClick={handleCloseModal} style={{ fontSize: '1rem' }}>
+            Cancelar
+          </Button>
+          <Button className="btn btn-primary px-4 py-2" onClick={handleConfirm} style={{ fontSize: '1rem' }}>
+            Confirmar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

@@ -110,7 +110,7 @@ const PerfilCliente = () => {
               <Card.Body className="p-3">
                 <Card.Title>Modificación de Información No Sensible</Card.Title>
                 <Card.Text>Actualiza tu teléfono, dirección y más.</Card.Text>
-                <Button variant="primary" onClick={() => navigate('/modificar-informacion')}>
+                <Button variant="primary" onClick={() => navigate('/actualizar-datos')}>
                   Modificar Información
                 </Button>
               </Card.Body>

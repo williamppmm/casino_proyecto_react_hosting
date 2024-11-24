@@ -16,6 +16,8 @@ import JuegoResponsable from './pages/legal/JuegoResponsable';
 import LoginUsuario from './pages/login/LoginUsuario';
 import RegistroUsuario from './pages/register/RegistroUsuario';
 import DashboardCliente from './pages/dashboard/DashboardCliente';
+import PerfilCliente from './components/profile/PerfilCliente'; 
+import ActualizarDatos from './components/profile/ActualizarDatos';
 import DashboardAdmin from './pages/dashboard/DashboardAdmin';
 import DashboardFinanciero from './pages/dashboard/DashboardFinanciero';
 import DashboardSlots from './pages/dashboard/DashboardSlots';
@@ -24,7 +26,6 @@ import DashboardMarketing from './pages/dashboard/DashboardMarketing';
 import DashboardOnlineGames from './pages/dashboard/DashboardOnlineGames';
 import DashboardCashier from './pages/dashboard/DashboardCashier';
 import DashboardRestaurant from './pages/dashboard/DashboardRestaurant';
-import PerfilCliente from './components/profile/PerfilCliente'; 
 import ProtectedRoute from './components/common/ProtectedRoute';
 import RecuperarContrasena from "./pages/login/RecuperarContrasena";
 import ResetearContrasena from './pages/login/ResetearContrasena';
@@ -63,6 +64,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <PerfilCliente />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/actualizar-datos"
+            element={
+              <ProtectedRoute>
+                <ActualizarDatos />
               </ProtectedRoute>
             }
           />

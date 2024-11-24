@@ -56,7 +56,7 @@ const Direccion = ({ onDireccionCompleta, required = true, error }) => {
 
   return (
     <div>
-      <Form.Label className="mb-3">
+      <Form.Label className="mb-2">
         Dirección {required && <span className="text-danger">*</span>}{" "}
         <span style={{ color: '#a0a0a0', fontSize: '0.9em' }}>
           (Ej: Calle 33 # 24 - 16 San Fernando)

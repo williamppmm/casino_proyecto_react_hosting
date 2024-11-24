@@ -325,9 +325,10 @@ PUT /actualizar
 
 ```json
 {
-    "telefono_movil": "3101234567",
-    "direccion": "Carrera 45 #32-21",
-    "municipio": "Medellín"
+    "telefono_movil": "+573001234567",
+    "direccion": "Calle 45 #20-15 Barrio El Poblado",
+    "municipio": "Medellín",
+    "contrasena": "Perez1980%"
 }
 ```
 
@@ -336,6 +337,7 @@ PUT /actualizar
 | telefono_movil | string  | No        | Nuevo número de teléfono       |
 | direccion      | string  | No        | Nueva dirección de residencia  |
 | municipio      | string  | No        | Nuevo municipio de residencia  |
+| contrasena     | string  | No        | Nueva contraseña del usuario   |
 
 ## Respuestas
 
@@ -343,28 +345,35 @@ PUT /actualizar
 
 ```json
 {
-    "id_cliente": 11,
-    "fecha_registro": "2024-11-16T04:36:39.752519",
-    "tipo_documento": "CC",
-    "numero_documento": "2344555454",
-    "fecha_expedicion": "2019-03-02",
-    "primer_nombre": "Luisa",
-    "segundo_nombre": "Liliana",
-    "primer_apellido": "Lopez",
-    "segundo_apellido": "Lopera",
-    "lugar_expedicion": "Rio De La Plata",
-    "correo_electronico": "llllargentina@hotmail.com",
-    "telefono_movil": "3101234567",
-    "fecha_nacimiento": "1999-10-07",
-    "genero": "O",
-    "nacionalidad": "AR",
-    "direccion": "Carrera 45 #32-21",
-    "municipio": "Medellín",
-    "interdicto": false,
-    "pep": false,
-    "consentimiento_datos": true,
-    "comunicaciones_comerciales": true,
-    "terminos_condiciones": true
+    "message": "Información actualizada correctamente",
+    "cliente": {
+        "id_cliente": 2,
+        "fecha_registro": "2024-11-13T03:47:21.938272",
+        "tipo_documento": "CC",
+        "numero_documento": "35603765",
+        "fecha_expedicion": "2019-05-23",
+        "primer_nombre": "Juan",
+        "segundo_nombre": "Jose",
+        "primer_apellido": "Rodriguez",
+        "segundo_apellido": "Martinez",
+        "lugar_expedicion": "Nuevo Leon",
+        "correo_electronico": "jjmartinezr2024@hotmail.com",
+        "telefono_movil": "+573001234567",
+        "user_pass": "$2b$10$yZCwfQrlkeAkYPNMNfsQL..WedmFSOhFpFtBXGBbl5qOPNxY1NczC",
+        "fecha_nacimiento": "2000-04-05",
+        "genero": "M",
+        "nacionalidad": "MX",
+        "direccion": "Calle 45 #20-15 Barrio El Poblado",
+        "municipio": "Medellín",
+        "interdicto": false,
+        "pep": false,
+        "consentimiento_datos": true,
+        "comunicaciones_comerciales": true,
+        "terminos_condiciones": true,
+        "activo": true,
+        "fecha_baja": "2024-11-23T09:29:36.408",
+        "motivo_baja": ""
+    }
 }
 ```
 
@@ -372,6 +381,8 @@ PUT /actualizar
 
 | Campo                      | Tipo     | Descripción                                    |
 |---------------------------|----------|------------------------------------------------|
+| message                   | string   | Mensaje de confirmación de la actualización    |
+| cliente                   | object   | Objeto con los datos actualizados del cliente  |
 | id_cliente                | integer  | Identificador único del cliente                |
 | fecha_registro            | datetime | Fecha y hora de registro en el sistema         |
 | tipo_documento            | string   | Tipo de documento de identificación            |
@@ -384,8 +395,9 @@ PUT /actualizar
 | lugar_expedicion          | string   | Lugar de expedición del documento             |
 | correo_electronico        | string   | Correo electrónico del cliente                |
 | telefono_movil           | string   | Número de teléfono móvil actualizado          |
+| user_pass                | string   | Hash de la contraseña del usuario             |
 | fecha_nacimiento          | date     | Fecha de nacimiento del cliente               |
-| genero                    | string   | Género del cliente (O: Otro)                  |
+| genero                    | string   | Género del cliente (M: Masculino)             |
 | nacionalidad              | string   | Código de país de nacionalidad                |
 | direccion                 | string   | Dirección de residencia actualizada           |
 | municipio                 | string   | Municipio de residencia actualizado           |
@@ -394,6 +406,9 @@ PUT /actualizar
 | consentimiento_datos      | boolean  | Aceptación de política de datos              |
 | comunicaciones_comerciales| boolean  | Aceptación de comunicaciones comerciales      |
 | terminos_condiciones      | boolean  | Aceptación de términos y condiciones         |
+| activo                    | boolean  | Estado de activación del cliente              |
+| fecha_baja                | datetime | Fecha y hora de baja del cliente              |
+| motivo_baja               | string   | Motivo de baja del cliente                    |
 
 ## Códigos de Error
 
@@ -431,7 +446,7 @@ PUT /actualizar
 
 ## Casos de Prueba Recomendados
 
-1. Actualizar datos permitidos → Debe retornar datos actualizados
+1. Actualizar datos permitidos → Debe retornar datos actualizados y mensaje de confirmación
 2. Intentar actualizar campos no permitidos → Debe retornar error 400
 3. Verificar con token inválido → Debe retornar error 401
 4. Verificar con token de operador → Debe retornar error 403
@@ -442,6 +457,8 @@ PUT /actualizar
 - La actualización es parcial, lo que significa que solo se actualizarán los campos incluidos en el request
 - Los campos no incluidos en el request mantendrán sus valores actuales
 - Todos los campos actualizables son opcionales en el request body
+- El campo `contrasena` se almacena como hash en la base de datos
+- El sistema mantiene registro de la fecha de baja y motivo en caso de desactivación del cliente
 
 # Cambiar Contraseña del Cliente
 
