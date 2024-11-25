@@ -155,7 +155,7 @@ const PerfilCliente = () => {
               <Card.Body className="p-3">
                 <Card.Title>Dar de Baja la Cuenta</Card.Title>
                 <Card.Text>Elimina tu cuenta permanentemente.</Card.Text>
-                <Button variant="danger" onClick={() => navigate('/darse-de-baja')}>
+                <Button variant="danger" onClick={() => navigate('/suspender-cuenta')}>
                   Dar de Baja la Cuenta
                 </Button>
               </Card.Body>

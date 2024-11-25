@@ -1,6 +1,6 @@
 // src/services/api.js
 
-import axios from 'axios';
+  import axios from 'axios';
 
 // Obtener la URL del backend desde las variables de entorno
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -98,6 +98,15 @@ export const cambiarCorreo = async (datos) => {
     return response.data;
   } catch (error) {
     handleApiError(error, 'Error al cambiar el correo electrónico');
+  }
+};
+
+export const suspenderCuenta = async (datos) => {
+  try {
+    const response = await api.post('/api/clientes/suspender-cuenta', datos);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Error al suspender la cuenta');
   }
 };
 

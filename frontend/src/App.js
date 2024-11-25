@@ -28,6 +28,7 @@ import PerfilCliente from './components/profile/PerfilCliente';
 import ActualizarDatos from './components/profile/ActualizarDatos';
 import CambiarContrasena from './components/profile/CambiarContrasena';
 import CambiarCorreo from './components/profile/CambiarCorreo';
+import SuspenderCuenta from './components/profile/SuspenderCuenta';
 
 // Importaciones de dashboards administrativos
 import DashboardAdmin from './pages/dashboard/DashboardAdmin';
@@ -105,6 +106,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CambiarCorreo />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/suspender-cuenta"
+            element={
+              <ProtectedRoute>
+                <SuspenderCuenta />
               </ProtectedRoute>
             }
           />
