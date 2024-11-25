@@ -124,73 +124,97 @@ exports.actualizarDatosCliente = async (req, res) => {
  */
 exports.cambiarPassword = async (req, res) => {
     try {
-        console.log('Usuario autenticado:', req.usuario);
+        const { id, tipo } = req.usuario; // Usuario autenticado
+        const { passwordActual, nuevaPassword, confirmarPassword } = req.body;
 
-        const { id, tipo } = req.usuario;
         if (tipo !== 'cliente') {
             return res.status(403).json({ error: 'Acceso denegado' });
         }
 
-        const { nuevaPassword, confirmarPassword } = req.body;
-        console.log('Nueva contraseña:', nuevaPassword);
-
-        if (!nuevaPassword || !confirmarPassword) {
-            return res.status(400).json({ error: 'Debe proporcionar ambas contraseñas' });
+        // Validaciones básicas
+        if (!passwordActual || !nuevaPassword || !confirmarPassword) {
+            return res.status(400).json({ error: 'Todos los campos son requeridos.' });
         }
 
         if (nuevaPassword !== confirmarPassword) {
-            return res.status(400).json({ error: 'Las contraseñas no coinciden' });
+            return res.status(400).json({ error: 'Las nuevas contraseñas no coinciden.' });
         }
 
-        const hashedPassword = await bcrypt.hash(nuevaPassword, 10);
-        console.log('Contraseña hasheada:', hashedPassword);
+        // Validar la política de contraseñas
+        const regexPassword = /^(?=.*[A-ZÑ])(?=.*[a-zñ])(?=.*\d)(?=.*[@$!%*?&])[A-Za-zñÑ\d@$!%*?&]{8,}$/;
+        if (!regexPassword.test(nuevaPassword)) {
+            return res.status(400).json({
+                error: 'La nueva contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, un número y un símbolo.'
+            });
+        }
 
-        const { error } = await supabase
+        // Obtener la contraseña almacenada del usuario
+        const { data: cliente, error } = await supabase
+            .from('clientes')
+            .select('user_pass')
+            .eq('id_cliente', id)
+            .single();
+
+        if (error || !cliente) {
+            return res.status(404).json({ error: 'Cliente no encontrado.' });
+        }
+
+        // Verificar la contraseña actual
+        const passwordValida = await bcrypt.compare(passwordActual, cliente.user_pass);
+        if (!passwordValida) {
+            return res.status(401).json({ error: 'La contraseña actual es incorrecta.' });
+        }
+
+        // Encriptar la nueva contraseña
+        const hashedPassword = await bcrypt.hash(nuevaPassword, 10);
+
+        // Actualizar la contraseña en la base de datos
+        const { error: updateError } = await supabase
             .from('clientes')
             .update({ user_pass: hashedPassword })
             .eq('id_cliente', id);
 
-        if (error) {
-            console.error('Error al actualizar en la base de datos:', error);
-            return res.status(500).json({ error: 'Error al actualizar la contraseña' });
+        if (updateError) {
+            return res.status(500).json({ error: 'Error al actualizar la contraseña.' });
         }
 
-        res.json({ message: 'Contraseña actualizada correctamente' });
+        res.json({ message: 'Contraseña actualizada correctamente.' });
     } catch (error) {
         console.error('Error al cambiar la contraseña:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        res.status(500).json({ error: 'Error interno del servidor.' });
     }
 };
 
 // Cambiar correo electrónico
 /**
  * Actualiza el correo electrónico del cliente
- * Verifica que el nuevo correo no esté en uso
- * Requiere confirmación del nuevo correo
+ * Verifica la contraseña actual para confirmar el cambio.
+ * Verifica que el nuevo correo no esté en uso y que su formato sea válido.
+ * Cierra la sesión tras el cambio exitoso.
  */
 exports.cambiarCorreo = async (req, res) => {
     try {
-        const { id, tipo } = req.usuario;
+        const { id, tipo } = req.usuario; // Información del usuario autenticado
         
         if (tipo !== 'cliente') {
             return res.status(403).json({ error: 'Acceso denegado' });
         }
 
-        const { nuevoCorreo, confirmarCorreo } = req.body;
+        const { nuevoCorreo, confirmarCorreo, passwordActual } = req.body;
 
         // Validaciones básicas
-        if (!nuevoCorreo || !confirmarCorreo) {
-            return res.status(400).json({ error: 'Debe proporcionar ambos campos de correo' });
+        if (!nuevoCorreo || !confirmarCorreo || !passwordActual) {
+            return res.status(400).json({ error: 'Todos los campos son requeridos.' });
         }
 
         if (nuevoCorreo !== confirmarCorreo) {
-            return res.status(400).json({ error: 'Los correos no coinciden' });
+            return res.status(400).json({ error: 'Los correos electrónicos no coinciden.' });
         }
 
-        // Validar formato de correo con regex
+        // Validar formato del correo con regex
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(nuevoCorreo)) {
-            return res.status(400).json({ error: 'Formato de correo electrónico inválido' });
+            return res.status(400).json({ error: 'Formato de correo electrónico inválido.' });
         }
 
         // Verificar que el nuevo correo no esté en uso
@@ -201,29 +225,43 @@ exports.cambiarCorreo = async (req, res) => {
             .single();
 
         if (existeCorreo) {
-            return res.status(400).json({ error: 'El correo electrónico ya está en uso' });
+            return res.status(400).json({ error: 'El correo electrónico ya está en uso.' });
+        }
+
+        // Verificar la contraseña actual
+        const { data: cliente, error: errorCliente } = await supabase
+            .from('clientes')
+            .select('user_pass')
+            .eq('id_cliente', id)
+            .single();
+
+        if (errorCliente || !cliente) {
+            return res.status(404).json({ error: 'Cliente no encontrado.' });
+        }
+
+        const passwordValida = await bcrypt.compare(passwordActual, cliente.user_pass);
+        if (!passwordValida) {
+            return res.status(401).json({ error: 'La contraseña actual es incorrecta.' });
         }
 
         // Actualizar el correo
-        const { data: cliente, error } = await supabase
+        const { error: updateError } = await supabase
             .from('clientes')
             .update({ correo_electronico: nuevoCorreo })
-            .eq('id_cliente', id)
-            .select('id_cliente, correo_electronico')
-            .single();
+            .eq('id_cliente', id);
 
-        if (error) {
-            console.error('Error al actualizar el correo:', error);
-            return res.status(400).json({ error: 'Error al actualizar el correo electrónico' });
+        if (updateError) {
+            console.error('Error al actualizar el correo:', updateError);
+            return res.status(500).json({ error: 'Error al actualizar el correo electrónico.' });
         }
 
-        res.json({ 
-            message: 'Correo electrónico actualizado correctamente',
-            cliente
+        // Cerrar sesión tras el cambio
+        res.json({
+            message: 'Correo electrónico actualizado correctamente. Por seguridad, cierre de sesión.',
         });
     } catch (error) {
         console.error('Error al cambiar el correo electrónico:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        res.status(500).json({ error: 'Error interno del servidor.' });
     }
 };
 

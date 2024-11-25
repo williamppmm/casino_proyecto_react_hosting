@@ -548,7 +548,7 @@ export default function RegistroUsuario() {
                   onEmailChange={setEmail}
                   onConfirmEmailChange={setConfirmEmail}
                   onValidationChange={handleEmailValidation}
-                  autoComplete="email"
+                  autoComplete="off"
                   required={true}
                 />
                 {errors.email && (

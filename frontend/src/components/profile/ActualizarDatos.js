@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Container, Card, Form, Button, Alert, Modal, Row, Col } from 'react-bootstrap';
+import { Container, Card, Form, Button, Alert, Modal } from 'react-bootstrap';
 import { obtenerDatosCliente, actualizarDatosCliente } from '../../services/api';
 import TelefonoInput from '../forms/TelefonoInput';
 import Direccion from '../forms/Direccion';
@@ -171,28 +171,32 @@ const ActualizarDatos = () => {
         </Card>
 
         {/* Botones adicionales fuera de la tarjeta */}
-        <Row className="text-center gap-3 justify-content-center">
-          <Col xs="auto">
-            <Link to="/perfil-cliente" className="btn btn-outline-primary px-4 py-2" style={{ fontSize: '1rem' }}>
-              Perfil
-            </Link>
-          </Col>
-          <Col xs="auto">
-            <Link to="/dashboard-cliente" className="btn btn-outline-primary px-4 py-2" style={{ fontSize: '1rem' }}>
-              Dashboard
-            </Link>
-          </Col>
-          <Col xs="auto">
-            <Button
-              variant="outline-secondary"
-              className="px-4 py-2"
-              style={{ fontSize: '1rem' }}
-              onClick={handleLogout}
-            >
-              Cerrar Sesión
-            </Button>
-          </Col>
-        </Row>
+        <div className="mt-4 text-center">
+        <Button
+          variant="outline-primary"
+          className="btn btn-outline-primary px-4 py-2 me-2"
+          onClick={() => navigate('/perfil-cliente')}
+          style={{ fontSize: '1rem' }}
+        >
+          Perfil
+        </Button>
+        <Button
+          variant="outline-secondary"
+          className="btn btn-outline-secondary px-4 py-2 me-2"
+          onClick={() => navigate('/dashboard-cliente')}
+          style={{ fontSize: '1rem' }}
+        >
+          Dashboard
+        </Button>
+        <Button
+          variant="outline-danger"
+          className="btn btn-outline-danger px-4 py-2"
+          onClick={handleLogout}
+          style={{ fontSize: '1rem' }}
+        >
+          Cerrar Sesión
+        </Button>
+      </div>
       </Container>
 
       {/* Modal de Confirmación */}

@@ -1,7 +1,5 @@
-// src/components/profile/PerfilCliente.js
-
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Container, Card, Row, Col, Button, Alert, ListGroup } from 'react-bootstrap';
 import { obtenerDatosCliente } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
@@ -51,7 +49,7 @@ const PerfilCliente = () => {
   const [clienteData, setClienteData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);  // Fixed: Properly initialized state
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -166,17 +164,23 @@ const PerfilCliente = () => {
         </Row>
 
         <div className="mt-4 text-center">
-          <Button 
-            variant="btn btn-outline-secondary" 
-            onClick={handleLogout}
-            disabled={isLoggingOut}           >
-            {isLoggingOut ? 'Cerrando Sesión...' : 'Cerrar Sesión'} 
-          </Button>
-        </div>
-        <div className="mt-4 text-center">
-          <Link to="/dashboard-cliente" className="btn btn-outline-primary">
+          <Button
+            variant="outline-primary"
+            className="btn btn-outline-primary px-4 py-2 me-2"
+            onClick={() => navigate('/dashboard-cliente')}
+            style={{ fontSize: '1rem' }}
+          >
             Dashboard
-          </Link>
+          </Button>
+          <Button
+            variant="outline-danger"
+            className="btn btn-outline-danger px-4 py-2"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            style={{ fontSize: '1rem' }}
+          >
+            {isLoggingOut ? 'Cerrando Sesión...' : 'Cerrar Sesión'}
+          </Button>
         </div>
       </Container>
     </div>

@@ -1,3 +1,5 @@
+// src/components/forms/PasswordInput.js
+
 import React, { useState, useEffect } from 'react';
 import { Form, Button, InputGroup, Row, Col } from 'react-bootstrap';
 import { BsEye, BsEyeSlash } from "react-icons/bs";
@@ -41,7 +43,6 @@ const PasswordInput = ({
   );
   const [showRequirements, setShowRequirements] = useState(false);
 
-  // Actualizar el estado de los requisitos cuando cambia la contraseña
   useEffect(() => {
     const newRequirements = PASSWORD_REQUIREMENTS.map(req => ({
       ...req,
@@ -50,19 +51,16 @@ const PasswordInput = ({
     setPasswordRequirements(newRequirements);
   }, [value]);
 
-  // Verificar si todos los requisitos se cumplen
   const isPasswordValid = passwordRequirements.every(req => req.fulfilled);
   const doPasswordsMatch = confirmValue !== undefined ? value === confirmValue : true;
 
-  // Mostrar requisitos cuando el input recibe el foco
   const handleFocus = () => {
     setShowRequirements(true);
   };
 
-  // Opcional: ocultar requisitos cuando se cumplan todos
   useEffect(() => {
     if (isPasswordValid && value) {
-      setTimeout(() => setShowRequirements(false), 1000); // Dar tiempo para ver que todo está correcto
+      setTimeout(() => setShowRequirements(false), 1000);
     }
   }, [isPasswordValid, value]);
 
@@ -81,16 +79,17 @@ const PasswordInput = ({
               required
               isValid={value && isPasswordValid}
               isInvalid={value && !isPasswordValid}
+              autoComplete="new-password"
             />
             <Button
               variant="outline-secondary"
               onClick={() => setShowPassword(!showPassword)}
+              type="button" // Agregar type="button" para evitar submit accidental
             >
               {showPassword ? <BsEyeSlash /> : <BsEye />}
             </Button>
           </InputGroup>
           
-          {/* Requisitos de contraseña dinámicos */}
           {showRequirements && value && (
             <div className="password-requirements mt-2">
               {passwordRequirements.map((req, index) => (
@@ -129,10 +128,12 @@ const PasswordInput = ({
                 required
                 isValid={confirmValue && doPasswordsMatch && isPasswordValid}
                 isInvalid={confirmValue && (!doPasswordsMatch || !isPasswordValid)}
+                autoComplete="new-password"
               />
               <Button
                 variant="outline-secondary"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                type="button" // Agregar type="button" para evitar submit accidental
               >
                 {showConfirmPassword ? <BsEyeSlash /> : <BsEye />}
               </Button>

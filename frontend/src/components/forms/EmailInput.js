@@ -9,7 +9,6 @@ const EmailInput = ({
   onValidationChange,
   disabled = false,
   required = true,
-  autoComplete = "email"
 }) => {
   // Regex para validación de email (no permite ñ ni acentos)
   const emailPattern = useMemo(() => /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, []);
@@ -73,7 +72,6 @@ const EmailInput = ({
             isInvalid={!validationResult.isValid && email.length > 0}
             disabled={disabled}
             required={required}
-            autoComplete={autoComplete}
             placeholder="correo@ejemplo.com"
           />
           <Form.Control.Feedback type="invalid">
@@ -95,7 +93,6 @@ const EmailInput = ({
             isInvalid={!validationResult.isValid && confirmEmail.length > 0}
             disabled={disabled || !email || !validateEmailFormat(email)}
             required={required}
-            autoComplete={autoComplete}
             placeholder="correo@ejemplo.com"
           />
           <Form.Control.Feedback type="invalid">

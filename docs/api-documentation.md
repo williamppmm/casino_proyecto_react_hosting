@@ -460,150 +460,134 @@ PUT /actualizar
 - El campo `contrasena` se almacena como hash en la base de datos
 - El sistema mantiene registro de la fecha de baja y motivo en caso de desactivación del cliente
 
-# Cambiar Contraseña del Cliente
+# # Cambiar Contraseña del Cliente
 
-## Información General
+Este endpoint permite a los clientes autenticados cambiar su contraseña actual por una nueva que cumpla con los requisitos de seguridad establecidos.
 
-Permite a un cliente actualizar su contraseña. Este endpoint requiere autenticación y solo puede ser accedido por usuarios con rol de cliente.
+## Información del Endpoint
 
-**Base URL:** `http://localhost:5000/api/clientes`
+| Método | URL |
+|--------|-----|
+| `PUT` | `http://<tu-dominio-o-localhost>/api/clientes/cambiar-password` |
 
-## Endpoint
+## Encabezados Requeridos
+
+| Header | Valor | Descripción |
+|--------|-------|-------------|
+| `Authorization` | `<tu-token-JWT>` | Token JWT obtenido durante el inicio de sesión (sin el prefijo Bearer) |
+| `Content-Type` | `application/json` | Tipo de contenido de la petición |
+
+## Cuerpo de la Petición
+
+```json
+{
+    "passwordActual": "tu-contraseña-actual",
+    "nuevaPassword": "NuevaContraseña@2024",
+    "confirmarPassword": "NuevaContraseña@2024"
+}
+```
+
+## Respuestas del Endpoint
+
+### 1. Cambio Exitoso
+**Código:** 200 OK
+```json
+{
+    "message": "Contraseña actualizada correctamente."
+}
+```
+
+### 2. Contraseña Actual Incorrecta
+**Código:** 401 Unauthorized
+```json
+{
+    "error": "La contraseña actual es incorrecta."
+}
+```
+
+### 3. Contraseñas Nuevas No Coinciden
+**Código:** 400 Bad Request
+```json
+{
+    "error": "Las nuevas contraseñas no coinciden."
+}
+```
+
+### 4. Nueva Contraseña Inválida
+**Código:** 400 Bad Request
+```json
+{
+    "error": "La nueva contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, un número y un símbolo."
+}
+```
+
+### 5. Token JWT Inválido
+**Código:** 401 Unauthorized
+```json
+{
+    "error": "Token inválido."
+}
+```
+
+## Guía de Implementación
+
+### Requisitos Previos
+1. Tener un token JWT válido obtenido mediante el endpoint de login
+2. Conocer la contraseña actual
+3. Tener una nueva contraseña que cumpla con los requisitos de seguridad
+
+### Pasos para Realizar la Prueba
+
+1. **Obtener Token JWT**
+   - Realizar login en el sistema
+   - Guardar el token JWT recibido
+
+2. **Configurar la Petición**
+   - Establecer el método PUT
+   - Configurar los headers requeridos (token JWT sin prefijo Bearer)
+   - Preparar el body con las contraseñas
+
+3. **Ejecutar y Verificar**
+   - Enviar la petición
+   - Verificar el código de respuesta
+   - Validar el mensaje recibido
+
+## Ejemplo Completo
+
+### Petición
 
 ```http
-PUT /cambiar-password
-```
+PUT http://localhost:3000/api/clientes/cambiar-password
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
 
-## Headers Requeridos
-
-| Nombre          | Requerido | Descripción                    | Ejemplo                                      |
-|-----------------|-----------|--------------------------------|----------------------------------------------|
-| Authorization   | Sí        | Token JWT de autenticación     | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...     |
-| Content-Type    | Sí        | Tipo de contenido             | application/json                             |
-
-> ⚠️ **IMPORTANTE:** No incluir el prefijo `Bearer` en el token.
-
-## Request Body
-
-```json
 {
-    "nuevaPassword": "MiNuevaContraseña123",
-    "confirmarPassword": "MiNuevaContraseña123"
+    "passwordActual": "ActualPassword123",
+    "nuevaPassword": "NuevaPassword@2024",
+    "confirmarPassword": "NuevaPassword@2024"
 }
 ```
 
-### Campos del Request
-
-| Campo             | Tipo   | Requerido | Descripción                           |
-|-------------------|--------|-----------|---------------------------------------|
-| nuevaPassword     | string | Sí        | Nueva contraseña del cliente         |
-| confirmarPassword | string | Sí        | Confirmación de la nueva contraseña  |
-
-## Respuestas
-
-### 200 OK - Cambio Exitoso
+### Respuesta Exitosa
 
 ```json
 {
-    "message": "Contraseña actualizada correctamente",
-    "cliente": {
-        "id_cliente": 11,
-        "correo_electronico": "cliente@ejemplo.com"
-    }
+    "message": "Contraseña actualizada correctamente."
 }
 ```
-
-### Campos de la Respuesta Exitosa
-
-| Campo                      | Tipo     | Descripción                               |
-|---------------------------|----------|-------------------------------------------|
-| message                   | string   | Mensaje de confirmación                   |
-| cliente                   | object   | Objeto con información básica del cliente |
-| cliente.id_cliente        | integer  | Identificador único del cliente           |
-| cliente.correo_electronico| string   | Correo electrónico del cliente           |
-
-## Códigos de Error
-
-### 400 Bad Request
-```json
-{
-    "error": "Debe proporcionar ambas contraseñas"
-}
-```
-**Causa:** No se proporcionaron todos los campos requeridos.
-
-```json
-{
-    "error": "Las contraseñas no coinciden"
-}
-```
-**Causa:** La nueva contraseña y su confirmación no son idénticas.
-
-```json
-{
-    "error": "Error al actualizar la contraseña"
-}
-```
-**Causa:** Error en la base de datos al intentar actualizar la contraseña.
-
-### 401 Unauthorized
-```json
-{
-    "error": "Token no proporcionado"
-}
-```
-**Causa:** No se proporcionó el token JWT en el header.
-
-```json
-{
-    "error": "Token inválido o expirado"
-}
-```
-**Causa:** El token proporcionado no es válido o ha expirado.
-
-### 403 Forbidden
-```json
-{
-    "error": "Acceso denegado"
-}
-```
-**Causa:** El token pertenece a un rol que no es cliente.
-
-### 500 Internal Server Error
-```json
-{
-    "error": "Error interno del servidor"
-}
-```
-**Causa:** Error en el servidor al procesar la solicitud.
-
-## Casos de Prueba Recomendados
-
-1. Cambio exitoso de contraseña:
-   - Enviar token válido y contraseñas coincidentes → Debe retornar 200 OK
-   - Verificar que la nueva contraseña funciona al iniciar sesión
-
-2. Validación de contraseñas:
-   - Enviar contraseñas que no coinciden → Debe retornar error 400
-   - Enviar request sin alguno de los campos de contraseña → Debe retornar error 400
-   - Enviar request con campos de contraseña vacíos → Debe retornar error 400
-
-3. Validación de autenticación:
-   - Realizar petición sin token → Debe retornar error 401
-   - Realizar petición con token expirado → Debe retornar error 401
-   - Realizar petición con token inválido → Debe retornar error 401
-
-4. Validación de autorización:
-   - Realizar petición con token de operador → Debe retornar error 403
 
 ## Notas de Seguridad
 
-- La contraseña se almacena hasheada en la base de datos utilizando bcrypt
-- Se requiere autenticación mediante JWT para acceder al endpoint
-- Se verifica que el usuario tenga rol de 'cliente'
-- Se valida que ambas contraseñas coincidan antes de procesar el cambio
-- No se devuelve la contraseña hasheada en la respuesta
-- El endpoint está protegido contra inyección SQL mediante el ORM
+- La nueva contraseña debe cumplir con los siguientes requisitos:
+  - Mínimo 8 caracteres
+  - Al menos una letra mayúscula
+  - Al menos un número
+  - Al menos un símbolo
+- El token JWT debe estar vigente y ser válido
+- El token JWT se debe enviar sin el prefijo "Bearer"
+- Las contraseñas se transmiten en el cuerpo de la petición
+- Se recomienda usar HTTPS para mayor seguridad
+
 
 # Cambiar Correo Electrónico del Cliente
 

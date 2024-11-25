@@ -31,7 +31,7 @@ const TelefonoInput = ({ value, onChange, error, required = true }) => {
           type="text"
           value={telefono}
           onChange={handleChange}
-          placeholder="3001234567"
+          placeholder="Ej: 300 123 4567"
           required={required}
           isInvalid={required && telefono && !validarTelefono(telefono)}
           style={{ borderTopRightRadius: '0.375rem', borderBottomRightRadius: '0.375rem' }}

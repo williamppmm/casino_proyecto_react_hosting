@@ -83,9 +83,9 @@ export const actualizarDatosCliente = async (datos) => {
   }
 };
 
-export const cambiarContrasena = async (clienteId, datos) => {
+export const cambiarContrasena = async (datos) => {
   try {
-    const response = await api.put(`/api/clientes/cambiar-contrasena/${clienteId}`, datos);
+    const response = await api.put(`/api/clientes/cambiar-password`, datos);
     return response.data;
   } catch (error) {
     handleApiError(error, 'Error al cambiar la contraseña');

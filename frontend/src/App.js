@@ -26,6 +26,7 @@ import ResetearContrasena from './pages/login/ResetearContrasena';
 import DashboardCliente from './pages/dashboard/DashboardCliente';
 import PerfilCliente from './components/profile/PerfilCliente';
 import ActualizarDatos from './components/profile/ActualizarDatos';
+import CambiarContrasena from './components/profile/CambiarContrasena';
 
 // Importaciones de dashboards administrativos
 import DashboardAdmin from './pages/dashboard/DashboardAdmin';
@@ -90,7 +91,15 @@ function App() {
               </ProtectedRoute>
             }
           />
-          
+          <Route
+            path="/cambiar-contrasena"
+            element={
+              <ProtectedRoute>
+                <CambiarContrasena />
+              </ProtectedRoute>
+            }
+          />
+                   
           {/* Rutas Protegidas - Administrativas */}
           <Route
             path="/admin-dashboard"

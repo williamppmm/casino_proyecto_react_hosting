@@ -123,7 +123,6 @@ const ResetearContrasena = () => {
                 onConfirmChange={handleInputChange}
                 name="nueva_password"
                 label="Nueva Contraseña"
-                autoComplete="new-password"
                 className="mb-3"
               />
 
