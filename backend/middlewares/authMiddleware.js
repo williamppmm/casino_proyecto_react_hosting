@@ -3,7 +3,12 @@
 const supabase = require('../config/supabaseClient');
 const jwt = require('jsonwebtoken');
 
-// Verificar token y validar cuenta activa
+/**
+ * Middleware para verificar el token JWT y validar que la cuenta del usuario esté activa
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ * @param {Function} next - Función para continuar con el siguiente middleware
+ */
 exports.verificarToken = async (req, res, next) => {
     const token = req.headers.authorization;
 
@@ -34,7 +39,11 @@ exports.verificarToken = async (req, res, next) => {
     }
 };
 
-// Verificar roles
+/**
+ * Middleware para verificar si el usuario tiene los roles necesarios para acceder
+ * @param {Array} roles - Array con los roles permitidos
+ * @returns {Function} Middleware que valida los roles del usuario
+ */
 exports.verificarRol = (roles) => {
     return (req, res, next) => {
         if (!req.usuario) {

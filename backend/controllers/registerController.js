@@ -4,6 +4,11 @@ const supabase = require('../config/supabaseClient');
 const bcrypt = require('bcrypt');
 const axios = require('axios');
 
+/**
+ * Verifica el token reCAPTCHA con el servicio de Google
+ * @param {string} token - Token de reCAPTCHA a verificar
+ * @returns {Promise<boolean>} - Retorna true si la verificación es exitosa
+ */
 async function verificarReCaptcha(token) {
     const secretKey = process.env.RECAPTCHA_SECRET_KEY;
 
@@ -28,6 +33,11 @@ async function verificarReCaptcha(token) {
     }
 }
 
+/**
+ * Controlador para el registro de usuarios (clientes y operadores)
+ * @param {Request} req - Objeto de solicitud HTTP
+ * @param {Response} res - Objeto de respuesta HTTP
+ */
 exports.registrarUsuario = async (req, res) => {
     try {
         const {
@@ -162,6 +172,11 @@ exports.registrarUsuario = async (req, res) => {
     }
 };
 
+/**
+ * Verifica la validez de un código de autorización para operadores
+ * @param {Request} req - Objeto de solicitud HTTP con el código en params
+ * @param {Response} res - Objeto de respuesta HTTP
+ */
 exports.verificarCodigoAutorizacion = async (req, res) => {
     const { codigo } = req.params;
     console.log(`Verificando código de autorización: ${codigo}`); // Verifica el código recibido

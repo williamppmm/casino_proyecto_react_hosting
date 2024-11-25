@@ -3,6 +3,10 @@
 const supabase = require('../config/supabaseClient');
 const bcrypt = require('bcrypt');
 
+/**
+ * Obtiene todos los datos personales del cliente autenticado
+ * Verifica que el usuario sea de tipo cliente y obtiene sus datos de la base de datos
+ */
 exports.obtenerDatosCliente = async (req, res) => {
     try {
         const { id, tipo } = req.usuario;
@@ -46,6 +50,11 @@ exports.obtenerDatosCliente = async (req, res) => {
 };
 
 // Modificar datos no sensibles
+/**
+ * Actualiza los datos no sensibles del cliente
+ * Solo permite modificar: teléfono móvil, dirección y municipio
+ * Requiere verificación de contraseña para realizar los cambios
+ */
 exports.actualizarDatosCliente = async (req, res) => {
     try {
         const { id, tipo } = req.usuario;
@@ -108,6 +117,11 @@ exports.actualizarDatosCliente = async (req, res) => {
 };
 
 // Cambiar contraseña
+/**
+ * Permite al cliente cambiar su contraseña
+ * Requiere nueva contraseña y confirmación
+ * La contraseña se almacena encriptada en la base de datos
+ */
 exports.cambiarPassword = async (req, res) => {
     try {
         console.log('Usuario autenticado:', req.usuario);
@@ -149,6 +163,11 @@ exports.cambiarPassword = async (req, res) => {
 };
 
 // Cambiar correo electrónico
+/**
+ * Actualiza el correo electrónico del cliente
+ * Verifica que el nuevo correo no esté en uso
+ * Requiere confirmación del nuevo correo
+ */
 exports.cambiarCorreo = async (req, res) => {
     try {
         const { id, tipo } = req.usuario;
@@ -209,6 +228,11 @@ exports.cambiarCorreo = async (req, res) => {
 };
 
 // Dar de baja la cuenta
+/**
+ * Realiza la baja lógica de la cuenta del cliente
+ * Requiere un motivo de baja
+ * Registra la fecha y motivo de baja, marca la cuenta como inactiva
+ */
 exports.darDeBaja = async (req, res) => {
     try {
         const { id, tipo } = req.usuario;

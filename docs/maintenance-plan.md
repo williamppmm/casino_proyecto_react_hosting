@@ -34,6 +34,20 @@ Este documento ha sido diseñado con base en el formato propuesto, adaptándolo 
 
 Aunque algunas secciones del documento incluyen elementos proyectados o teóricos, reflejan nuestro compromiso por adoptar buenas prácticas en el diseño, desarrollo e implementación de software. Este trabajo no solo busca documentar el proceso de implantación, sino también servir como guía técnica y estratégica que facilite la culminación exitosa del proyecto.
 
+---
+
+### Video Promocional del Software
+
+A continuación, presentamos un video que destaca las principales características y beneficios del software Casino la Fortuna:
+
+<a href="https://youtu.be/jXgIpYTIzCo" target="_blank">
+  <img src="https://img.youtube.com/vi/jXgIpYTIzCo/maxresdefault.jpg" alt="Video Promocional" width="50%">
+</a>
+
+_Haga clic en la imagen para ver el video en YouTube._
+
+---
+
 ## Objetivo del Documento
 
 El objetivo principal de este documento es estructurar los lineamientos necesarios para garantizar una implantación eficiente del software, siguiendo estándares de calidad reconocidos. Se proyecta como una herramienta que permita:
@@ -58,6 +72,8 @@ El objetivo principal de este documento es estructurar los lineamientos necesari
    - Guía para mejoras continuas
    - Adaptabilidad a nuevos requerimientos
 
+---
+
 ## Alcance del Documento
 
 Este documento abarca:
@@ -71,19 +87,7 @@ Este documento abarca:
 Con esta documentación buscamos no solo cumplir con las expectativas actuales, sino también preparar el camino hacia un sistema robusto, confiable y alineado con las mejores prácticas del sector.
 
 ---
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
+
 <br>
 <br>
 <br>

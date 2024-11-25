@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Container, Card, Row, Col, Button, Alert, ListGroup } from 'react-bootstrap';
 import { obtenerDatosCliente } from '../../services/api';
+import { useAuth } from '../../hooks/useAuth';
 
 const DetallesCliente = ({ cliente }) => (
   <ListGroup variant="flush">
@@ -50,7 +51,9 @@ const PerfilCliente = () => {
   const [clienteData, setClienteData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   useEffect(() => {
     const fetchClienteData = async () => {
@@ -64,18 +67,26 @@ const PerfilCliente = () => {
         setLoading(false);
 
         if (err.response?.status === 401) {
-          sessionStorage.removeItem('token');
-          navigate('/login-cliente');
+          await logout();
         }
       }
     };
 
     fetchClienteData();
-  }, [navigate]);
+  }, [logout]);
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('token');
-    navigate('/login-cliente');
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      const { success, error: logoutError } = await logout();
+      
+      if (!success) {
+        throw new Error(logoutError);
+      }
+    } catch (error) {
+      setError('Error al cerrar sesión. Por favor intenta nuevamente.');
+      setIsLoggingOut(false);
+    }
   };
 
   if (loading) {
@@ -155,8 +166,11 @@ const PerfilCliente = () => {
         </Row>
 
         <div className="mt-4 text-center">
-          <Button variant="btn btn-outline-secondary" onClick={handleLogout}>
-            Cerrar Sesión
+          <Button 
+            variant="btn btn-outline-secondary" 
+            onClick={handleLogout}
+            disabled={isLoggingOut}           >
+            {isLoggingOut ? 'Cerrando Sesión...' : 'Cerrar Sesión'} 
           </Button>
         </div>
         <div className="mt-4 text-center">

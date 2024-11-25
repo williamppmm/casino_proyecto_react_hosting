@@ -1,8 +1,8 @@
 // src/pages/login/RecuperarContrasena.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Card, Alert, Spinner, Row, Col } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ReCaptcha from '../../components/common/ReCaptcha';
 import axios from 'axios';
 
@@ -12,6 +12,19 @@ export default function RecuperarContrasena() {
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Si hay un mensaje de éxito, configurar el temporizador para la redirección
+    if (message) {
+      const timer = setTimeout(() => {
+        navigate('/login-usuario'); // Redirige al login después de 3 segundos
+      }, 3000);
+
+      // Limpiar el temporizador si el componente se desmonta
+      return () => clearTimeout(timer);
+    }
+  }, [message, navigate]);
 
   const handleReCaptchaChange = (value) => {
     setRecaptchaValue(value);
@@ -60,6 +73,9 @@ export default function RecuperarContrasena() {
             {message && (
               <Alert variant="success" onClose={() => setMessage(null)} dismissible>
                 {message}
+                <div className="mt-2 small">
+                  Serás redirigido al inicio de sesión en unos segundos...
+                </div>
               </Alert>
             )}
 

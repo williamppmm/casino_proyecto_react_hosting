@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Alert } from 'react-bootstrap';
 // Importamos la función desde api.js
 import { obtenerDatosCliente } from '../../services/api';
 
@@ -47,7 +47,11 @@ function DashboardCliente() {
   };
 
   if (loading) {
-    return <div>Cargando datos del cliente...</div>;
+    return (
+      <Container className="mt-5">
+        <Alert variant="info">Cargando datos del perfil...</Alert>
+      </Container>
+    );
   }
 
   if (error) {

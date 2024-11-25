@@ -1,66 +1,90 @@
+// src/pages/login/ResetearContrasena.js
+
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Card, Alert, Spinner, Modal } from 'react-bootstrap';
-import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import PasswordInput from '../../components/forms/PasswordInput';
 
-export default function ResetearContrasena() {
-  const [form, setForm] = useState({
+const REDIRECT_DELAY = 3000;
+
+const ResetearContrasena = () => {
+  const [formData, setFormData] = useState({
     nueva_password: '',
     confirmar_password: '',
   });
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [token, setToken] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  
   const location = useLocation();
   const navigate = useNavigate();
-  const [token, setToken] = useState('');
 
   useEffect(() => {
-    // Extraer token de la URL
-    const queryParams = new URLSearchParams(location.search);
-    const tokenFromUrl = queryParams.get('token');
-    if (!tokenFromUrl) {
-      setError('Token no proporcionado. Por favor, solicita nuevamente el cambio de contraseña.');
-    } else {
-      setToken(tokenFromUrl);
+    const params = new URLSearchParams(location.search);
+    const resetToken = params.get('token');
+
+    if (!resetToken) {
+      setError('No se encontró el token de restablecimiento. Por favor, solicita un nuevo enlace.');
+      return;
     }
+
+    setToken(resetToken);
   }, [location.search]);
 
-  const handleChange = (e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
+    let fieldName = name;
+    
+    if (name === 'nueva_password_confirm') {
+      fieldName = 'confirmar_password';
+    }
+    
+    setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [fieldName]: value
     }));
-    if (error) setError(null);
+    setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
 
-    if (form.nueva_password !== form.confirmar_password) {
+    // Verificamos si el PasswordInput indica que la contraseña es válida
+    const passwordInput = e.target.querySelector('[name="nueva_password"]');
+    const isPasswordValid = passwordInput.checkValidity() && 
+                          passwordInput.classList.contains('is-valid');
+
+    if (!isPasswordValid) {
+      setError('La contraseña no cumple con los requisitos de seguridad.');
+      return;
+    }
+
+    if (formData.nueva_password !== formData.confirmar_password) {
       setError('Las contraseñas no coinciden.');
       return;
     }
 
     try {
-      setLoading(true);
+      setIsLoading(true);
       await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/cambiar-password`, {
         token,
-        nueva_password: form.nueva_password,
-        confirmar_password: form.confirmar_password,
+        nueva_password: formData.nueva_password,
+        confirmar_password: formData.confirmar_password,
       });
-      setShowSuccessModal(true); // Mostrar el modal de éxito
 
-      // Redirigir después de 3 segundos
+      setShowSuccess(true);
       setTimeout(() => {
-        navigate('/login-usuario'); // Redirigir a la página de inicio de sesión
-      }, 3000);
+        navigate('/login-usuario');
+      }, REDIRECT_DELAY);
+
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al cambiar la contraseña.');
+      const errorMessage = err.response?.data?.error || 
+        'Ocurrió un error al cambiar la contraseña. Por favor, inténtalo de nuevo.';
+      setError(errorMessage);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -69,56 +93,48 @@ export default function ResetearContrasena() {
       backgroundColor: '#000',
       minHeight: '100vh',
       display: 'flex',
+      flexDirection: 'column',
       alignItems: 'center',
+      justifyContent: 'center',
       paddingTop: '80px',
       paddingBottom: '80px'
     }}>
-      <Container className="d-flex justify-content-center">
-        <Card style={{ width: '100%', maxWidth: '400px', backgroundColor: '#141414' }} className="p-4 shadow">
+      <Container style={{ maxWidth: '700px' }}>
+        <Card className="shadow-lg text-light mb-4" style={{ backgroundColor: '#141414', borderRadius: '10px' }}>
           <Card.Body>
-            <h2 className="text-center mb-4 text-light">Restablecer Contraseña</h2>
+            <h2 className="text-center mb-4">Restablecer Contraseña</h2>
 
             {error && (
-              <Alert variant="danger" onClose={() => setError(null)} dismissible>
+              <Alert 
+                variant="danger" 
+                onClose={() => setError('')} 
+                dismissible
+                className="mb-4"
+              >
                 {error}
               </Alert>
             )}
 
-            <Form onSubmit={handleSubmit}>
-              <Form.Group controlId="nueva_password" className="mb-3">
-                <Form.Label className="text-light">Nueva Contraseña</Form.Label>
-                <Form.Control
-                  type="password"
-                  name="nueva_password"
-                  value={form.nueva_password}
-                  onChange={handleChange}
-                  required
-                  className="bg-dark text-light"
-                  placeholder="Nueva contraseña"
-                />
-              </Form.Group>
+            <Form onSubmit={handleSubmit} noValidate>
+              <PasswordInput
+                value={formData.nueva_password}
+                onChange={handleInputChange}
+                confirmValue={formData.confirmar_password}
+                onConfirmChange={handleInputChange}
+                name="nueva_password"
+                label="Nueva Contraseña"
+                autoComplete="new-password"
+                className="mb-3"
+              />
 
-              <Form.Group controlId="confirmar_password" className="mb-4">
-                <Form.Label className="text-light">Confirmar Contraseña</Form.Label>
-                <Form.Control
-                  type="password"
-                  name="confirmar_password"
-                  value={form.confirmar_password}
-                  onChange={handleChange}
-                  required
-                  className="bg-dark text-light"
-                  placeholder="Confirma tu contraseña"
-                />
-              </Form.Group>
-
-              <div className="d-grid gap-2">
+              <div className="d-grid gap-2 mt-4">
                 <Button
                   type="submit"
                   variant="primary"
-                  disabled={loading || !token}
-                  className="mb-3"
+                  disabled={isLoading || !token}
+                  className="py-2"
                 >
-                  {loading ? (
+                  {isLoading ? (
                     <>
                       <Spinner
                         as="span"
@@ -128,7 +144,7 @@ export default function ResetearContrasena() {
                         aria-hidden="true"
                         className="me-2"
                       />
-                      Cambiando...
+                      Procesando...
                     </>
                   ) : (
                     'Cambiar Contraseña'
@@ -140,28 +156,35 @@ export default function ResetearContrasena() {
         </Card>
       </Container>
 
-      {/* Modal de Éxito */}
+      <div className="text-center mt-3">
+        <Button
+          variant="outline-primary"
+          onClick={() => navigate('/login-usuario')}
+          className="btn btn-lg px-4 py-2"
+        >
+          Ir al Login Ahora
+        </Button>
+      </div>
+
       <Modal
-        show={showSuccessModal}
-        onHide={() => setShowSuccessModal(false)}
+        show={showSuccess}
+        onHide={() => setShowSuccess(false)}
         centered
         backdrop="static"
         keyboard={false}
-        aria-labelledby="success-modal"
+        size="sm"
       >
-        <Modal.Header style={{ backgroundColor: '#d4edda', borderBottom: '1px solid #c3e6cb' }}>
-          <Modal.Title id="success-modal" style={{ color: '#155724' }}>
-            ¡Contraseña Actualizada!
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{ backgroundColor: '#d4edda', color: '#155724' }}>
-          <div className="text-center">
-            <i className="bi bi-check-circle-fill h1"></i>
-            <p className="mt-3">Tu contraseña ha sido cambiada exitosamente.</p>
-            <p className="mb-0">Serás redirigido a la página de inicio de sesión en unos momentos...</p>
+        <Alert variant="success" className="m-0">
+          <div className="text-center p-3">
+            <h5 className="mb-3">¡Contraseña Actualizada!</h5>
+            <p className="small mb-3">
+              Serás redirigido al inicio de sesión en unos segundos...
+            </p>
           </div>
-        </Modal.Body>
+        </Alert>
       </Modal>
     </div>
   );
-}
+};
+
+export default ResetearContrasena;

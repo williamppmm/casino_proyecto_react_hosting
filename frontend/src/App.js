@@ -4,6 +4,8 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import CustomNavbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
+
+// Importaciones de páginas públicas
 import Home from './pages/home/Home';
 import QuienesSomos from './pages/home/QuienesSomos';
 import NuestrosJuegos from './pages/home/NuestrosJuegos';
@@ -13,11 +15,19 @@ import Politicas from './pages/legal/Politicas';
 import TerminosCondiciones from './pages/legal/TerminosCondiciones';
 import AvisoPrivacidad from './pages/legal/AvisoPrivacidad';
 import JuegoResponsable from './pages/legal/JuegoResponsable';
+
+// Importaciones de autenticación y registro
 import LoginUsuario from './pages/login/LoginUsuario';
 import RegistroUsuario from './pages/register/RegistroUsuario';
+import RecuperarContrasena from "./pages/login/RecuperarContrasena";
+import ResetearContrasena from './pages/login/ResetearContrasena';
+
+// Importaciones de componentes de cliente
 import DashboardCliente from './pages/dashboard/DashboardCliente';
-import PerfilCliente from './components/profile/PerfilCliente'; 
+import PerfilCliente from './components/profile/PerfilCliente';
 import ActualizarDatos from './components/profile/ActualizarDatos';
+
+// Importaciones de dashboards administrativos
 import DashboardAdmin from './pages/dashboard/DashboardAdmin';
 import DashboardFinanciero from './pages/dashboard/DashboardFinanciero';
 import DashboardSlots from './pages/dashboard/DashboardSlots';
@@ -26,9 +36,9 @@ import DashboardMarketing from './pages/dashboard/DashboardMarketing';
 import DashboardOnlineGames from './pages/dashboard/DashboardOnlineGames';
 import DashboardCashier from './pages/dashboard/DashboardCashier';
 import DashboardRestaurant from './pages/dashboard/DashboardRestaurant';
+
+// Importación del ProtectedRoute
 import ProtectedRoute from './components/common/ProtectedRoute';
-import RecuperarContrasena from "./pages/login/RecuperarContrasena";
-import ResetearContrasena from './pages/login/ResetearContrasena';
 
 function App() {
   return (
@@ -36,21 +46,26 @@ function App() {
       <CustomNavbar />
       <main style={{ minHeight: '80vh', paddingTop: '60px' }}>
         <Routes>
+          {/* Rutas Públicas */}
           <Route path="/" element={<Home />} />
           <Route path="/quienes-somos" element={<QuienesSomos />} />
           <Route path="/nuestros-juegos" element={<NuestrosJuegos />} />
           <Route path="/promociones" element={<Promociones />} />
           <Route path="/contacto" element={<Contacto />} />
+          
+          {/* Rutas Legales */}
           <Route path="/politicas" element={<Politicas />} />
           <Route path="/terminos" element={<TerminosCondiciones />} />
           <Route path="/privacidad" element={<AvisoPrivacidad />} />
           <Route path="/juego-responsable" element={<JuegoResponsable />} />
+          
+          {/* Rutas de Autenticación */}
           <Route path="/registro-usuario" element={<RegistroUsuario />} />
           <Route path="/login-usuario" element={<LoginUsuario />} />
           <Route path="/recuperar-password" element={<RecuperarContrasena />} />
           <Route path="/resetear-contrasena" element={<ResetearContrasena />} />
           
-          {/* Rutas protegidas */}
+          {/* Rutas Protegidas - Cliente */}
           <Route
             path="/dashboard-cliente"
             element={
@@ -75,6 +90,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          
+          {/* Rutas Protegidas - Administrativas */}
           <Route
             path="/admin-dashboard"
             element={
