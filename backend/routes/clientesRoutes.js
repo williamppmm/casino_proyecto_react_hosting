@@ -14,5 +14,6 @@ router.put('/actualizar', clientesController.actualizarDatosCliente); // Modific
 router.put('/cambiar-password', clientesController.cambiarPassword); // Cambiar contraseña
 router.put('/cambiar-correo', clientesController.cambiarCorreo); // Cambiar correo electrónico
 router.post('/suspender-cuenta', clientesController.suspenderCuenta); // Suspender cuenta (baja lógica)
+router.delete('/eliminar-cuenta', clientesController.eliminarCuenta); // Eliminar cuenta (baja física)
 
 module.exports = router;

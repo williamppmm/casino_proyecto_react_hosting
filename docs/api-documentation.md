@@ -894,188 +894,199 @@ Content-Type: application/json
 - Las contraseñas se transmiten en el cuerpo de la petición
 - Se recomienda usar HTTPS para mayor seguridad
 
+# Eliminar Cuenta de Cliente
 
+Este endpoint permite a los clientes autenticados eliminar permanentemente su cuenta, con la opción de recibir un respaldo de su información personal por correo electrónico. Por razones legales, se mantendrán los registros financieros y otros datos históricos necesarios.
 
+## Información del Endpoint
 
+| Método | URL |
+|--------|-----|
+| `DELETE` | `http://<tu-dominio-o-localhost>/api/clientes/eliminar-cuenta` |
 
+## Encabezados Requeridos
 
-# Dar de Baja Cuenta de Cliente
+| Header | Valor | Descripción |
+|--------|-------|-------------|
+| `Authorization` | `Bearer <tu-token-JWT>` | Token JWT obtenido durante el inicio de sesión |
+| `Content-Type` | `application/json` | Tipo de contenido de la petición |
 
-## Información General
+## Cuerpo de la Petición
 
-Permite a un cliente dar de baja su cuenta de forma lógica, requiriendo un motivo para la baja.
+```json
+{
+    "correo": "williamppmm@hotmail.com",
+    "password": "Perez1980%",
+    "obtenerCopia": true
+}
+```
 
-**Base URL:** `http://localhost:5000/api/clientes`
+### Campos del Cuerpo
 
-## Endpoint
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| `correo` | string | Sí | Correo electrónico del cliente |
+| `password` | string | Sí | Contraseña actual del cliente |
+| `obtenerCopia` | boolean | No | Indica si se desea recibir un respaldo de la información por correo |
+
+## Respuestas del Endpoint
+
+### 1. Eliminación Exitosa
+**Código:** 200 OK
+```json
+{
+    "message": "Cuenta eliminada exitosamente.",
+    "respaldo": {
+        "nombre": "William Pérez",
+        "correo": "williamppmm@hotmail.com",
+        "telefono": "5731527288",
+        "direccion": "Carrera 25 # 42A-20 Santa Fé",
+        "municipio": "Bogotá",
+        "fecha_nacimiento": "1980-03-19",
+        "nacionalidad": "CO",
+        "tipo_documento": "CC",
+        "numero_documento": "1028927387",
+        "lugar_expedicion": "Popayán",
+        "fecha_expedicion": "1999-03-20",
+        "fecha_registro": "2024-11-25T20:18:29.769857"
+    }
+}
+```
+
+### 2. Campos Faltantes
+**Código:** 400 Bad Request
+```json
+{
+    "error": "Debe proporcionar el correo y contraseña para continuar con la eliminación."
+}
+```
+
+### 3. Credenciales Inválidas
+**Código:** 401 Unauthorized
+```json
+{
+    "error": "No autorizado. Verifique su correo o contraseña."
+}
+```
+
+### 4. Error del Servidor
+**Código:** 500 Internal Server Error
+```json
+{
+    "error": "Error interno del servidor."
+}
+```
+
+## Proceso de Eliminación
+
+1. **Validación de Credenciales**
+   - Verificación del token JWT
+   - Validación del correo y contraseña proporcionados
+
+2. **Generación de Respaldo (Opcional)**
+   - Si `obtenerCopia` es `true`:
+     - Se genera un objeto con los datos personales del usuario
+     - Se prepara el correo electrónico con la información
+
+3. **Envío de Correo de Respaldo**
+   - Se utiliza Nodemailer para enviar el correo
+   - El correo incluye:
+     - Confirmación de eliminación
+     - Datos personales respaldados
+     - Nota sobre la retención de registros financieros
+
+4. **Eliminación de Cuenta**
+   - Se eliminan los datos personales del usuario
+   - Se mantienen los registros financieros por requisitos legales
+
+## Formato del Correo de Respaldo
+
+El correo electrónico enviado incluirá:
+
+- Asunto: "Confirmación de Eliminación de Cuenta"
+- Cuerpo del mensaje con:
+  - Confirmación de la eliminación
+  - Listado completo de datos personales respaldados
+  - Información sobre la retención de registros financieros
+  - Datos de contacto del soporte
+
+## Guía de Implementación
+
+### Requisitos Previos
+1. Token JWT válido
+2. Credenciales correctas del usuario
+3. Configuración del servidor de correo (si se solicita respaldo)
+
+### Pasos para Realizar la Prueba
+
+1. **Preparar Credenciales**
+   - Obtener token JWT mediante login
+   - Tener a mano el correo y contraseña
+
+2. **Configurar la Petición**
+   - Método DELETE
+   - Headers requeridos
+   - Cuerpo de la petición con credenciales
+
+3. **Ejecutar y Verificar**
+   - Enviar la petición
+   - Verificar la respuesta
+   - Comprobar el correo si se solicitó respaldo
+
+## Ejemplo Completo
+
+### Petición
 
 ```http
-DELETE /dar-de-baja
-```
+DELETE http://localhost:5000/api/clientes/eliminar-cuenta
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
 
-## Headers Requeridos
-
-| Nombre          | Requerido | Descripción                    | Ejemplo                                      |
-|-----------------|-----------|--------------------------------|----------------------------------------------|
-| Authorization   | Sí        | Token JWT de autenticación     | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...     |
-| Content-Type    | Sí        | Tipo de contenido             | application/json                             |
-
-> ⚠️ **IMPORTANTE:** No incluir el prefijo `Bearer` en el token.
-
-## Request Body
-
-```json
 {
-    "motivo": "Cambio de proveedor de servicios"
+    "correo": "williamppmm@hotmail.com",
+    "password": "Perez1980%",
+    "obtenerCopia": true
 }
 ```
 
-### Campos del Request
+### Correo de Respaldo Recibido
 
-| Campo   | Tipo   | Requerido | Descripción                   |
-|---------|--------|-----------|-------------------------------|
-| motivo  | string | Sí        | Razón de la baja de la cuenta |
+```text
+Asunto: Confirmación de Eliminación de Cuenta
 
-## Respuestas
+Estimado usuario,
 
-### 200 OK - Baja Exitosa
+Confirmamos que su cuenta ha sido eliminada de manera permanente del sistema.
 
-```json
-{
-    "message": "Cuenta dada de baja exitosamente",
-    "fecha_baja": "2024-11-23T14:30:00.000Z",
-    "motivo_baja": "Cambio de proveedor de servicios"
-}
+Por razones legales, los movimientos financieros y otros registros necesarios no se eliminarán.
+
+Respaldo de su Información Personal:
+- Nombre: William Pérez
+- Correo: williamppmm@hotmail.com
+- Teléfono: 5731527288
+- Dirección: Carrera 25 # 42A-20 Santa Fé
+- Municipio: Bogotá
+- Fecha de Nacimiento: 1980-03-19
+- Nacionalidad: CO
+- Tipo de Documento: CC
+- Número de Documento: 1028927387
+- Lugar de Expedición: Popayán
+- Fecha de Expedición: 1999-03-20
+- Fecha de Registro: 2024-11-25
+
+Si tiene alguna pregunta, no dude en ponerse en contacto con nuestro equipo de soporte.
+
+Atentamente,
+Equipo de Casino La Fortuna
 ```
-
-### Campos de la Respuesta Exitosa
-
-| Campo       | Tipo     | Descripción                                  |
-|------------|----------|----------------------------------------------|
-| message    | string   | Mensaje de confirmación                      |
-| fecha_baja | timestamp| Fecha y hora en que se procesó la baja      |
-| motivo_baja| string   | Motivo proporcionado para la baja           |
-
-## Códigos de Error
-
-### 400 Bad Request
-```json
-{
-    "error": "Debe proporcionar un motivo para dar de baja la cuenta"
-}
-```
-**Causa:** No se proporcionó el motivo o está vacío.
-
-### 401 Unauthorized
-```json
-{
-    "error": "Token no proporcionado"
-}
-```
-**Causa:** No se proporcionó el token JWT en el header.
-
-```json
-{
-    "error": "Token inválido o expirado"
-}
-```
-**Causa:** El token proporcionado no es válido o ha expirado.
-
-### 403 Forbidden
-```json
-{
-    "error": "Acceso denegado"
-}
-```
-**Causa:** El token pertenece a un rol que no es cliente.
-
-### 500 Internal Server Error
-```json
-{
-    "error": "Error al procesar la baja de la cuenta"
-}
-```
-**Causa:** Error en el servidor al procesar la solicitud.
-
-```json
-{
-    "error": "Error interno del servidor"
-}
-```
-**Causa:** Error general en el servidor.
-
-## Casos de Prueba Recomendados
-
-1. Baja exitosa:
-   - Enviar token válido y motivo → Debe retornar 200 OK con fecha y motivo
-   - Verificar que los campos activo, fecha_baja y motivo_baja se actualizan
-
-2. Validaciones de motivo:
-   - No enviar motivo → Debe retornar error 400
-   - Enviar motivo vacío → Debe retornar error 400
-   - Enviar motivo con solo espacios → Debe retornar error 400
-
-3. Validación de autenticación:
-   - Realizar petición sin token → Debe retornar error 401
-   - Realizar petición con token expirado → Debe retornar error 401
-   - Realizar petición con token inválido → Debe retornar error 401
-
-4. Validación de autorización:
-   - Realizar petición con token de operador → Debe retornar error 403
-
-## Cambios en Base de Datos
-
-Este endpoint actualiza los siguientes campos en la tabla `clientes`:
-
-```sql
-ALTER TABLE clientes 
-ADD COLUMN IF NOT EXISTS activo BOOLEAN DEFAULT true NOT NULL,
-ADD COLUMN IF NOT EXISTS fecha_baja TIMESTAMP NULL,
-ADD COLUMN IF NOT EXISTS motivo_baja VARCHAR(255) NULL;
-```
-
-| Campo        | Tipo      | Nulo    | Default | Descripción                    |
-|-------------|-----------|----------|---------|--------------------------------|
-| activo      | BOOLEAN   | NOT NULL | true    | Estado actual de la cuenta    |
-| fecha_baja  | TIMESTAMP | NULL     | NULL    | Fecha y hora de la baja       |
-| motivo_baja | VARCHAR   | NULL     | NULL    | Razón proporcionada para baja |
 
 ## Notas Importantes
 
-1. **Baja Lógica:**
-   - La cuenta no se elimina físicamente de la base de datos
-   - Se marca como inactiva mediante el campo `activo`
-   - Se registra la fecha exacta de la baja
-   - Se requiere y guarda el motivo proporcionado por el cliente
-
-2. **Motivo Obligatorio:**
-   - El motivo es un campo requerido
-   - No puede estar vacío o contener solo espacios
-   - Se incluye en la respuesta exitosa
-
-3. **Registro de Fecha:**
-   - La fecha de baja se establece automáticamente al momento de la operación
-   - Se retorna en la respuesta en formato ISO
-
-4. **Seguridad:**
-   - Se requiere autenticación mediante JWT
-   - Solo pueden acceder usuarios con rol de cliente
-   - La operación es irreversible
-
-## Nota: 
-Es de anotar que la documentación de otros endpoint se hizo antes de abordar el tema de la baja logica por lo cual no se si hayan implicaciones, debí modificar las tablas iniciales de la base de datos para esta funcionalidad y la logica de login, recuperarContrasena, y cambiarPassword
-
-```
-ALTER TABLE clientes
-ADD COLUMN IF NOT EXISTS activo BOOLEAN DEFAULT true NOT NULL,
-ADD COLUMN IF NOT EXISTS fecha_baja TIMESTAMP NULL,
-ADD COLUMN IF NOT EXISTS motivo_baja VARCHAR(255) NULL;
-
-ALTER TABLE operadores
-ADD COLUMN activo BOOLEAN DEFAULT true NOT NULL,
-ADD COLUMN fecha_baja TIMESTAMP NULL,
-ADD COLUMN motivo_baja VARCHAR(255) NULL;
-```
+- La eliminación es permanente y no se puede deshacer
+- Los registros financieros se mantienen por requisitos legales
+- El respaldo por correo es opcional pero recomendado
+- Se requiere autenticación doble (JWT + contraseña) para mayor seguridad
+- El servidor de correo debe estar configurado correctamente para el envío del respaldo
 
 ### Cerrar Sesión
 

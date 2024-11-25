@@ -2,6 +2,7 @@
 
 const supabase = require('../config/supabaseClient');
 const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
 
 /**
  * Obtiene todos los datos personales del cliente autenticado
@@ -341,6 +342,124 @@ exports.suspenderCuenta = async (req, res) => {
         });
     } catch (error) {
         console.error('Error interno al suspender la cuenta:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+// Función para enviar el correo de confirmación de eliminación de la cuenta
+const enviarCorreoEliminacion = async (email, respaldo = null) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail', 
+            auth: {
+                user: process.env.EMAIL_USER, 
+                pass: process.env.EMAIL_PASS, 
+            },
+        });
+
+        const respaldoHtml = respaldo
+            ? `<h2>Respaldo de tu Información:</h2>
+                <ul>
+                    <li><strong>Nombre:</strong> ${respaldo.nombre}</li>
+                    <li><strong>Correo:</strong> ${respaldo.correo}</li>
+                    <li><strong>Teléfono:</strong> ${respaldo.telefono}</li>
+                    <li><strong>Dirección:</strong> ${respaldo.direccion}</li>
+                    <li><strong>Municipio:</strong> ${respaldo.municipio}</li>
+                    <li><strong>Fecha de Nacimiento:</strong> ${respaldo.fecha_nacimiento}</li>
+                    <li><strong>Nacionalidad:</strong> ${respaldo.nacionalidad}</li>
+                    <li><strong>Tipo de Documento:</strong> ${respaldo.tipo_documento}</li>
+                    <li><strong>Número de Documento:</strong> ${respaldo.numero_documento}</li>
+                    <li><strong>Lugar de Expedición:</strong> ${respaldo.lugar_expedicion}</li>
+                    <li><strong>Fecha de Expedición:</strong> ${respaldo.fecha_expedicion}</li>   
+                    <li><strong>Fecha de Registro:</strong> ${respaldo.fecha_registro}</li>
+                </ul>`
+            : '';
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Confirmación de Eliminación de Cuenta',
+            html: `
+                <h1>Eliminación de Cuenta Confirmada</h1>
+                <p>Hemos eliminado tus datos personales de nuestra base de datos.</p>
+                <p>
+                    Por razones legales y fiscales, algunos datos relacionados con tus transacciones permanecerán almacenados.
+                </p>
+                ${respaldoHtml}
+                <p>Si necesitas asistencia adicional, no dudes en contactarnos.</p>
+                <p>Gracias por usar nuestro servicio.</p>
+            `,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log(`Correo de eliminación enviado a: ${email}`);
+    } catch (error) {
+        console.error('Error al enviar correo:', error);
+        throw new Error('Error al enviar el correo de confirmación.');
+    }
+};
+
+// Endpoint para eliminar la cuenta
+exports.eliminarCuenta = async (req, res) => {
+    const { correo, password, obtenerCopia } = req.body;
+
+    try {
+        // Buscar al usuario en la base de datos
+        const { data: usuario, error } = await supabase
+            .from('clientes')
+            .select('*')
+            .eq('correo_electronico', correo)
+            .single();
+
+        if (error || !usuario) {
+            return res.status(404).json({ error: 'Usuario no encontrado.' });
+        }
+
+        // Verificar contraseña
+        const passwordMatch = await bcrypt.compare(password, usuario.user_pass);
+        if (!passwordMatch) {
+            return res.status(401).json({ error: 'Contraseña incorrecta.' });
+        }
+
+        // Generar respaldo si el cliente lo solicita
+        let respaldo = null;
+        if (obtenerCopia) {
+            respaldo = {
+                nombre: `${usuario.primer_nombre} ${usuario.primer_apellido}`,
+                correo: usuario.correo_electronico,
+                telefono: usuario.telefono_movil,
+                direccion: usuario.direccion,
+                municipio: usuario.municipio,
+                fecha_nacimiento: usuario.fecha_nacimiento,
+                nacionalidad: usuario.nacionalidad,
+                tipo_documento: usuario.tipo_documento,
+                numero_documento: usuario.numero_documento,
+                lugar_expedicion: usuario.lugar_expedicion,
+                fecha_expedicion: usuario.fecha_expedicion,
+                fecha_registro: usuario.fecha_registro,
+            };
+        }
+
+        // Eliminar la cuenta del cliente
+        const { error: deleteError } = await supabase
+            .from('clientes')
+            .delete()
+            .eq('id_cliente', usuario.id_cliente);
+
+        if (deleteError) {
+            console.error('Error al eliminar la cuenta:', deleteError);
+            return res.status(500).json({ error: 'Error al eliminar la cuenta.' });
+        }
+
+        // Enviar correo de confirmación
+        await enviarCorreoEliminacion(usuario.correo_electronico, respaldo);
+
+        res.json({
+            message: 'Cuenta eliminada exitosamente.',
+            respaldo: respaldo || null,
+        });
+    } catch (error) {
+        console.error('Error al eliminar la cuenta:', error);
         res.status(500).json({ error: 'Error interno del servidor.' });
     }
 };
