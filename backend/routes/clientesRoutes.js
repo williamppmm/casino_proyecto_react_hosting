@@ -13,6 +13,6 @@ router.get('/datos', clientesController.obtenerDatosCliente); // Obtener perfil 
 router.put('/actualizar', clientesController.actualizarDatosCliente); // Modificar datos no sensibles
 router.put('/cambiar-password', clientesController.cambiarPassword); // Cambiar contraseña
 router.put('/cambiar-correo', clientesController.cambiarCorreo); // Cambiar correo electrónico
-router.delete('/dar-de-baja', clientesController.darDeBaja); // Dar de baja la cuenta
+router.post('/suspender-cuenta', clientesController.suspenderCuenta); // Suspender cuenta (baja lógica)
 
 module.exports = router;

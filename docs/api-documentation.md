@@ -766,6 +766,139 @@ PUT /cambiar-correo
 - Se implementa verificación de coincidencia entre correo y confirmación
 - Se verifica la contraseña actual del usuario como medida adicional de seguridad
 
+# Cambiar Contraseña del Cliente
+
+Este endpoint permite a los clientes autenticados cambiar su contraseña actual por una nueva que cumpla con los requisitos de seguridad establecidos.
+
+## Información del Endpoint
+
+| Método | URL |
+|--------|-----|
+| `PUT` | `http://<tu-dominio-o-localhost>/api/clientes/cambiar-password` |
+
+## Encabezados Requeridos
+
+| Header | Valor | Descripción |
+|--------|-------|-------------|
+| `Authorization` | `<tu-token-JWT>` | Token JWT obtenido durante el inicio de sesión (sin el prefijo Bearer) |
+| `Content-Type` | `application/json` | Tipo de contenido de la petición |
+
+## Cuerpo de la Petición
+
+```json
+{
+    "passwordActual": "tu-contraseña-actual",
+    "nuevaPassword": "NuevaContraseña@2024",
+    "confirmarPassword": "NuevaContraseña@2024"
+}
+```
+
+## Respuestas del Endpoint
+
+### 1. Cambio Exitoso
+**Código:** 200 OK
+```json
+{
+    "message": "Contraseña actualizada correctamente."
+}
+```
+
+### 2. Contraseña Actual Incorrecta
+**Código:** 401 Unauthorized
+```json
+{
+    "error": "La contraseña actual es incorrecta."
+}
+```
+
+### 3. Contraseñas Nuevas No Coinciden
+**Código:** 400 Bad Request
+```json
+{
+    "error": "Las nuevas contraseñas no coinciden."
+}
+```
+
+### 4. Nueva Contraseña Inválida
+**Código:** 400 Bad Request
+```json
+{
+    "error": "La nueva contraseña debe tener al menos 8 caracteres, incluyendo una letra mayúscula, un número y un símbolo."
+}
+```
+
+### 5. Token JWT Inválido
+**Código:** 401 Unauthorized
+```json
+{
+    "error": "Token inválido."
+}
+```
+
+## Guía de Implementación
+
+### Requisitos Previos
+1. Tener un token JWT válido obtenido mediante el endpoint de login
+2. Conocer la contraseña actual
+3. Tener una nueva contraseña que cumpla con los requisitos de seguridad
+
+### Pasos para Realizar la Prueba
+
+1. **Obtener Token JWT**
+   - Realizar login en el sistema
+   - Guardar el token JWT recibido
+
+2. **Configurar la Petición**
+   - Establecer el método PUT
+   - Configurar los headers requeridos (token JWT sin prefijo Bearer)
+   - Preparar el body con las contraseñas
+
+3. **Ejecutar y Verificar**
+   - Enviar la petición
+   - Verificar el código de respuesta
+   - Validar el mensaje recibido
+
+## Ejemplo Completo
+
+### Petición
+
+```http
+PUT http://localhost:3000/api/clientes/cambiar-password
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+
+{
+    "passwordActual": "ActualPassword123",
+    "nuevaPassword": "NuevaPassword@2024",
+    "confirmarPassword": "NuevaPassword@2024"
+}
+```
+
+### Respuesta Exitosa
+
+```json
+{
+    "message": "Contraseña actualizada correctamente."
+}
+```
+
+## Notas de Seguridad
+
+- La nueva contraseña debe cumplir con los siguientes requisitos:
+  - Mínimo 8 caracteres
+  - Al menos una letra mayúscula
+  - Al menos un número
+  - Al menos un símbolo
+- El token JWT debe estar vigente y ser válido
+- El token JWT se debe enviar sin el prefijo "Bearer"
+- Las contraseñas se transmiten en el cuerpo de la petición
+- Se recomienda usar HTTPS para mayor seguridad
+
+
+
+
+
+
 # Dar de Baja Cuenta de Cliente
 
 ## Información General

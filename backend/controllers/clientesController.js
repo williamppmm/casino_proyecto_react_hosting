@@ -265,31 +265,62 @@ exports.cambiarCorreo = async (req, res) => {
     }
 };
 
-// Dar de baja la cuenta
+// Suspender cuenta (Baja lógica)
 /**
- * Realiza la baja lógica de la cuenta del cliente
- * Requiere un motivo de baja
- * Registra la fecha y motivo de baja, marca la cuenta como inactiva
+ * Requiere correo y contraseña para confirmar la suspensión
+ * Verifica el estado actual de la cuenta y registra la fecha y motivo de suspensión
  */
-exports.darDeBaja = async (req, res) => {
+exports.suspenderCuenta = async (req, res) => {
     try {
         const { id, tipo } = req.usuario;
 
+        // Verificar tipo de usuario
         if (tipo !== 'cliente') {
             return res.status(403).json({ error: 'Acceso denegado' });
         }
 
-        // Validar que exista el motivo en el body
-        const { motivo } = req.body;
+        const { motivo, correo, password } = req.body;
 
-        if (!motivo || motivo.trim() === '') {
-            return res.status(400).json({ error: 'Debe proporcionar un motivo para dar de baja la cuenta' });
+        // Validar datos de entrada
+        if (!correo || !password || !motivo) {
+            return res.status(400).json({ error: 'Correo, contraseña y motivo son obligatorios.' });
         }
 
-        // Actualizar los campos relacionados con la baja lógica
+        // Verificar si la cuenta está activa
+        const { data: cliente, error: clienteError } = await supabase
+            .from('clientes')
+            .select('correo_electronico, user_pass, activo')
+            .eq('id_cliente', id)
+            .single();
+
+        if (clienteError) {
+            console.error('Error al verificar estado de la cuenta:', clienteError);
+            return res.status(500).json({ error: 'Error al verificar el estado de la cuenta.' });
+        }
+
+        if (!cliente) {
+            return res.status(404).json({ error: 'Cliente no encontrado.' });
+        }
+
+        if (!cliente.activo) {
+            return res.status(400).json({ error: 'La cuenta ya está suspendida.' });
+        }
+
+        // Validar correo
+        if (cliente.correo_electronico !== correo) {
+            return res.status(401).json({ error: 'Correo electrónico no coincide.' });
+        }
+
+        // Validar contraseña
+        const passwordValida = await bcrypt.compare(password, cliente.user_pass);
+        if (!passwordValida) {
+            return res.status(401).json({ error: 'Contraseña incorrecta.' });
+        }
+
+        // Suspender la cuenta
         const fechaActual = new Date().toISOString();
 
-        const { error } = await supabase
+        const { error: updateError } = await supabase
             .from('clientes')
             .update({
                 activo: false,
@@ -298,18 +329,18 @@ exports.darDeBaja = async (req, res) => {
             })
             .eq('id_cliente', id);
 
-        if (error) {
-            console.error('Error al dar de baja la cuenta:', error);
-            return res.status(500).json({ error: 'Error al procesar la baja de la cuenta' });
+        if (updateError) {
+            console.error('Error al suspender la cuenta:', updateError);
+            return res.status(500).json({ error: 'Error al procesar la suspensión de la cuenta.' });
         }
 
-        res.json({
-            message: 'Cuenta dada de baja exitosamente',
-            fecha_baja: fechaActual,
-            motivo_baja: motivo
+        res.status(200).json({
+            message: 'Cuenta suspendida exitosamente.',
+            fecha_suspension: fechaActual,
+            motivo_suspension: motivo
         });
     } catch (error) {
-        console.error('Error al dar de baja la cuenta:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        console.error('Error interno al suspender la cuenta:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
     }
 };

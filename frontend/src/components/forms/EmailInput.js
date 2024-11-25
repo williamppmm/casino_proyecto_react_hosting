@@ -75,7 +75,7 @@ const EmailInput = ({
             disabled={disabled}
             required={required}
             placeholder="correo@ejemplo.com"
-            autocomplete="off"
+            autoComplete="off"
           />
           <Form.Control.Feedback type="invalid">
             Por favor, ingrese un correo electrónico válido
@@ -97,7 +97,7 @@ const EmailInput = ({
             disabled={disabled || !email || !validateEmailFormat(email)}
             required={required}
             placeholder="correo@ejemplo.com"
-            autocomplete="off"
+            autoComplete="off"
           />
           <Form.Control.Feedback type="invalid">
             Los correos electrónicos no coinciden
