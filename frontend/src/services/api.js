@@ -110,14 +110,18 @@ export const suspenderCuenta = async (datos) => {
   }
 };
 
-export const darseDeBaja = async (clienteId, datos) => {
+export const eliminarCuenta = async (datos) => {
+  if (!datos || !datos.correo || !datos.password) {
+    throw new Error('El correo y la contraseña son obligatorios para eliminar la cuenta.');
+  }
+
   try {
-    const response = await api.delete(`/api/clientes/darse-de-baja/${clienteId}`, {
+    const response = await api.delete('/api/clientes/eliminar-cuenta', {
       data: datos,
     });
     return response.data;
   } catch (error) {
-    handleApiError(error, 'Error al darse de baja');
+    handleApiError(error, 'Error al eliminar la cuenta');
   }
 };
 

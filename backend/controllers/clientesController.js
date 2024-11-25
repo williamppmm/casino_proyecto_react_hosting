@@ -358,7 +358,7 @@ const enviarCorreoEliminacion = async (email, respaldo = null) => {
         });
 
         const respaldoHtml = respaldo
-            ? `<h2>Respaldo de tu Información:</h2>
+            ? `<h2>Información que teniamos almacenada:</h2>
                 <ul>
                     <li><strong>Nombre:</strong> ${respaldo.nombre}</li>
                     <li><strong>Correo:</strong> ${respaldo.correo}</li>
