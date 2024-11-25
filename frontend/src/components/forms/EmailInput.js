@@ -1,3 +1,5 @@
+// src/components/forms/EmailInput.js
+
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
 
@@ -73,6 +75,7 @@ const EmailInput = ({
             disabled={disabled}
             required={required}
             placeholder="correo@ejemplo.com"
+            autocomplete="off"
           />
           <Form.Control.Feedback type="invalid">
             Por favor, ingrese un correo electrónico válido
@@ -94,6 +97,7 @@ const EmailInput = ({
             disabled={disabled || !email || !validateEmailFormat(email)}
             required={required}
             placeholder="correo@ejemplo.com"
+            autocomplete="off"
           />
           <Form.Control.Feedback type="invalid">
             Los correos electrónicos no coinciden

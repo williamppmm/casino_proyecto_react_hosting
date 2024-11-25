@@ -27,6 +27,7 @@ import DashboardCliente from './pages/dashboard/DashboardCliente';
 import PerfilCliente from './components/profile/PerfilCliente';
 import ActualizarDatos from './components/profile/ActualizarDatos';
 import CambiarContrasena from './components/profile/CambiarContrasena';
+import CambiarCorreo from './components/profile/CambiarCorreo';
 
 // Importaciones de dashboards administrativos
 import DashboardAdmin from './pages/dashboard/DashboardAdmin';
@@ -96,6 +97,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CambiarContrasena />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cambiar-correo"
+            element={
+              <ProtectedRoute>
+                <CambiarCorreo />
               </ProtectedRoute>
             }
           />

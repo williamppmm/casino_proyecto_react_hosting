@@ -92,9 +92,9 @@ export const cambiarContrasena = async (datos) => {
   }
 };
 
-export const cambiarCorreo = async (clienteId, datos) => {
+export const cambiarCorreo = async (datos) => {
   try {
-    const response = await api.put(`/api/clientes/cambiar-correo/${clienteId}`, datos);
+    const response = await api.put('/api/clientes/cambiar-correo', datos);
     return response.data;
   } catch (error) {
     handleApiError(error, 'Error al cambiar el correo electrónico');

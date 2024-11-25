@@ -460,7 +460,7 @@ PUT /actualizar
 - El campo `contrasena` se almacena como hash en la base de datos
 - El sistema mantiene registro de la fecha de baja y motivo en caso de desactivación del cliente
 
-# # Cambiar Contraseña del Cliente
+## Cambiar Contraseña del Cliente
 
 Este endpoint permite a los clientes autenticados cambiar su contraseña actual por una nueva que cumpla con los requisitos de seguridad establecidos.
 
@@ -617,7 +617,8 @@ PUT /cambiar-correo
 ```json
 {
     "nuevoCorreo": "nuevo.correo@ejemplo.com",
-    "confirmarCorreo": "nuevo.correo@ejemplo.com"
+    "confirmarCorreo": "nuevo.correo@ejemplo.com",
+    "passwordActual": "MiContraseña123!"
 }
 ```
 
@@ -627,6 +628,7 @@ PUT /cambiar-correo
 |-----------------|--------|-----------|---------------------------------------|
 | nuevoCorreo     | string | Sí        | Nuevo correo electrónico del cliente |
 | confirmarCorreo | string | Sí        | Confirmación del nuevo correo        |
+| passwordActual  | string | Sí        | Contraseña actual del usuario        |
 
 ## Respuestas
 
@@ -634,7 +636,7 @@ PUT /cambiar-correo
 
 ```json
 {
-    "message": "Correo electrónico actualizado correctamente",
+    "message": "Correo electrónico actualizado correctamente. Por seguridad, cierre de sesión.",
     "cliente": {
         "id_cliente": 11,
         "correo_electronico": "nuevo.correo@ejemplo.com"
@@ -657,14 +659,14 @@ PUT /cambiar-correo
 
 ```json
 {
-    "error": "Debe proporcionar ambos campos de correo"
+    "error": "Todos los campos son requeridos"
 }
 ```
 **Causa:** No se proporcionaron todos los campos requeridos.
 
 ```json
 {
-    "error": "Los correos no coinciden"
+    "error": "Los correos electrónicos no coinciden"
 }
 ```
 **Causa:** El nuevo correo y su confirmación no son idénticos.
@@ -684,6 +686,7 @@ PUT /cambiar-correo
 **Causa:** El nuevo correo electrónico ya está registrado por otro usuario.
 
 ### 401 Unauthorized
+
 ```json
 {
     "error": "Token no proporcionado"
@@ -698,6 +701,13 @@ PUT /cambiar-correo
 ```
 **Causa:** El token proporcionado no es válido o ha expirado.
 
+```json
+{
+    "error": "La contraseña actual es incorrecta"
+}
+```
+**Causa:** La contraseña proporcionada no coincide con la actual del usuario.
+
 ### 403 Forbidden
 ```json
 {
@@ -705,6 +715,14 @@ PUT /cambiar-correo
 }
 ```
 **Causa:** El token pertenece a un rol que no es cliente.
+
+### 404 Not Found
+```json
+{
+    "error": "Cliente no encontrado"
+}
+```
+**Causa:** No se encontró el cliente asociado al token.
 
 ### 500 Internal Server Error
 ```json
@@ -733,6 +751,7 @@ PUT /cambiar-correo
    - Realizar petición sin token → Debe retornar error 401
    - Realizar petición con token expirado → Debe retornar error 401
    - Realizar petición con token inválido → Debe retornar error 401
+   - Realizar petición con contraseña incorrecta → Debe retornar error 401
 
 5. Validación de autorización:
    - Realizar petición con token de operador → Debe retornar error 403
@@ -745,6 +764,7 @@ PUT /cambiar-correo
 - Se verifica que el nuevo correo no esté ya registrado
 - El endpoint está protegido contra inyección SQL mediante el ORM
 - Se implementa verificación de coincidencia entre correo y confirmación
+- Se verifica la contraseña actual del usuario como medida adicional de seguridad
 
 # Dar de Baja Cuenta de Cliente
 

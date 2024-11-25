@@ -143,7 +143,7 @@ const PerfilCliente = () => {
               <Card.Body className="p-3">
                 <Card.Title>Cambio de Correo Electrónico</Card.Title>
                 <Card.Text>Actualiza tu correo electrónico.</Card.Text>
-                <Button variant="primary" onClick={() => navigate('/cambiar-mail')}>
+                <Button variant="primary" onClick={() => navigate('/cambiar-correo')}>
                   Cambiar Correo Electrónico
                 </Button>
               </Card.Body>
