@@ -1,5 +1,3 @@
-// src/components/forms/Direccion.js
-
 import React, { useState, useCallback } from 'react';
 import { Row, Col, Form } from 'react-bootstrap';
 
@@ -10,7 +8,6 @@ const Direccion = ({ onDireccionCompleta, required = true, error }) => {
   const [numero3, setNumero3] = useState('');
   const [complemento, setComplemento] = useState('');
 
-  // Función para capitalizar cada palabra manteniendo ñ y acentos
   const capitalizeEachWord = (str) => {
     return str
       .split(' ')
@@ -21,8 +18,17 @@ const Direccion = ({ onDireccionCompleta, required = true, error }) => {
       .join(' ');
   };
 
-  const updateDireccionCompleta = useCallback(() => {
-    const direccionCompleta = `${tipoCalle} ${numero1.trim()} # ${numero2.trim()}-${numero3.trim()} ${complemento}`
+  const updateDireccionCompleta = useCallback((newValue, field) => {
+    let updatedValues = {
+      tipoCalle,
+      numero1,
+      numero2,
+      numero3,
+      complemento
+    };
+    updatedValues[field] = newValue;
+
+    const direccionCompleta = `${updatedValues.tipoCalle} ${updatedValues.numero1.trim()} # ${updatedValues.numero2.trim()}-${updatedValues.numero3.trim()} ${updatedValues.complemento}`
       .replace(/\s+/g, ' ')
       .trim();
 
@@ -31,14 +37,13 @@ const Direccion = ({ onDireccionCompleta, required = true, error }) => {
     }
   }, [tipoCalle, numero1, numero2, numero3, complemento, onDireccionCompleta]);
 
-  const handleInputChange = (setter, format) => (e) => {
+  const handleInputChange = (setter, field, format) => (e) => {
     let value = e.target.value;
     switch (format) {
       case 'uppercase':
         value = value.replace(/[^0-9A-ZÑñ\s]/g, '').toUpperCase();
         break;
       case 'capitalizeWords':
-        // Permitir letras, números, ñ, tildes, espacios y algunos caracteres especiales
         value = value.replace(/[^a-záéíóúñA-ZÁÉÍÓÚÑ0-9\s'-]/g, '');
         value = capitalizeEachWord(value);
         break;
@@ -51,7 +56,7 @@ const Direccion = ({ onDireccionCompleta, required = true, error }) => {
         break;
     }
     setter(value);
-    setTimeout(updateDireccionCompleta, 0);
+    updateDireccionCompleta(value, field);
   };
 
   return (
@@ -66,7 +71,7 @@ const Direccion = ({ onDireccionCompleta, required = true, error }) => {
         <Col xs={3} sm={3}>
           <Form.Select
             value={tipoCalle}
-            onChange={handleInputChange(setTipoCalle, 'mixed')}
+            onChange={handleInputChange(setTipoCalle, 'tipoCalle', 'mixed')}
             required={required}
             isInvalid={!!error}
           >
@@ -83,7 +88,7 @@ const Direccion = ({ onDireccionCompleta, required = true, error }) => {
           <Form.Control
             type="text"
             value={numero1}
-            onChange={handleInputChange(setNumero1, 'uppercase')}
+            onChange={handleInputChange(setNumero1, 'numero1', 'uppercase')}
             required={required}
             maxLength="5"
             placeholder=""
@@ -99,7 +104,7 @@ const Direccion = ({ onDireccionCompleta, required = true, error }) => {
           <Form.Control
             type="text"
             value={numero2}
-            onChange={handleInputChange(setNumero2, 'uppercase')}
+            onChange={handleInputChange(setNumero2, 'numero2', 'uppercase')}
             required={required}
             maxLength="5"
             placeholder=""
@@ -115,7 +120,7 @@ const Direccion = ({ onDireccionCompleta, required = true, error }) => {
           <Form.Control
             type="text"
             value={numero3}
-            onChange={handleInputChange(setNumero3, 'number')}
+            onChange={handleInputChange(setNumero3, 'numero3', 'number')}
             required={required}
             maxLength="3"
             placeholder=""
@@ -131,7 +136,7 @@ const Direccion = ({ onDireccionCompleta, required = true, error }) => {
           <Form.Control
             type="text"
             value={complemento}
-            onChange={handleInputChange(setComplemento, 'capitalizeWords')}
+            onChange={handleInputChange(setComplemento, 'complemento', 'capitalizeWords')}
             placeholder=""
           />
         </Col>

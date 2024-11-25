@@ -119,7 +119,7 @@ const PerfilCliente = () => {
               <Card.Body className="p-3">
                 <Card.Title>Modificación de Información No Sensible</Card.Title>
                 <Card.Text>Actualiza tu teléfono, dirección y más.</Card.Text>
-                <Button variant="primary" onClick={() => navigate('/actualizar-datos')}>
+                <Button variant="primary px-4 py-2" onClick={() => navigate('/actualizar-datos')}>
                   Modificar Información
                 </Button>
               </Card.Body>
@@ -131,7 +131,7 @@ const PerfilCliente = () => {
               <Card.Body className="p-3">
                 <Card.Title>Cambio de Contraseña</Card.Title>
                 <Card.Text>Actualiza tu contraseña de forma segura.</Card.Text>
-                <Button variant="primary" onClick={() => navigate('/cambiar-contrasena')}>
+                <Button variant="primary px-4 py-2" onClick={() => navigate('/cambiar-contrasena')}>
                   Cambiar Contraseña
                 </Button>
               </Card.Body>
@@ -143,7 +143,7 @@ const PerfilCliente = () => {
               <Card.Body className="p-3">
                 <Card.Title>Cambio de Correo Electrónico</Card.Title>
                 <Card.Text>Actualiza tu correo electrónico.</Card.Text>
-                <Button variant="primary" onClick={() => navigate('/cambiar-correo')}>
+                <Button variant="primary px-4 py-2" onClick={() => navigate('/cambiar-correo')}>
                   Cambiar Correo Electrónico
                 </Button>
               </Card.Body>
@@ -153,9 +153,9 @@ const PerfilCliente = () => {
           <Col md={6} className="mb-4">
             <Card className="shadow-lg text-light" style={{ backgroundColor: '#141414', borderRadius: '10px' }}>
               <Card.Body className="p-3">
-                <Card.Title>Dar de Baja la Cuenta</Card.Title>
-                <Card.Text>Elimina tu cuenta permanentemente.</Card.Text>
-                <Button variant="danger" onClick={() => navigate('/suspender-cuenta')}>
+                <Card.Title>Darse de Baja</Card.Title>
+                <Card.Text>Suspende o elimina tu cuenta.</Card.Text>
+                <Button variant="danger px-4 py-2" onClick={() => navigate('/suspender-cuenta')}>
                   Dar de Baja la Cuenta
                 </Button>
               </Card.Body>

@@ -132,7 +132,7 @@ const SuspenderCuenta = () => {
                   name="motivo"
                   value={formData.motivo}
                   onChange={handleInputChange}
-                  placeholder="Explique el motivo de la suspensión"
+                  placeholder="Ej. Suspensión temporal por viaje al extranjero"
                   rows={3}
                   disabled={status.loading || status.success}
                   required
