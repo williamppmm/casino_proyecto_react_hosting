@@ -89,7 +89,7 @@ function DashboardCliente() {
                 <Card.Text>
                   Ver y actualizar información personal
                 </Card.Text>
-                <Button variant="primary" className="w-100" onClick={() => navigate('/perfil-cliente')}>
+                <Button variant="primary px-4 py-2" className="w-100" onClick={() => navigate('/perfil-cliente')}>
                   Acceder
                 </Button>
               </Card.Body>
@@ -103,7 +103,7 @@ function DashboardCliente() {
                 <Card.Text>
                   Consultar el historial de juegos y apuestas
                 </Card.Text>
-                <Button variant="primary" className="w-100" onClick={() => navigate('/historial-juegos')}>
+                <Button variant="primary px-4 py-2" className="w-100" onClick={() => navigate('/historial-juegos')}>
                   Acceder
                 </Button>
               </Card.Body>
@@ -117,7 +117,7 @@ function DashboardCliente() {
                 <Card.Text>
                   Ver promociones y bonos disponibles
                 </Card.Text>
-                <Button variant="primary" className="w-100" onClick={() => navigate('/promociones')}>
+                <Button variant="primary px-4 py-2" className="w-100" onClick={() => navigate('/promociones')}>
                   Acceder
                 </Button>
               </Card.Body>
@@ -133,7 +133,7 @@ function DashboardCliente() {
                 <Card.Text>
                   Ver el historial de transacciones y pagos
                 </Card.Text>
-                <Button variant="primary" className="w-100" onClick={() => navigate('/transacciones-clientes')}>
+                <Button variant="primary px-4 py-2" className="w-100" onClick={() => navigate('/transacciones-clientes')}>
                   Acceder
                 </Button>
               </Card.Body>
@@ -148,7 +148,7 @@ function DashboardCliente() {
                 <Card.Text>
                   Contactar al soporte técnico o atención al cliente
                 </Card.Text>
-                <Button variant="primary" className="w-100" onClick={() => navigate('/soporte')}>
+                <Button variant="primary px-4 py-2" className="w-100" onClick={() => navigate('/soporte')}>
                   Acceder
                 </Button>
               </Card.Body>
@@ -162,7 +162,7 @@ function DashboardCliente() {
                 <Card.Text>
                   Cerrar tu sesión actual
                 </Card.Text>
-                <Button variant="danger" className="w-100" onClick={handleLogout}>
+                <Button variant="danger px-4 py-2" className="w-100" onClick={handleLogout}>
                   Cerrar Sesión
                 </Button>
               </Card.Body>

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Card, Row, Col, Button, Alert, ListGroup } from 'react-bootstrap';
 import { obtenerDatosCliente } from '../../services/api';
-import { useAuth } from '../../hooks/useAuth';
 
 const DetallesCliente = ({ cliente }) => (
   <ListGroup variant="flush">
@@ -49,43 +48,26 @@ const PerfilCliente = () => {
   const [clienteData, setClienteData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);  // Fixed: Properly initialized state
   const navigate = useNavigate();
-  const { logout } = useAuth();
 
   useEffect(() => {
     const fetchClienteData = async () => {
       try {
         const data = await obtenerDatosCliente();
         setClienteData(data);
-        setLoading(false);
       } catch (err) {
         console.error('Error al obtener los datos del cliente:', err);
-        setError('Error al obtener los datos del cliente. Por favor, intenta nuevamente.');
-        setLoading(false);
-
+        setError('No se pudo obtener la información del cliente.');
         if (err.response?.status === 401) {
-          await logout();
+          navigate('/login-usuario', { replace: true });
         }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchClienteData();
-  }, [logout]);
-
-  const handleLogout = async () => {
-    try {
-      setIsLoggingOut(true);
-      const { success, error: logoutError } = await logout();
-      
-      if (!success) {
-        throw new Error(logoutError);
-      }
-    } catch (error) {
-      setError('Error al cerrar sesión. Por favor intenta nuevamente.');
-      setIsLoggingOut(false);
-    }
-  };
+  }, [navigate]);
 
   if (loading) {
     return (
@@ -104,8 +86,8 @@ const PerfilCliente = () => {
   }
 
   return (
-    <div style={{ backgroundColor: '#000', minHeight: '80vh', paddingTop: '80px', paddingBottom: '80px', marginTop: '0px' }}>
-      <Container style={{ maxWidth: '900px', margin: '0 auto' }}>
+    <div style={{ backgroundColor: '#000', minHeight: '80vh', paddingTop: '80px', paddingBottom: '80px' }}>
+      <Container style={{ maxWidth: '900px' }}>
         <Card className="shadow-lg text-light" style={{ backgroundColor: '#141414', borderRadius: '10px' }}>
           <Card.Body className="p-5">
             <h2 className="text-center mb-4">Tu información</h2>
@@ -153,10 +135,10 @@ const PerfilCliente = () => {
           <Col md={6} className="mb-4">
             <Card className="shadow-lg text-light" style={{ backgroundColor: '#141414', borderRadius: '10px' }}>
               <Card.Body className="p-3">
-                <Card.Title>Darse de Baja</Card.Title>
-                <Card.Text>Suspende o elimina tu cuenta.</Card.Text>
+                <Card.Title>Eliminar Cuenta</Card.Title>
+                <Card.Text>Elimina permanentemente tu cuenta.</Card.Text>
                 <Button variant="danger px-4 py-2" onClick={() => navigate('/eliminar-cuenta')}>
-                  Dar de Baja la Cuenta
+                  Eliminar Cuenta
                 </Button>
               </Card.Body>
             </Card>
@@ -168,18 +150,18 @@ const PerfilCliente = () => {
             variant="outline-primary"
             className="btn btn-outline-primary px-4 py-2 me-2"
             onClick={() => navigate('/dashboard-cliente')}
-            style={{ fontSize: '1rem' }}
           >
             Dashboard
           </Button>
           <Button
             variant="outline-danger"
             className="btn btn-outline-danger px-4 py-2"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            style={{ fontSize: '1rem' }}
+            onClick={() => {
+              sessionStorage.clear();
+              navigate('/login-usuario');
+            }}
           >
-            {isLoggingOut ? 'Cerrando Sesión...' : 'Cerrar Sesión'}
+            Cerrar Sesión
           </Button>
         </div>
       </Container>
