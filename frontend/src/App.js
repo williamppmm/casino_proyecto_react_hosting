@@ -43,6 +43,8 @@ import DashboardRestaurant from './pages/dashboard/DashboardRestaurant';
 
 // Componentes del Dashboard Cliente
 import HistorialJuegos from './pages/dashboard/client/HistorialJuegos';
+import PromocionesCliente from './pages/dashboard/client/PromocionesCliente';
+import TransaccionesCliente from './pages/dashboard/client/TransaccionesCliente';
 
 // Importación del ProtectedRoute
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -95,6 +97,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <HistorialJuegos />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/promociones-cliente"
+            element={
+              <ProtectedRoute>
+                <PromocionesCliente />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/transacciones-cliente"
+            element={
+              <ProtectedRoute>
+                <TransaccionesCliente />
               </ProtectedRoute>
             }
           />

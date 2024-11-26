@@ -1,88 +1,98 @@
+// src/pages/dashboard/client/PromocionesCliente.js
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Card, Table, Form, Button, Row, Col, Badge, Pagination } from 'react-bootstrap';
-import { Calendar, Search, Download, Home, LogOut } from 'lucide-react';
+import { Container, Card, Table, Form, Button, Row, Col, Badge } from 'react-bootstrap';
+import { Tag, Calendar, Gift, LogOut, Home } from 'lucide-react';
 import CustomDatePicker from '../../../components/forms/DatePicker';
 
-const HistorialJuegos = () => {
-  const navigate = useNavigate(); // Hook para manejar redirecciones
+const PromocionesCliente = () => {
+  const navigate = useNavigate();
 
-  // Estados para los filtros y paginación
+  // Estados para los filtros y datos
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
-  const [gameType, setGameType] = useState('all');
-  const [mockHistory] = useState([
+  const [promoType, setPromoType] = useState('all');
+  const [mockPromotions] = useState([
     {
       id: 1,
-      date: '2024-03-20',
-      game: 'Póker Texas Hold\'em',
-      type: 'Mesa',
-      bet: 50000,
-      result: 75000,
-      status: 'win'
+      date: '2024-03-25',
+      title: 'Bono de Bienvenida',
+      type: 'Bono',
+      amount: 200000,
+      status: 'active',
+      expiry: '2024-04-25',
+      requirements: 'Depósito mínimo $50.000'
     },
     {
       id: 2,
-      date: '2024-03-19',
-      game: 'Ruleta Europea',
-      type: 'Mesa',
-      bet: 25000,
-      result: 0,
-      status: 'loss'
+      date: '2024-03-24',
+      title: 'Giros Gratis Slots',
+      type: 'Tragamonedas',
+      amount: 50,
+      status: 'pending',
+      expiry: '2024-04-24',
+      requirements: '20 giros en Golden Dragon'
     },
     {
       id: 3,
-      date: '2024-03-18',
-      game: 'Lucky Fortune',
-      type: 'Tragamonedas',
-      bet: 10000,
-      result: 35000,
-      status: 'win'
+      date: '2024-03-23',
+      title: 'Cashback Fin de Semana',
+      type: 'Reembolso',
+      amount: 100000,
+      status: 'expired',
+      expiry: '2024-03-24',
+      requirements: 'Pérdidas en juegos de mesa'
     },
     {
       id: 4,
-      date: '2024-03-17',
-      game: 'Blackjack',
-      type: 'Mesa',
-      bet: 30000,
-      result: 60000,
-      status: 'win'
+      date: '2024-03-22',
+      title: 'Multiplicador de Puntos',
+      type: 'Puntos VIP',
+      amount: 0,
+      status: 'active',
+      expiry: '2024-04-22',
+      requirements: 'Jugar en mesas VIP'
     },
     {
       id: 5,
-      date: '2024-03-16',
-      game: 'Golden Dragon',
-      type: 'Tragamonedas',
-      bet: 15000,
-      result: 0,
-      status: 'loss'
+      date: '2024-03-21',
+      title: 'Torneo de Póker',
+      type: 'Torneo',
+      amount: 1000000,
+      status: 'pending',
+      expiry: '2024-04-21',
+      requirements: 'Buy-in $100.000'
     }
   ]);
 
-  // Función para manejar la descarga del historial
-  const handleDownload = () => {
-    console.log('Descargando historial...');
-  };
-
-  // Función para renderizar el badge del estado
+  // Renderizar estado como badge
   const renderStatusBadge = (status) => {
+    const badgeMap = {
+      active: { bg: 'success', text: 'Activa' },
+      pending: { bg: 'warning', text: 'Pendiente' },
+      expired: { bg: 'danger', text: 'Expirada' }
+    };
+
+    const badgeInfo = badgeMap[status] || { bg: 'secondary', text: 'Desconocido' };
+
     return (
-      <Badge bg={status === 'win' ? 'success' : 'danger'}>
-        {status === 'win' ? 'Ganado' : 'Perdido'}
+      <Badge bg={badgeInfo.bg}>
+        {badgeInfo.text}
       </Badge>
     );
   };
 
-  // Función para formatear moneda en COP
+  // Formatear moneda
   const formatCOP = (amount) => {
+    if (typeof amount !== 'number') return amount;
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
       currency: 'COP',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      minimumFractionDigits: 0
     }).format(amount);
   };
 
-  // Manejar cierre de sesión
+  // Cerrar sesión
   const handleLogout = () => {
     sessionStorage.clear();
     navigate('/login-usuario');
@@ -92,10 +102,10 @@ const HistorialJuegos = () => {
     <div style={{ backgroundColor: '#000', minHeight: '100vh', paddingTop: '80px', paddingBottom: '80px' }}>
       <Container>
         <Card className="shadow-lg text-light" style={{ backgroundColor: '#141414', borderRadius: '10px' }}>
-          <Card.Header className="bg-primary text-light">
-            <h2 className="mb-0 text-center">Historial de Juegos</h2>
+        <Card.Header className="bg-primary text-light">
+            <h2 className="mb-0 text-center">Promociones</h2>
           </Card.Header>
-          
+
           <Card.Body className="p-4">
             {/* Filtros */}
             <Row className="mb-4 g-3">
@@ -128,94 +138,74 @@ const HistorialJuegos = () => {
               <Col md={4}>
                 <Form.Group>
                   <Form.Label className="text-light d-flex align-items-center mb-2">
-                    <Search size={18} className="me-2" /> Tipo de Juego
+                    <Tag size={18} className="me-2" /> Tipo de Promoción
                   </Form.Label>
                   <Form.Select
-                    value={gameType}
-                    onChange={(e) => setGameType(e.target.value)}
+                    value={promoType}
+                    onChange={(e) => setPromoType(e.target.value)}
                     className="form-control bg-dark text-light border-secondary"
                   >
-                    <option value="all">Todos</option>
-                    <option value="mesa">Juegos de Mesa</option>
-                    <option value="tragamonedas">Tragamonedas</option>
-                    <option value="online">Juegos Online</option>
-                    <option value="otros">Apuestas Deportivas</option>
-                    <option value="otros">Juegos especiales</option>
+                    <option value="all">Todas las Promociones</option>
+                    <option value="bonos">Bonos</option>
+                    <option value="torneos">Torneos</option>
+                    <option value="cashback">Cashback</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
             </Row>
 
-            {/* Botón de descarga */}
-            <div className="mb-3 text-end">
-              <Button variant="outline-light" onClick={handleDownload}>
-                <Download size={18} className="me-2" />
-                Descargar Historial
-              </Button>
-            </div>
-
-            {/* Tabla de historial */}
+            {/* Tabla */}
             <Table hover variant="dark" className="align-middle">
               <thead>
                 <tr>
-                  <th>Fecha</th>
-                  <th>Juego</th>
+                  <th>Fecha Inicio</th>
+                  <th>Promoción</th>
                   <th>Tipo</th>
-                  <th>Apuesta</th>
-                  <th>Resultado</th>
+                  <th>Beneficio</th>
+                  <th>Requisitos</th>
+                  <th>Expiración</th>
                   <th>Estado</th>
                 </tr>
               </thead>
               <tbody>
-                {mockHistory.map((game) => (
-                  <tr key={game.id}>
-                    <td>{game.date}</td>
-                    <td>{game.game}</td>
-                    <td>{game.type}</td>
-                    <td>{formatCOP(game.bet)}</td>
-                    <td>{formatCOP(game.result)}</td>
-                    <td>{renderStatusBadge(game.status)}</td>
+                {mockPromotions.map((promo) => (
+                  <tr key={promo.id}>
+                    <td>{promo.date}</td>
+                    <td>{promo.title}</td>
+                    <td>{promo.type}</td>
+                    <td>{typeof promo.amount === 'number' ? formatCOP(promo.amount) : `${promo.amount} giros`}</td>
+                    <td>{promo.requirements}</td>
+                    <td>{promo.expiry}</td>
+                    <td>{renderStatusBadge(promo.status)}</td>
                   </tr>
                 ))}
               </tbody>
             </Table>
 
-            {/* Paginación */}
-            <div className="d-flex justify-content-center mt-4">
-              <Pagination>
-                <Pagination.First />
-                <Pagination.Prev />
-                <Pagination.Item active>{1}</Pagination.Item>
-                <Pagination.Item>{2}</Pagination.Item>
-                <Pagination.Item>{3}</Pagination.Item>
-                <Pagination.Next />
-                <Pagination.Last />
-              </Pagination>
-            </div>
-
-            {/* Resumen estadístico */}
+            {/* Resumen */}
             <Row className="mt-4 g-3">
               <Col md={4}>
                 <Card className="text-center bg-dark border-secondary">
                   <Card.Body>
-                    <h6 className="text-light">Total Apostado</h6>
-                    <h4 className="text-primary">{formatCOP(130000)}</h4>
+                    <Gift size={24} className="text-primary mb-2" />
+                    <h6 className="text-light">Activas</h6>
+                    <h4 className="text-primary">2</h4>
                   </Card.Body>
                 </Card>
               </Col>
               <Col md={4}>
                 <Card className="text-center bg-dark border-secondary">
                   <Card.Body>
-                    <h6 className="text-light">Total Ganado</h6>
-                    <h4 className="text-success">{formatCOP(170000)}</h4>
+                    <h6 className="text-light">Pendientes</h6>
+                    <h4 className="text-warning">3</h4>
                   </Card.Body>
                 </Card>
               </Col>
               <Col md={4}>
                 <Card className="text-center bg-dark border-secondary">
                   <Card.Body>
-                    <h6 className="text-light">Balance</h6>
-                    <h4 className="text-info">{formatCOP(40000)}</h4>
+                    <h6 className="text-light">Expiradas</h6>
+                    <h4 className="text-danger">5</h4>
                   </Card.Body>
                 </Card>
               </Col>
@@ -245,4 +235,4 @@ const HistorialJuegos = () => {
   );
 };
 
-export default HistorialJuegos;
+export default PromocionesCliente;

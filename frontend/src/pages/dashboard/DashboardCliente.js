@@ -117,7 +117,7 @@ function DashboardCliente() {
                 <Card.Text>
                   Ver promociones y bonos disponibles
                 </Card.Text>
-                <Button variant="primary px-4 py-2" className="w-100" onClick={() => navigate('/promociones')}>
+                <Button variant="primary px-4 py-2" className="w-100" onClick={() => navigate('/promociones-cliente')}>
                   Acceder
                 </Button>
               </Card.Body>
@@ -133,7 +133,7 @@ function DashboardCliente() {
                 <Card.Text>
                   Ver el historial de transacciones y pagos
                 </Card.Text>
-                <Button variant="primary px-4 py-2" className="w-100" onClick={() => navigate('/transacciones-clientes')}>
+                <Button variant="primary px-4 py-2" className="w-100" onClick={() => navigate('/transacciones-cliente')}>
                   Acceder
                 </Button>
               </Card.Body>

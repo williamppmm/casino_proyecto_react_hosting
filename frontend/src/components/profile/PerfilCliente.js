@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Card, Row, Col, Button, Alert, ListGroup } from 'react-bootstrap';
 import { obtenerDatosCliente } from '../../services/api';
+import { Home, LogOut } from 'lucide-react';
 
 const DetallesCliente = ({ cliente }) => (
   <ListGroup variant="flush">
@@ -68,6 +69,11 @@ const PerfilCliente = () => {
 
     fetchClienteData();
   }, [navigate]);
+
+  const handleLogout = () => {
+    sessionStorage.clear();
+    navigate('/login-usuario');
+  };
 
   if (loading) {
     return (
@@ -144,24 +150,21 @@ const PerfilCliente = () => {
             </Card>
           </Col>
         </Row>
-
+        {/* Botones adicionales */}
         <div className="mt-4 text-center">
           <Button
             variant="outline-primary"
             className="btn btn-outline-primary px-4 py-2 me-2"
             onClick={() => navigate('/dashboard-cliente')}
           >
-            Dashboard
+            <Home size={18} className="me-2" /> Dashboard
           </Button>
           <Button
             variant="outline-danger"
             className="btn btn-outline-danger px-4 py-2"
-            onClick={() => {
-              sessionStorage.clear();
-              navigate('/login-usuario');
-            }}
+            onClick={handleLogout}
           >
-            Cerrar Sesión
+            <LogOut size={18} className="me-2" /> Cerrar Sesión
           </Button>
         </div>
       </Container>
