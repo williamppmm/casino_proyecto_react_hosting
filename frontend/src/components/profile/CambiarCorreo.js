@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Container, Card, Form, Button, Alert, Modal } from 'react-bootstrap';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { cambiarCorreo } from '../../services/api';
+import { Home, LogOut } from 'lucide-react';
 import EmailInput from '../forms/EmailInput';
 
 const CambiarCorreo = () => {
@@ -119,13 +120,6 @@ const CambiarCorreo = () => {
                 >
                   {loading ? 'Guardando...' : 'Guardar Cambios'}
                 </Button>
-                <Link
-                  to="/perfil-cliente"
-                  className="btn btn-outline-secondary px-4 py-2"
-                  style={{ fontSize: '1rem' }}
-                >
-                  Cancelar
-                </Link>
               </div>
             </Form>
           </Card.Body>
@@ -136,18 +130,10 @@ const CambiarCorreo = () => {
           <Button
             variant="outline-primary"
             className="btn btn-outline-primary px-4 py-2 me-2"
-            onClick={() => navigate('/perfil-cliente')}
-            style={{ fontSize: '1rem' }}
-          >
-            Perfil
-          </Button>
-          <Button
-            variant="outline-secondary"
-            className="btn btn-outline-secondary px-4 py-2 me-2"
             onClick={() => navigate('/dashboard-cliente')}
             style={{ fontSize: '1rem' }}
           >
-            Dashboard
+            <Home size={18} className="me-2" /> Dashboard
           </Button>
           <Button
             variant="outline-danger"
@@ -155,7 +141,7 @@ const CambiarCorreo = () => {
             onClick={handleLogout}
             style={{ fontSize: '1rem' }}
           >
-            Cerrar Sesión
+            <LogOut size={18} className="me-2" /> Cerrar Sesión
           </Button>
         </div>
       </Container>

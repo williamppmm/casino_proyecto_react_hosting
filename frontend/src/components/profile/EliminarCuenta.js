@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Container, Card, Form, Button, Alert, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { eliminarCuenta } from '../../services/api';
+import { Home, LogOut } from 'lucide-react';
 
 const EliminarCuenta = () => {
   const navigate = useNavigate();
@@ -158,18 +159,10 @@ const EliminarCuenta = () => {
           <Button
             variant="outline-primary"
             className="btn btn-outline-primary px-4 py-2 me-2"
-            onClick={navigateTo('/perfil-cliente')}
-            disabled={status.loading}
-          >
-            Perfil
-          </Button>
-          <Button
-            variant="outline-secondary"
-            className="btn btn-outline-secondary px-4 py-2 me-2"
             onClick={navigateTo('/dashboard-cliente')}
             disabled={status.loading}
           >
-            Dashboard
+            <Home size={18} className="me-2" /> Dashboard
           </Button>
           <Button
             variant="outline-danger"
@@ -177,7 +170,7 @@ const EliminarCuenta = () => {
             onClick={handleLogout}
             disabled={status.loading}
           >
-            Cerrar Sesión
+            <LogOut size={18} className="me-2" /> Cerrar Sesión
           </Button>
         </div>
       </Container>

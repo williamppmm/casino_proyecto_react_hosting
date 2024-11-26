@@ -141,11 +141,24 @@ const PerfilCliente = () => {
           <Col md={6} className="mb-4">
             <Card className="shadow-lg text-light" style={{ backgroundColor: '#141414', borderRadius: '10px' }}>
               <Card.Body className="p-3">
-                <Card.Title>Eliminar Cuenta</Card.Title>
-                <Card.Text>Elimina permanentemente tu cuenta.</Card.Text>
-                <Button variant="danger px-4 py-2" onClick={() => navigate('/eliminar-cuenta')}>
-                  Eliminar Cuenta
-                </Button>
+                <Card.Title>Gestión de Cuenta</Card.Title>
+                <Card.Text>
+                  Suspende o elimina tu cuenta de forma permanente.
+                </Card.Text>
+                <div className="d-flex gap-3">
+                  <Button
+                    variant="warning px-4 py-2"
+                    onClick={() => navigate('/suspender-cuenta')}
+                  >
+                    Suspender Cuenta
+                  </Button>
+                  <Button
+                    variant="danger px-4 py-2"
+                    onClick={() => navigate('/eliminar-cuenta')}
+                  >
+                    Eliminar Cuenta
+                  </Button>
+                </div>
               </Card.Body>
             </Card>
           </Col>

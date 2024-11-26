@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Form, Button, Alert, InputGroup, Modal } from 'react-bootstrap';
-import { BsEye, BsEyeSlash } from "react-icons/bs";
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { cambiarContrasena } from '../../services/api';
+import { BsEye, BsEyeSlash } from 'react-icons/bs';
+import { Home, LogOut } from 'lucide-react';
 
 const PASSWORD_REQUIREMENTS = [
   { regex: /.{8,}/, text: 'Mínimo 8 caracteres' },
@@ -26,7 +27,6 @@ const CambiarContrasena = () => {
   const [showModal, setShowModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
 
-  // Validar contraseña nueva
   const validatePassword = (password) => {
     const updatedRequirements = PASSWORD_REQUIREMENTS.map((req) => ({
       ...req,
@@ -163,24 +163,15 @@ const CambiarContrasena = () => {
                 </InputGroup>
               </Form.Group>
 
-              <div className="d-flex justify-content-between gap-3">
-                <Button 
-                  variant="primary" 
-                  type="button" 
-                  onClick={handleOpenModal} 
-                  disabled={loading} 
+              <div className="d-flex justify-content-center gap-3">
+                <Button
+                  variant="primary"
+                  type="button"
+                  onClick={handleOpenModal}
+                  disabled={loading}
                   className="flex-grow-1"
                 >
                   {loading ? 'Cambiando...' : 'Guardar Cambios'}
-                </Button>
-                <Button
-                  as={Link}
-                  to="/perfil-cliente"
-                  variant="outline-secondary"
-                  type="button"
-                  className="px-4"
-                >
-                  Cancelar
                 </Button>
               </div>
             </Form>
@@ -205,7 +196,6 @@ const CambiarContrasena = () => {
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Ingrese su contraseña para confirmar"
                 required
-                autoComplete="off"
                 style={{ fontSize: '1rem' }}
               />
             </Form.Group>
@@ -225,22 +215,15 @@ const CambiarContrasena = () => {
           </Modal.Footer>
         </Modal>
 
+        {/* Botones adicionales */}
         <div className="mt-4 text-center">
           <Button
             variant="outline-primary"
             type="button"
             className="px-4 py-2 me-2"
-            onClick={() => navigate('/perfil-cliente')}
-          >
-            Perfil
-          </Button>
-          <Button
-            variant="outline-secondary"
-            type="button"
-            className="px-4 py-2 me-2"
             onClick={() => navigate('/dashboard-cliente')}
           >
-            Dashboard
+            <Home size={18} className="me-2" /> Dashboard
           </Button>
           <Button
             variant="outline-danger"
@@ -248,7 +231,7 @@ const CambiarContrasena = () => {
             className="px-4 py-2"
             onClick={handleLogout}
           >
-            Cerrar Sesión
+            <LogOut size={18} className="me-2" /> Cerrar Sesión
           </Button>
         </div>
       </Container>

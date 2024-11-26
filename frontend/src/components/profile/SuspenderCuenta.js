@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Container, Card, Form, Button, Alert, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { suspenderCuenta } from '../../services/api';
+import { Home, LogOut } from 'lucide-react';
 
 const SuspenderCuenta = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const SuspenderCuenta = () => {
   const [status, setStatus] = useState({
     loading: false,
     message: null,
-    success: false
+    success: false,
   });
 
   const handleInputChange = useCallback((e) => {
@@ -25,19 +26,19 @@ const SuspenderCuenta = () => {
       return;
     }
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   }, []);
 
   const handleOpenModal = useCallback(() => {
-    setStatus(prev => ({ ...prev, message: null }));
+    setStatus((prev) => ({ ...prev, message: null }));
 
     if (!formData.correo || !formData.motivo) {
-      setStatus(prev => ({
+      setStatus((prev) => ({
         ...prev,
-        message: { type: 'danger', text: 'Correo y motivo son obligatorios.' }
+        message: { type: 'danger', text: 'Correo y motivo son obligatorios.' },
       }));
       return;
     }
@@ -47,7 +48,7 @@ const SuspenderCuenta = () => {
 
   const handleCloseModal = useCallback(() => {
     setShowModal(false);
-    setFormData(prev => ({ ...prev, password: '' }));
+    setFormData((prev) => ({ ...prev, password: '' }));
   }, []);
 
   const handleLogout = useCallback(() => {
@@ -57,9 +58,9 @@ const SuspenderCuenta = () => {
 
   const handleConfirm = async () => {
     if (!formData.password) {
-      setStatus(prev => ({
+      setStatus((prev) => ({
         ...prev,
-        message: { type: 'danger', text: 'La contraseña es obligatoria.' }
+        message: { type: 'danger', text: 'La contraseña es obligatoria.' },
       }));
       return;
     }
@@ -74,9 +75,9 @@ const SuspenderCuenta = () => {
         loading: false,
         message: {
           type: 'success',
-          text: 'Cuenta suspendida exitosamente. Cerrando sesión...'
+          text: 'Cuenta suspendida exitosamente. Cerrando sesión...',
         },
-        success: true
+        success: true,
       });
 
       setTimeout(handleLogout, 3000);
@@ -85,9 +86,9 @@ const SuspenderCuenta = () => {
         loading: false,
         message: {
           type: 'danger',
-          text: error?.message || 'Error al suspender la cuenta.'
+          text: error?.message || 'Error al suspender la cuenta.',
         },
-        success: false
+        success: false,
       });
     }
   };
@@ -104,7 +105,7 @@ const SuspenderCuenta = () => {
             {status.message && (
               <Alert
                 variant={status.message.type}
-                onClose={() => setStatus(prev => ({ ...prev, message: null }))}
+                onClose={() => setStatus((prev) => ({ ...prev, message: null }))}
                 dismissible
               >
                 {status.message.text}
@@ -141,7 +142,7 @@ const SuspenderCuenta = () => {
 
               <div className="d-flex justify-content-between gap-3">
                 <Button
-                  variant="primary"
+                  variant="warning"
                   className="flex-grow-1"
                   onClick={handleOpenModal}
                   disabled={status.loading || status.success}
@@ -165,18 +166,10 @@ const SuspenderCuenta = () => {
           <Button
             variant="outline-primary"
             className="btn btn-outline-primary px-4 py-2 me-2"
-            onClick={navigateTo('/perfil-cliente')}
-            disabled={status.loading}
-          >
-            Perfil
-          </Button>
-          <Button
-            variant="outline-secondary"
-            className="btn btn-outline-secondary px-4 py-2 me-2"
             onClick={navigateTo('/dashboard-cliente')}
             disabled={status.loading}
           >
-            Dashboard
+            <Home size={18} className="me-2" /> Dashboard
           </Button>
           <Button
             variant="outline-danger"
@@ -184,7 +177,7 @@ const SuspenderCuenta = () => {
             onClick={handleLogout}
             disabled={status.loading}
           >
-            Cerrar Sesión
+            <LogOut size={18} className="me-2" /> Cerrar Sesión
           </Button>
         </div>
       </Container>

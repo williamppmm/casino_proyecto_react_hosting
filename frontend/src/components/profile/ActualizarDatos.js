@@ -4,6 +4,7 @@ import { Container, Card, Form, Button, Alert, Modal } from 'react-bootstrap';
 import { obtenerDatosCliente, actualizarDatosCliente } from '../../services/api';
 import TelefonoInput from '../forms/TelefonoInput';
 import Direccion from '../forms/Direccion';
+import { Home, LogOut } from 'lucide-react';
 
 const ActualizarDatos = () => {
   const navigate = useNavigate();
@@ -41,7 +42,19 @@ const ActualizarDatos = () => {
     if (name === 'municipio') {
       setFormData((prev) => ({
         ...prev,
-        [name]: value.charAt(0).toUpperCase() + value.slice(1)
+        [name]: value
+          .toLowerCase()
+          .split(' ')
+          .map((word, index, array) => {
+            // Si la palabra es "de" o "del" y no es el inicio de un nombre propio
+            // (verificamos si hay palabra antes y después)
+            if ((word === 'de' || word === 'del') && index > 0 && index < array.length - 1) {
+              return word;
+            }
+            // Para cualquier otra palabra, incluidos nombres que empiezan con "De"
+            return word.charAt(0).toUpperCase() + word.slice(1);
+          })
+          .join(' ')
       }));
     } else {
       setFormData((prev) => ({
@@ -170,33 +183,25 @@ const ActualizarDatos = () => {
           </Card.Body>
         </Card>
 
-        {/* Botones adicionales fuera de la tarjeta */}
+        {/* Botones adicionales */}
         <div className="mt-4 text-center">
-        <Button
-          variant="outline-primary"
-          className="btn btn-outline-primary px-4 py-2 me-2"
-          onClick={() => navigate('/perfil-cliente')}
-          style={{ fontSize: '1rem' }}
-        >
-          Perfil
-        </Button>
-        <Button
-          variant="outline-secondary"
-          className="btn btn-outline-secondary px-4 py-2 me-2"
-          onClick={() => navigate('/dashboard-cliente')}
-          style={{ fontSize: '1rem' }}
-        >
-          Dashboard
-        </Button>
-        <Button
-          variant="outline-danger"
-          className="btn btn-outline-danger px-4 py-2"
-          onClick={handleLogout}
-          style={{ fontSize: '1rem' }}
-        >
-          Cerrar Sesión
-        </Button>
-      </div>
+          <Button
+            variant="outline-primary"
+            className="btn btn-outline-primary px-4 py-2 me-2"
+            onClick={() => navigate('/dashboard-cliente')}
+            style={{ fontSize: '1rem' }}
+          >
+            <Home size={18} className="me-2" /> Dashboard
+          </Button>
+          <Button
+            variant="outline-danger"
+            className="btn btn-outline-danger px-4 py-2"
+            onClick={handleLogout}
+            style={{ fontSize: '1rem' }}
+          >
+            <LogOut size={18} className="me-2" /> Cerrar Sesión
+          </Button>
+        </div>
       </Container>
 
       {/* Modal de Confirmación */}
