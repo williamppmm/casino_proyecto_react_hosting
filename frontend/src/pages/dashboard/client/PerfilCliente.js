@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Card, Row, Col, Button, Alert, ListGroup } from 'react-bootstrap';
-import { obtenerDatosCliente } from '../../services/api';
+import { obtenerDatosCliente } from '../../../services/api';
 import { Home, LogOut } from 'lucide-react';
 
 const DetallesCliente = ({ cliente }) => (

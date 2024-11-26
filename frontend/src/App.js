@@ -23,8 +23,6 @@ import RecuperarContrasena from "./pages/login/RecuperarContrasena";
 import ResetearContrasena from './pages/login/ResetearContrasena';
 
 // Importaciones de componentes de cliente
-import DashboardCliente from './pages/dashboard/DashboardCliente';
-import PerfilCliente from './components/profile/PerfilCliente';
 import ActualizarDatos from './components/profile/ActualizarDatos';
 import CambiarContrasena from './components/profile/CambiarContrasena';
 import CambiarCorreo from './components/profile/CambiarCorreo';
@@ -42,9 +40,12 @@ import DashboardCashier from './pages/dashboard/DashboardCashier';
 import DashboardRestaurant from './pages/dashboard/DashboardRestaurant';
 
 // Componentes del Dashboard Cliente
+import DashboardCliente from './pages/dashboard/DashboardCliente';
+import PerfilCliente from './pages/dashboard/client/PerfilCliente';
 import HistorialJuegos from './pages/dashboard/client/HistorialJuegos';
 import PromocionesCliente from './pages/dashboard/client/PromocionesCliente';
 import TransaccionesCliente from './pages/dashboard/client/TransaccionesCliente';
+import SoporteCliente from './pages/dashboard/client/SoporteCliente';
 
 // Importación del ProtectedRoute
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -113,6 +114,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <TransaccionesCliente />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/soporte-cliente"
+            element={
+              <ProtectedRoute>
+                <SoporteCliente />
               </ProtectedRoute>
             }
           />

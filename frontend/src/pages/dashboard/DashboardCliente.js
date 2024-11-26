@@ -148,7 +148,7 @@ function DashboardCliente() {
                 <Card.Text>
                   Contactar al soporte técnico o atención al cliente
                 </Card.Text>
-                <Button variant="primary px-4 py-2" className="w-100" onClick={() => navigate('/soporte')}>
+                <Button variant="primary px-4 py-2" className="w-100" onClick={() => navigate('/soporte-cliente')}>
                   Acceder
                 </Button>
               </Card.Body>

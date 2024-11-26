@@ -1,187 +1,191 @@
-// src/pages/login/ResetearContrasena.js
-
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Container, Card, Alert, Spinner, Modal } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Container, Card, Form, Button, Alert, InputGroup, Spinner } from 'react-bootstrap';
+import { BsEye, BsEyeSlash } from "react-icons/bs";
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import PasswordInput from '../../components/forms/PasswordInput';
 
-const REDIRECT_DELAY = 3000;
+const PASSWORD_REQUIREMENTS = [
+  { regex: /.{8,}/, text: 'Mínimo 8 caracteres' },
+  { regex: /(?=.*[A-ZÑ])|(?=.*[ÁÉÍÓÚÜ])/, text: 'Al menos una letra mayúscula' },
+  { regex: /(?=.*[a-zñ])|(?=.*[áéíóúü])/, text: 'Al menos una letra minúscula' },
+  { regex: /[0-9]/, text: 'Al menos un número' },
+  { regex: /[!@#$%^&*¡¿]/, text: 'Al menos un carácter especial (!@#$%^&*¡¿)' },
+];
 
 const ResetearContrasena = () => {
-  const [formData, setFormData] = useState({
-    nueva_password: '',
-    confirmar_password: '',
-  });
-  const [token, setToken] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  
-  const location = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordRequirements, setPasswordRequirements] = useState(
+    PASSWORD_REQUIREMENTS.map((req) => ({ ...req, fulfilled: false }))
+  );
+  const [passwordVisible, setPasswordVisible] = useState({ new: false, confirm: false });
+  const [showRequirements, setShowRequirements] = useState(true);
+  const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [token, setToken] = useState(null);
+
+  // Validar contraseña nueva
+  const validatePassword = (password) => {
+    const updatedRequirements = PASSWORD_REQUIREMENTS.map((req) => ({
+      ...req,
+      fulfilled: req.regex.test(password),
+    }));
+    setPasswordRequirements(updatedRequirements);
+    return updatedRequirements.every((req) => req.fulfilled);
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const resetToken = params.get('token');
-
     if (!resetToken) {
-      setError('No se encontró el token de restablecimiento. Por favor, solicita un nuevo enlace.');
-      return;
+      setMessage({ type: 'danger', text: 'Token no válido. Solicita un nuevo enlace para restablecer tu contraseña.' });
     }
-
     setToken(resetToken);
   }, [location.search]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    let fieldName = name;
-    
-    if (name === 'nueva_password_confirm') {
-      fieldName = 'confirmar_password';
-    }
-    
-    setFormData(prev => ({
-      ...prev,
-      [fieldName]: value
-    }));
-    setError('');
+  useEffect(() => {
+    // Mostrar requisitos solo si la contraseña no cumple todas las validaciones
+    const allValid = validatePassword(newPassword);
+    setShowRequirements(!allValid && newPassword.length > 0);
+  }, [newPassword]);
+
+  const handleNewPasswordChange = (value) => {
+    setNewPassword(value);
+    validatePassword(value);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Verificamos si el PasswordInput indica que la contraseña es válida
-    const passwordInput = e.target.querySelector('[name="nueva_password"]');
-    const isPasswordValid = passwordInput.checkValidity() && 
-                          passwordInput.classList.contains('is-valid');
-
-    if (!isPasswordValid) {
-      setError('La contraseña no cumple con los requisitos de seguridad.');
+    if (!validatePassword(newPassword)) {
+      setMessage({ type: 'danger', text: 'La nueva contraseña no cumple con los requisitos.' });
       return;
     }
-
-    if (formData.nueva_password !== formData.confirmar_password) {
-      setError('Las contraseñas no coinciden.');
+    if (newPassword !== confirmPassword) {
+      setMessage({ type: 'danger', text: 'Las contraseñas no coinciden.' });
       return;
     }
 
     try {
-      setIsLoading(true);
+      setLoading(true);
       await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/cambiar-password`, {
         token,
-        nueva_password: formData.nueva_password,
-        confirmar_password: formData.confirmar_password,
+        nueva_password: newPassword,
+        confirmar_password: confirmPassword,
       });
-
-      setShowSuccess(true);
-      setTimeout(() => {
-        navigate('/login-usuario');
-      }, REDIRECT_DELAY);
-
+      setMessage({ type: 'success', text: 'Contraseña restablecida correctamente. Redirigiendo...' });
+      setTimeout(() => navigate('/login-usuario'), 3000);
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 
-        'Ocurrió un error al cambiar la contraseña. Por favor, inténtalo de nuevo.';
-      setError(errorMessage);
+      setMessage({
+        type: 'danger',
+        text: err.response?.data?.error || 'Error al restablecer la contraseña. Inténtalo de nuevo.',
+      });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{
-      backgroundColor: '#000',
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingTop: '80px',
-      paddingBottom: '80px'
-    }}>
-      <Container style={{ maxWidth: '700px' }}>
-        <Card className="shadow-lg text-light mb-4" style={{ backgroundColor: '#141414', borderRadius: '10px' }}>
-          <Card.Body>
+    <div style={{ backgroundColor: '#000', minHeight: '100vh', paddingTop: '80px', paddingBottom: '80px' }}>
+      <Container style={{ maxWidth: '400px' }}>
+        <Card className="shadow-lg text-light" style={{ backgroundColor: '#141414', borderRadius: '10px' }}>
+          <Card.Body className="p-5">
             <h2 className="text-center mb-4">Restablecer Contraseña</h2>
 
-            {error && (
-              <Alert 
-                variant="danger" 
-                onClose={() => setError('')} 
-                dismissible
-                className="mb-4"
-              >
-                {error}
+            {message && (
+              <Alert variant={message.type} onClose={() => setMessage(null)} dismissible>
+                {message.text}
               </Alert>
             )}
 
-            <Form onSubmit={handleSubmit} noValidate>
-              <PasswordInput
-                value={formData.nueva_password}
-                onChange={handleInputChange}
-                confirmValue={formData.confirmar_password}
-                onConfirmChange={handleInputChange}
-                name="nueva_password"
-                label="Nueva Contraseña"
-                className="mb-3"
-              />
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3">
+                <Form.Label>Nueva Contraseña</Form.Label>
+                <InputGroup>
+                  <Form.Control
+                    type={passwordVisible.new ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={(e) => handleNewPasswordChange(e.target.value)}
+                    required
+                  />
+                  <Button
+                    variant="outline-secondary"
+                    type="button"
+                    onClick={() => setPasswordVisible((prev) => ({ ...prev, new: !prev.new }))}
+                  >
+                    {passwordVisible.new ? <BsEyeSlash /> : <BsEye />}
+                  </Button>
+                </InputGroup>
+                {showRequirements && (
+                  <div className="password-requirements mt-2">
+                    {passwordRequirements.map((req, index) => (
+                      <div
+                        key={index}
+                        className="d-flex align-items-center"
+                        style={{
+                          fontSize: '0.85rem',
+                          color: req.fulfilled ? '#28a745' : '#dc3545',
+                          marginBottom: '0.2rem',
+                        }}
+                      >
+                        <i
+                          className={`me-2 ${req.fulfilled ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}`}
+                          style={{ fontSize: '1rem' }}
+                        ></i>
+                        {req.text}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Form.Group>
+
+              <Form.Group className="mb-4">
+                <Form.Label>Confirmar Contraseña</Form.Label>
+                <InputGroup>
+                  <Form.Control
+                    type={passwordVisible.confirm ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                  <Button
+                    variant="outline-secondary"
+                    type="button"
+                    onClick={() => setPasswordVisible((prev) => ({ ...prev, confirm: !prev.confirm }))}
+                  >
+                    {passwordVisible.confirm ? <BsEyeSlash /> : <BsEye />}
+                  </Button>
+                </InputGroup>
+              </Form.Group>
 
               <div className="d-grid gap-2 mt-4">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={isLoading || !token}
-                  className="py-2"
-                >
-                  {isLoading ? (
+                <Button type="submit" variant="primary" disabled={loading || !token} className="py-2">
+                  {loading ? (
                     <>
-                      <Spinner
-                        as="span"
-                        animation="border"
-                        size="sm"
-                        role="status"
-                        aria-hidden="true"
-                        className="me-2"
-                      />
+                      <Spinner animation="border" size="sm" className="me-2" />
                       Procesando...
                     </>
                   ) : (
-                    'Cambiar Contraseña'
+                    'Restablecer Contraseña'
                   )}
                 </Button>
               </div>
             </Form>
           </Card.Body>
         </Card>
+
+        <div className="mt-4 text-center">
+          <Button
+            variant="outline-primary"
+            type="button"
+            className="px-4 py-2 me-2"
+            onClick={() => navigate('/login-usuario')}
+          >
+            Ir al Login
+          </Button>
+        </div>
       </Container>
-
-      <div className="text-center mt-3">
-        <Button
-          variant="outline-primary"
-          onClick={() => navigate('/login-usuario')}
-          className="btn btn-lg px-4 py-2"
-        >
-          Ir al Login Ahora
-        </Button>
-      </div>
-
-      <Modal
-        show={showSuccess}
-        onHide={() => setShowSuccess(false)}
-        centered
-        backdrop="static"
-        keyboard={false}
-        size="sm"
-      >
-        <Alert variant="success" className="m-0">
-          <div className="text-center p-3">
-            <h5 className="mb-3">¡Contraseña Actualizada!</h5>
-            <p className="small mb-3">
-              Serás redirigido al inicio de sesión en unos segundos...
-            </p>
-          </div>
-        </Alert>
-      </Modal>
     </div>
   );
 };
