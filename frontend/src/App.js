@@ -41,6 +41,9 @@ import DashboardOnlineGames from './pages/dashboard/DashboardOnlineGames';
 import DashboardCashier from './pages/dashboard/DashboardCashier';
 import DashboardRestaurant from './pages/dashboard/DashboardRestaurant';
 
+// Componentes del Dashboard Cliente
+import HistorialJuegos from './pages/dashboard/client/HistorialJuegos';
+
 // Importación del ProtectedRoute
 import ProtectedRoute from './components/common/ProtectedRoute';
 
@@ -78,6 +81,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/* Subrutas del dashboard cliente */}
           <Route
             path="/perfil-cliente"
             element={
@@ -86,6 +90,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route 
+            path="historial-juegos"
+            element={
+              <ProtectedRoute>
+                <HistorialJuegos />
+              </ProtectedRoute>
+            }
+          />
+          {/* Subrutas del perfil del cliente */}
           <Route
             path="/actualizar-datos"
             element={

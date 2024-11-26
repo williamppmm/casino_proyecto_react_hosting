@@ -16,11 +16,17 @@ const Home = () => {
     <Container fluid className="home-page text-center d-flex align-items-center justify-content-center">
       <Row>
         <Col>
-          {/* Sección del logo */}
-          <img src={logo} alt="Casino La Fortuna" className="logo-img mb-4 animate-logo" />
-
           {/* Título */}
           <h1 className="mb-4">¡Bienvenido a Casino La Fortuna!</h1>
+          
+          {/* Logo con animación de rotación */}
+          <div className="logo-container mb-4">
+            <img 
+              src={logo} 
+              alt="Casino La Fortuna" 
+              className="logo-spin"
+            />
+          </div>
 
           {/* Botones interactivos */}
           <div className="mb-4">
@@ -47,7 +53,7 @@ const Home = () => {
           </div>
 
           {/* Sección de promociones */}
-          <h4 className="mb-3">¡No te pierdas nuestras promociones exclusivas!</h4>
+          <h4 className="mb-3">¡Una Experiencia de Juego Inigualable!</h4>
           <Link to="/promociones" className="btn btn-outline-primary btn-lg">
             Ver Promociones
           </Link>
