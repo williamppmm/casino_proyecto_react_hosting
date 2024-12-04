@@ -49,7 +49,8 @@ function NavigationBar() {
             className="d-inline-block align-top"
             alt="Logo Casino La Fortuna"
           />
-          <span style={{ color: '#FFF', fontWeight: 'bold' }}>Casino La Fortuna</span>
+          {/*Opcional: Cambiar el texto del span por el nombre del casino*/}
+          <span style={{ color: '#FFF', fontWeight: 'bold' }}></span> 
         </Navbar.Brand>
 
         <Navbar.Toggle
