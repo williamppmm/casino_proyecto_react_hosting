@@ -1,105 +1,139 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import trebolTexture from '../../assets/images/trebol.png';
+import trebolTexture from '../../assets/logos/trebol.png';
 
-const GoldenCoin = ({ width = 500, height = 500 }) => {
+const GoldenCoin = () => {
   const mountRef = useRef(null);
 
   useEffect(() => {
     const currentMount = mountRef.current;
+    if (!currentMount) return;
 
-    // Configuración inicial
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
+    try {
+      // Crear escena, cámara y renderizador
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(65, 1, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        precision: 'highp',
+      });
 
-    if (currentMount) {
-      currentMount.innerHTML = '';
+      const size = 300;
+      renderer.setSize(size, size);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
       currentMount.appendChild(renderer.domElement);
+
+      // Cargar textura
+      const textureLoader = new THREE.TextureLoader();
+      const normalMap = textureLoader.load(trebolTexture);
+
+      // Material de la moneda
+      const material = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        metalness: 1.0,
+        roughness: 0.15,
+        normalMap: normalMap,
+        normalScale: new THREE.Vector2(1.5, 1.5),
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.05,
+        reflectivity: 1.5,
+        envMapIntensity: 2.5, // Aumentado para más reflectividad
+      });
+
+      // Geometría de la moneda
+      const coinGeometry = new THREE.CylinderGeometry(1.5, 1.5, 0.2, 256);
+      const coin = new THREE.Mesh(coinGeometry, material);
+      coin.rotation.x = Math.PI / 2;
+      coin.castShadow = true;
+      coin.receiveShadow = true;
+
+      const coinGroup = new THREE.Group();
+      coinGroup.add(coin);
+      scene.add(coinGroup);
+
+      // Luces mejoradas
+      const ambientLight = new THREE.AmbientLight(0xffffff, 2.5); // Aumentada la intensidad
+      scene.add(ambientLight);
+
+      const mainLight = new THREE.SpotLight(0x007bff, 3); // Aumentada la intensidad
+      mainLight.position.set(5, 5, 6); // Ajustada la posición
+      mainLight.angle = Math.PI / 3; // Ángulo más amplio
+      mainLight.penumbra = 0.2; // Penumbra reducida para bordes más definidos
+      mainLight.castShadow = true;
+      scene.add(mainLight);
+
+      const fillLight = new THREE.PointLight(0xffffff, 2.0); // Aumentada la intensidad
+      fillLight.position.set(-5, -3, 4); // Ajustada la posición
+      scene.add(fillLight);
+
+      const backLight = new THREE.DirectionalLight(0xffffff, 1.5); // Aumentada la intensidad
+      backLight.position.set(-4, 5, -6); // Ajustada la posición
+      scene.add(backLight);
+
+      // Luz adicional para más brillo
+      const rimLight = new THREE.SpotLight(0xffffff, 2.0);
+      rimLight.position.set(0, 4, -5);
+      rimLight.angle = Math.PI / 4;
+      rimLight.penumbra = 0.3;
+      scene.add(rimLight);
+
+      camera.position.set(0, 0, 3.5);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.enableZoom = false;
+
+      let animationFrameId;
+      const animate = () => {
+        animationFrameId = requestAnimationFrame(animate);
+        coinGroup.rotation.y += 0.002;
+        controls.update();
+        renderer.render(scene, camera);
+      };
+
+      animate();
+
+      const handleResize = () => {
+        const containerWidth = currentMount.clientWidth;
+        const size = Math.min(containerWidth, 300);
+        renderer.setSize(size, size);
+        camera.aspect = 1;
+        camera.updateProjectionMatrix();
+      };
+
+      window.addEventListener('resize', handleResize);
+      handleResize();
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        cancelAnimationFrame(animationFrameId);
+        currentMount.removeChild(renderer.domElement);
+        renderer.dispose();
+        scene.clear();
+        controls.dispose();
+      };
+    } catch (error) {
+      console.error('Error initializing WebGL:', error);
     }
-
-    // Texturas
-    const textureLoader = new THREE.TextureLoader();
-    const normalMap = textureLoader.load(trebolTexture);
-
-    // Material de la moneda
-    const material = new THREE.MeshPhysicalMaterial({
-      color: 0xffd700,
-      metalness: 1.0,
-      roughness: 0.3,
-      normalMap: normalMap,
-      normalScale: new THREE.Vector2(0.5, 0.5),
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.1,
-    });
-
-    // Geometría de la moneda
-    const coinGeometry = new THREE.CylinderGeometry(1, 1, 0.1, 128);
-    const coin = new THREE.Mesh(coinGeometry, material);
-    coin.rotation.x = Math.PI / 2;
-
-    const coinGroup = new THREE.Group();
-    coinGroup.add(coin);
-    scene.add(coinGroup);
-
-    // Iluminación
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9); // Luz ambiental más intensa
-    scene.add(ambientLight);
-
-    const spotLight1 = new THREE.SpotLight(0xffffff, 1.5, 10, Math.PI / 6, 0.3, 2);
-    spotLight1.position.set(3, 3, 3);
-    spotLight1.target = coin;
-    spotLight1.castShadow = true;
-    scene.add(spotLight1);
-
-    const spotLight2 = new THREE.SpotLight(0xffffff, 1.0, 10, Math.PI / 6, 0.3, 2);
-    spotLight2.position.set(-3, 3, -3);
-    spotLight2.target = coin;
-    spotLight2.castShadow = true;
-    scene.add(spotLight2);
-
-    const backLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    backLight.position.set(-3, 2, -2);
-    scene.add(backLight);
-
-    // Configuración inicial de la cámara
-    camera.position.set(0, 1.5, 3);
-
-    // Controles de cámara
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.target.set(0, 0, 0);
-
-    // Animación
-    let animationFrameId;
-    const animate = () => {
-      animationFrameId = requestAnimationFrame(animate);
-      coinGroup.rotation.y += 0.01; // Rotación constante
-      controls.update();
-      renderer.render(scene, camera);
-    };
-
-    animate();
-
-    // Cleanup
-    return () => {
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      renderer.dispose();
-      scene.clear();
-    };
-  }, [width, height]);
+  }, []);
 
   return (
     <div
       ref={mountRef}
       style={{
-        width: `${width}px`,
-        height: `${height}px`,
+        width: '300px',
+        aspectRatio: '1/1',
         margin: '0 auto',
+        background: 'transparent',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     />
   );

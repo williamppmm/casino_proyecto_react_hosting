@@ -1,13 +1,9 @@
-// src/pages/home/Home.js
-
 import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import WhatsAppButton from '../../components/common/WhatsAppButton';
+import GoldenCoin from '../../components/goldencoin/GoldenCoin';
 import './Home.css';
-
-// Importa el logo desde la carpeta assets
-import logo from '../../assets/logos/logo.png';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -18,30 +14,26 @@ const Home = () => {
         <Col>
           {/* Título */}
           <h1 className="mb-4">¡Bienvenido a Casino La Fortuna!</h1>
-          
-          {/* Logo con animación de rotación */}
-          <div className="logo-container mb-4">
-            <img 
-              src={logo} 
-              alt="Casino La Fortuna" 
-              className="logo-spin"
-            />
+
+          {/* Logo giratorio */}
+          <div className="logo-container">
+            <GoldenCoin width={300} height={300} rotationSpeed={0.01} />
           </div>
 
           {/* Botones interactivos */}
           <div className="mb-4">
-            <Button 
-              onClick={() => navigate('/registro-usuario')} 
-              variant="primary" 
-              size="lg" 
+            <Button
+              onClick={() => navigate('/registro-usuario')}
+              variant="primary"
+              size="lg"
               className="mx-2"
             >
               Registrarse
             </Button>
-            <Button 
-              onClick={() => navigate('/login-usuario')} 
-              variant="secondary" 
-              size="lg" 
+            <Button
+              onClick={() => navigate('/login-usuario')}
+              variant="secondary"
+              size="lg"
               className="mx-2"
             >
               Iniciar Sesión
